@@ -1036,6 +1036,9 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
   accent-color: var(--accent);
 }
 
+label.slider-field { pointer-events: none; }
+label.slider-field input[type=range] { pointer-events: all; }
+
 .region-summary {
   display: grid;
   gap: 0.7rem;
@@ -1285,6 +1288,12 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 
 .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.88rem; text-decoration: none; margin-bottom: 0.75rem; padding: 0.35rem 0.6rem; border-radius: 8px; transition: color 140ms ease, background 140ms ease; }
 .back-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
+
+label.candidate-field { pointer-events: none; }
+label.candidate-field input[type=range],
+label.candidate-field input[type=text] { pointer-events: all; }
+label.candidate-demo-field { pointer-events: none; }
+label.candidate-demo-field input[type=range] { pointer-events: all; }
 </style>
 </head>
 <body>
@@ -3780,7 +3789,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     var leanNoise = sampleNoise(rng) * (region.tags.swingy ? 2.7 : 1.55);
     var turnoutNoise = sampleNoise(rng) * (region.tags.swingy ? 2.1 : 1.25);
     var rightLean = baseRightLean
-      - state.controls.statewideSwing
+      - state.controls.statewideSwing * 2
       - region.modifier.localSwing
       - metroShift
       - suburbanShift
@@ -3828,7 +3837,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     var candidateTurnoutPull = weights.reduce(function (sum, item) {
       return sum + item.weight * item.candidate.turnout;
     }, 0);
-    var multiplier = clamp(1 + environment.turnoutDelta / 100 + candidateTurnoutPull / 500, 0.72, 1.32);
+    var multiplier = clamp(1 + environment.turnoutDelta / 100 + candidateTurnoutPull / 500, 0.58, 1.48);
     var totalVotes = Math.max(1000, Math.round(region.baseTotal * multiplier));
 
     return {
@@ -3975,7 +3984,6 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 
   function renderAll() {
     renderModeTabs();
-    renderCandidatePanel();
     renderPollingPanel();
     renderMap();
     renderScoreboard();

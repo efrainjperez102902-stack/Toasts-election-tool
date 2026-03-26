@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -170,7 +170,13 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 /* ── back link ── */
 .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.88rem; text-decoration: none; margin-bottom: 0.75rem; padding: 0.35rem 0.6rem; border-radius: 8px; transition: color 140ms ease, background 140ms ease; }
 .back-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
-  </style>
+  
+label.candidate-field { pointer-events: none; }
+label.candidate-field input[type=range],
+label.candidate-field input[type=text] { pointer-events: all; }
+label.candidate-demo-field { pointer-events: none; }
+label.candidate-demo-field input[type=range] { pointer-events: all; }
+</style>
 </head>
 <body>
 <div class="shell">
@@ -277,7 +283,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
               <span class="slider-row__label">Turnout</span>
               <span class="slider-row__val" id="turnout-value">0.0</span>
             </div>
-            <input type="range" id="turnout" min="-8" max="8" step="0.5" value="0">
+            <input type="range" id="turnout" min="-15" max="15" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
@@ -537,9 +543,9 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 
   // ── init ──────────────────────────────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", function() {
-    renderCandidatePanel();
-    renderScoreGrid();
-    renderVoteStrip();
+    renderCandidatePanel();\r
+    renderScoreGrid();\r
+    renderVoteStrip();\r
     renderBoostButtons();
     bindControls();
     loadMap();
@@ -567,6 +573,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
     document.getElementById("candidate-list").addEventListener("click", handleCandListClick);
     document.getElementById("candidate-list").addEventListener("input", handleCandListInput);
+    document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
   }
 
   function switchMode(mode) {
@@ -579,9 +586,9 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     document.getElementById("tab-topfour").setAttribute("aria-selected", mode === "topFour" ? "true" : "false");
     // Reset region overrides to match new candidate set
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
-    renderCandidatePanel();
-    renderScoreGrid();
-    renderVoteStrip();
+    renderCandidatePanel();\r
+    renderScoreGrid();\r
+    renderVoteStrip();\r
     renderBoostButtons();
     document.getElementById("region-panel").classList.add("is-hidden");
     if (state.regions.length) simulateAndRender(false);
@@ -627,9 +634,9 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     state.nextCandId[state.mode]++;
     state.candidates[state.mode].push(nc);
     state.regions.forEach(function(r) { r.override[nc.id] = 0; });
-    renderCandidatePanel();
-    renderScoreGrid();
-    renderVoteStrip();
+    renderCandidatePanel();\r
+    renderScoreGrid();\r
+    renderVoteStrip();\r
     renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
@@ -639,9 +646,9 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     state.candidates.topFour = makeDefaultTopFourCandidates();
     state.nextCandId = { general: 3, topFour: 5 };
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
-    renderCandidatePanel();
-    renderScoreGrid();
-    renderVoteStrip();
+    renderCandidatePanel();\r
+    renderScoreGrid();\r
+    renderVoteStrip();\r
     renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
@@ -654,9 +661,9 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     if (cands.length <= 1) return;
     state.candidates[state.mode] = cands.filter(function(c){ return c.id !== id; });
     state.regions.forEach(function(r) { delete r.override[id]; if (r.result) delete r.result[id]; });
-    renderCandidatePanel();
-    renderScoreGrid();
-    renderVoteStrip();
+    renderCandidatePanel();\r
+    renderScoreGrid();\r
+    renderVoteStrip();\r
     renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
@@ -703,7 +710,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     else if (demoKey)   c.demo[demoKey]     = Number(el.value);
     else if (ageKey)    c.age[ageKey]       = Number(el.value);
     else if (regionKey) c.region[regionKey] = Number(el.value);
-    renderCandidatePanel();
+    if (el.type === "range") { var _row = el.previousElementSibling; if (_row) { var _vs = _row.querySelector("span:last-child"); if (_vs) _vs.textContent = (Number(el.value) >= 0 ? "+" : "") + Number(el.value); } }
     renderScoreGrid();
     renderVoteStrip();
     renderBoostButtons();
@@ -994,7 +1001,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 
       // Borough position on ideological axis (−100=hard D, +100=hard R)
       // Positive swing shifts borough left (more D)
-      var boroughPos = (lean - 50) * 2 - regSwing * 1.8;
+      var boroughPos = (lean - 50) * 2 - regSwing * 2.5;
 
       function noise() { return (rand() * 2 - 1) * c.volatility; }
 
@@ -1024,7 +1031,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
       // Turnout pull: weighted-average of candidates' turnout values by their share
       // Scales how much this borough contributes to the statewide tally
       var turnoutPull = cands.reduce(function(s, cd){ return s + (raw[cd.id] / total) * (cd.turnout || 0); }, 0);
-      r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 40);
+      r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
     });
 
     renderMap();

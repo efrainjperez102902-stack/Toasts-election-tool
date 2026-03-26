@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -165,7 +165,13 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 /* ── back link ── */
 .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.88rem; text-decoration: none; margin-bottom: 0.75rem; padding: 0.35rem 0.6rem; border-radius: 8px; transition: color 140ms ease, background 140ms ease; }
 .back-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
-  </style>
+  
+label.candidate-field { pointer-events: none; }
+label.candidate-field input[type=range],
+label.candidate-field input[type=text] { pointer-events: all; }
+label.candidate-demo-field { pointer-events: none; }
+label.candidate-demo-field input[type=range] { pointer-events: all; }
+</style>
 </head>
 <body>
 <div class="shell">
@@ -268,7 +274,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
               <span class="slider-row__label">Turnout Multiplier</span>
               <span class="slider-row__val" id="turnout-value">0.0</span>
             </div>
-            <input type="range" id="turnout" min="-8" max="8" step="0.5" value="0">
+            <input type="range" id="turnout" min="-15" max="15" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
@@ -656,6 +662,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 
     document.getElementById("candidate-list").addEventListener("click",  handleCandListClick);
     document.getElementById("candidate-list").addEventListener("input",  handleCandListInput);
+    document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
     document.getElementById("add-candidate").addEventListener("click",   addCandidate);
     document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
 
@@ -760,7 +767,8 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
     else if (demoKey)   c.demo[demoKey]     = Number(el.value);
     else if (ageKey)    c.age[ageKey]       = Number(el.value);
     else if (regionKey) c.region[regionKey] = Number(el.value);
-    renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    if (el.type === "range") { var _row = el.previousElementSibling; if (_row) { var _vs = _row.querySelector("span:last-child"); if (_vs) _vs.textContent = (Number(el.value) >= 0 ? "+" : "") + Number(el.value); } }
+    renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -1060,7 +1068,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
       if (reg === "eastern")    regSwing += c.eastern;
       if (reg === "northeast")  regSwing += c.eastern * 0.4;
 
-      var countyPos = (lean - 50) * 2 + regSwing * 1.8;
+      var countyPos = (lean - 50) * 2 + regSwing * 2.5;
 
       function noise() { return (rand() * 2 - 1) * c.volatility; }
 
@@ -1085,7 +1093,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
       r.result = result;
 
       var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
-      r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 40);
+      r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
       r.countyVotes = Math.round(r.county.pop * TURNOUT_RATE[state.mode] * r.turnoutMult);
     });
 

@@ -1,0 +1,14 @@
+[11064:9516:0327/022026.690:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[11064:9516:0327/022026.693:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[11064:9516:0327/022026.765:WARNING:chrome\browser\extensions\external_registry_loader_win.cc:283] Error observing HKLM: 5
+[11064:19668:0327/022026.852:INFO:chrome\common\importer\edge_chrome_importer_utils_win.cc:34] Google chrome user data path not found.
+[11064:9516:0327/022026.920:WARNING:components\signin\internal\identity_manager\account_fetcher_service.cc:225] Edge does not support fetching account capabilities
+[11064:9516:0327/022026.921:WARNING:components\signin\internal\identity_manager\account_fetcher_service.cc:189] Should not execute: Tests depending on this function may fail
+[11064:9516:0327/022026.927:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js.", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[11064:9516:0327/022026.927:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js.", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[11064:9516:0327/022026.927:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js.", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[11064:9516:0327/022026.927:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js.", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[11064:9516:0327/022026.927:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js.", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[11064:9516:0327/022026.927:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js.", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[11064:9516:0327/022026.927:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js.", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[11064:9516:0327/022026.927:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js.", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)

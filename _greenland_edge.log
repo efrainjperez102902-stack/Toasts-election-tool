@@ -1,0 +1,45 @@
+﻿msedge.exe : [15752:16884:0327/021311.410:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] 
+Scheduling init
+At line:2 char:1
++ & 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe' --he ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([15752:16884:03...Scheduling init:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[15752:16884:0327/021311.410:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[15752:16884:0327/021311.477:WARNING:chrome\browser\extensions\external_registry_loader_win.cc:283] Error observing 
+HKLM: 5
+[15752:16212:0327/021311.560:INFO:chrome\common\importer\edge_chrome_importer_utils_win.cc:34] Google chrome user data 
+path not found.
+[15752:16884:0327/021311.617:WARNING:components\signin\internal\identity_manager\account_fetcher_service.cc:225] Edge 
+does not support fetching account capabilities
+[15752:16884:0327/021311.617:WARNING:components\signin\internal\identity_manager\account_fetcher_service.cc:189] 
+Should not execute: Tests depending on this function may fail
+[15752:16884:0327/021311.623:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for 
+https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js.", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[15752:16884:0327/021311.623:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for 
+https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js.", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[15752:16884:0327/021311.623:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for 
+https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js.", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[15752:16884:0327/021311.623:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for 
+https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js.", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[15752:16884:0327/021311.623:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for 
+https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js.", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[15752:16884:0327/021311.623:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for 
+https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js.", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[15752:16884:0327/021311.623:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for 
+https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js.", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[15752:16884:0327/021311.623:INFO:CONSOLE:0] "Tracking Prevention blocked access to storage for 
+https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js.", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (0)
+[15752:16884:0327/021311.765:INFO:CONSOLE:447] "Uncaught SyntaxError: Unexpected end of input", source: 
+file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland-sim.js (447)
+[15752:16884:0327/021311.767:INFO:CONSOLE:1075] "Uncaught TypeError: Cannot set properties of null (setting 
+'innerHTML')", source: file:///C:/Users/Efrain.Wet_Toaster.002/Desktop/New%20folder%20(2)/greenland.html (1075)

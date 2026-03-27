@@ -368,6 +368,7 @@
 
   <!-- local TopoJSON data (avoids CORS when opened from file://) -->
   <script src="us-states-data.js"></script>
+  <script src="greenland-data.js"></script>
   <!-- D3 + TopoJSON from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
@@ -606,6 +607,41 @@
           .on("click", onStateClick);
       }
 
+      // ── Greenland inset ──────────────────────────────────────────────────
+      var greenlandGeo = window.GREENLAND_GEOJSON;
+      var greenlandGroup = null;
+      if (greenlandGeo) {
+        var greenlandWidth = 92;
+        var greenlandHeight = 138;
+        var greenlandX = 736;
+        var greenlandY = 12;
+
+        var greenlandProjection = d3.geoMercator()
+          .fitSize([greenlandWidth, greenlandHeight], greenlandGeo);
+        var greenlandPath = d3.geoPath().projection(greenlandProjection);
+
+        greenlandGroup = svg.append("g")
+          .attr("transform", "translate(" + greenlandX + "," + greenlandY + ")")
+          .attr("pointer-events", "all");
+
+        greenlandGroup.append("path")
+          .datum(greenlandGeo.features[0])
+          .attr("d", greenlandPath)
+          .attr("fill", "#dcecf3")
+          .attr("stroke", "#000")
+          .attr("stroke-width", 1.1)
+          .attr("stroke-linejoin", "round");
+
+        greenlandGroup.append("text")
+          .attr("x", greenlandWidth / 2)
+          .attr("y", greenlandHeight + 12)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "9px")
+          .attr("fill", "rgba(35,26,20,0.55)")
+          .attr("font-family", "Bahnschrift, Trebuchet MS, sans-serif")
+          .text("GREENLAND");
+      }
+
       // ── tooltip ───────────────────────────────────────────────────────────
       var tooltip   = document.getElementById("tooltip");
       var ttName    = tooltip.querySelector(".tt-name");
@@ -644,6 +680,27 @@
         if (sim) window.location.href = sim;
       }
 
+      if (greenlandGroup) {
+        greenlandGroup
+          .style("cursor", "pointer")
+          .on("mouseenter", function (event) {
+            ttName.textContent = "Greenland";
+            ttStatus.textContent = "Click to open simulator";
+            ttStatus.className = "tt-status ready";
+            tooltip.classList.add("visible");
+            moveTooltip(event);
+          })
+          .on("mousemove", function (event) {
+            moveTooltip(event);
+          })
+          .on("mouseleave", function () {
+            tooltip.classList.remove("visible");
+          })
+          .on("click", function () {
+            window.location.href = "greenland.html";
+          });
+      }
+
       // ── states grid ───────────────────────────────────────────────────────
       var grid = document.getElementById("states-grid");
 
@@ -669,6 +726,14 @@
 
         grid.appendChild(el);
       });
+
+      var greenlandCard = document.createElement("a");
+      greenlandCard.className = "state-card ready";
+      greenlandCard.href = "greenland.html";
+      greenlandCard.innerHTML =
+        '<span class="state-card__name">Greenland</span>' +
+        '<span class="state-card__badge">Ready</span>';
+      grid.appendChild(greenlandCard);
 
     }());
   </script>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>La Isla del Encanto Simulator</title>
+  <title>Kalaallit Nunaat Simulator</title>
   <style>
 :root {
   --bg: #efe7da;
@@ -535,12 +535,12 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
   <!-- hero -->
   <div class="hero panel">
     <div class="hero__copy">
-      <p class="eyebrow">Puerto Rico &middot; Gubernatorial</p>
-      <h1>La Isla del Encanto Simulator</h1>
+      <p class="eyebrow">Greenland &middot; Municipal Party Map</p>
+      <h1>Kalaallit Nunaat Simulator</h1>
       <p class="hero__lede">
-        Run alternate-election scenarios across Puerto Rico's 78 municipalities.
-        Tune party ideology, funding, turnout pull, buzz, age coalitions, and regional strength,
-        then stress test the islandwide popular vote municipality by municipality.
+        Build alternate coalition maps across Greenland's five municipalities.
+        Tune real-world party ideology, funding, turnout pull, buzz, party strength, age coalitions,
+        and regional strength, then test how the islandwide popular vote shifts municipality by municipality.
       </p>
     </div>
     <div class="hero__actions">
@@ -548,12 +548,12 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
         <span>Scenario Preset</span>
         <select id="preset-select">
           <option value="">-- choose preset --</option>
-          <option value="baseline">Island Baseline</option>
-          <option value="popular-heartland">Popular Heartland</option>
-          <option value="estadista-lock">Estadista Lock</option>
-          <option value="independence-wave">Independence Wave</option>
-          <option value="metro-reform">Metro Reform</option>
-          <option value="conservative-surge">Conservative Surge</option>
+          <option value="baseline">2025 Local Baseline</option>
+          <option value="demokraatit-surge">Demokraatit Surge</option>
+          <option value="ia-comeback">IA Comeback</option>
+          <option value="siumut-machine">Siumut Machine</option>
+          <option value="naleraq-breakthrough">Naleraq Breakthrough</option>
+          <option value="quiet-cycle">Quiet Cycle</option>
         </select>
       </div>
       <div class="hero__buttons">
@@ -570,7 +570,7 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
       <div class="panel__header">
         <div>
           <p class="panel__eyebrow">Municipality Map</p>
-          <h2>Puerto Rico</h2>
+          <h2>Greenland</h2>
         </div>
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
       </div>
@@ -591,9 +591,9 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
 
       <div class="map-footer">
         <p class="map-footnote">
-          Baseline municipal party brands are anchored to Puerto Rico's recent multi-party map,
-          and municipality population weights are modeled from Wikipedia's municipalities table.
-          Click any municipality to apply local overrides.
+          Baseline municipality results are anchored to the April 1, 2025 Greenlandic local elections.
+          The map uses Greenland's current municipalities, with the national park shown as inactive land.
+          The Sermersooq independent list is excluded so the simulator stays party-only.
         </p>
       </div>
     </div>
@@ -612,6 +612,7 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
         </div>
         <div id="pie-container"></div>
         <div class="score-grid" id="score-grid"></div>
+        <div id="winner-banner" class="winner-banner">Waiting for projection.</div>
       </div>
 
       <!-- controls -->
@@ -622,90 +623,66 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
         <div class="slider-group">
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Statewide Swing</span>
-              <span class="slider-row__val" id="statewideSwing-value">0.0</span>
+              <span class="slider-row__label">Island Mood</span>
+              <span class="slider-row__val" id="islandMood-value">+0</span>
             </div>
-            <input type="range" id="statewideSwing" min="-16" max="16" step="0.5" value="0">
+            <input type="range" id="islandMood" min="-20" max="20" step="1" value="0">
           </div>
 
           <div class="slider-row">
             <div class="slider-row__top">
               <span class="slider-row__label">Turnout Pulse</span>
-              <span class="slider-row__val" id="turnoutPulse-value">0.0</span>
+              <span class="slider-row__val" id="turnoutPulse-value">+0</span>
             </div>
-            <input type="range" id="turnoutPulse" min="-18" max="18" step="0.5" value="0">
+            <input type="range" id="turnoutPulse" min="-20" max="20" step="1" value="0">
           </div>
 
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Metro San Juan Momentum</span>
-              <span class="slider-row__val" id="metroMomentum-value">0.0</span>
+              <span class="slider-row__label">Far North Current</span>
+              <span class="slider-row__val" id="northCurrent-value">+0</span>
             </div>
-            <input type="range" id="metroMomentum" min="-12" max="12" step="0.5" value="0">
+            <input type="range" id="northCurrent" min="-20" max="20" step="1" value="0">
           </div>
 
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">North Coast Momentum</span>
-              <span class="slider-row__val" id="northMomentum-value">0.0</span>
+              <span class="slider-row__label">Disko Bay Current</span>
+              <span class="slider-row__val" id="diskoCurrent-value">+0</span>
             </div>
-            <input type="range" id="northMomentum" min="-12" max="12" step="0.5" value="0">
+            <input type="range" id="diskoCurrent" min="-20" max="20" step="1" value="0">
           </div>
 
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">West Momentum</span>
-              <span class="slider-row__val" id="westMomentum-value">0.0</span>
+              <span class="slider-row__label">Central West Current</span>
+              <span class="slider-row__val" id="centralCurrent-value">+0</span>
             </div>
-            <input type="range" id="westMomentum" min="-12" max="12" step="0.5" value="0">
+            <input type="range" id="centralCurrent" min="-20" max="20" step="1" value="0">
           </div>
 
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Central Valley Momentum</span>
-              <span class="slider-row__val" id="centralMomentum-value">0.0</span>
+              <span class="slider-row__label">Capital / East Current</span>
+              <span class="slider-row__val" id="capitalCurrent-value">+0</span>
             </div>
-            <input type="range" id="centralMomentum" min="-12" max="12" step="0.5" value="0">
+            <input type="range" id="capitalCurrent" min="-20" max="20" step="1" value="0">
           </div>
 
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Mountain Interior Momentum</span>
-              <span class="slider-row__val" id="mountainMomentum-value">0.0</span>
+              <span class="slider-row__label">South Current</span>
+              <span class="slider-row__val" id="southCurrent-value">+0</span>
             </div>
-            <input type="range" id="mountainMomentum" min="-12" max="12" step="0.5" value="0">
-          </div>
-
-          <div class="slider-row">
-            <div class="slider-row__top">
-              <span class="slider-row__label">South Coast Momentum</span>
-              <span class="slider-row__val" id="southMomentum-value">0.0</span>
-            </div>
-            <input type="range" id="southMomentum" min="-12" max="12" step="0.5" value="0">
-          </div>
-
-          <div class="slider-row">
-            <div class="slider-row__top">
-              <span class="slider-row__label">East Momentum</span>
-              <span class="slider-row__val" id="eastMomentum-value">0.0</span>
-            </div>
-            <input type="range" id="eastMomentum" min="-12" max="12" step="0.5" value="0">
-          </div>
-
-          <div class="slider-row">
-            <div class="slider-row__top">
-              <span class="slider-row__label">Island Municipalities Momentum</span>
-              <span class="slider-row__val" id="islandMomentum-value">0.0</span>
-            </div>
-            <input type="range" id="islandMomentum" min="-12" max="12" step="0.5" value="0">
+            <input type="range" id="southCurrent" min="-20" max="20" step="1" value="0">
           </div>
 
           <div class="slider-row">
             <div class="slider-row__top">
               <span class="slider-row__label">Volatility</span>
-              <span class="slider-row__val" id="volatility-value">3.0</span>
+              <span class="slider-row__val" id="volatility-value">2.0</span>
             </div>
-            <input type="range" id="volatility" min="0" max="12" step="0.5" value="3">
+            <input type="range" id="volatility" min="0" max="10" step="0.5" value="2">
           </div>
         </div>
       </div>
@@ -713,8 +690,8 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
       <!-- party management -->
       <div class="party-panel panel">
         <p class="panel__eyebrow">Party Field</p>
-        <h2 style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">Puerto Rico Parties</h2>
-        <p style="margin:0 0 0.5rem;color:var(--muted);font-size:0.82rem;">Tune ideology, organization, funding, turnout, age support, and regional strength, or add a custom party.</p>
+        <h2 style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">Greenland Parties</h2>
+        <p style="margin:0 0 0.5rem;color:var(--muted);font-size:0.82rem;">Tune ideology, party strength, funding, turnout pull, buzz, age support, and regional strength, or add a custom party.</p>
         <div class="party-list" id="party-list"></div>
         <div class="party-actions">
           <button id="add-party" class="button button--accent">+ Add Party</button>
@@ -743,9 +720,9 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-<script src="puerto-rico-inline.js"></script>
-<script src="puerto-rico-data.js"></script>
-<script src="puerto-rico-sim.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="greenland-municipalities.js"></script>
+<script src="greenland-sim.js"></script>
 <script>
 if (!window.PR_REVAMP_ACTIVE) (function () {
   "use strict";

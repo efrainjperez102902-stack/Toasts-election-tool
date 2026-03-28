@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -72,9 +72,9 @@ button, input, select { font: inherit; }
 .panel__header h2 { margin: 0; font-size: 1.35rem; }
 .panel__note { margin: 0; max-width: 28ch; text-align: right; color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
 
-.map-stage { position: relative; min-height: 420px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(20,50,100,0.12); background: linear-gradient(180deg, rgba(210,225,245,0.9), rgba(198,215,238,0.9)); }
-.map-shell { min-height: 420px; display: flex; align-items: stretch; justify-content: center; }
-.map-shell svg { width: 100%; height: auto; display: block; }
+.map-stage { position: relative; height: clamp(540px, calc(100vh - 190px), 760px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(20,50,100,0.12); background: linear-gradient(180deg, rgba(210,225,245,0.9), rgba(198,215,238,0.9)); }
+.map-shell { height: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0.3rem; }
+.map-shell svg { width: auto; max-width: 100%; max-height: 100%; height: auto; display: block; }
 .map-shell .county-active { transition: fill 220ms ease; cursor: pointer; stroke: rgba(0,0,0,0.5); stroke-width: 1.0px; }
 .map-shell .county-active:hover { opacity: 0.82; }
 .map-shell .county-active.selected { stroke: var(--ink); stroke-width: 1.8px; }
@@ -182,9 +182,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <p class="eyebrow">Vermont &middot; Presidential / Statewide</p>
       <h1>Green Mountain State Simulator</h1>
       <p class="hero__lede">
-        Run alternate-election scenarios across all 14 Vermont counties.
-        Chittenden anchors the Democratic base, while the rural Northeast Kingdom
-        and central counties provide competitive battlegrounds.
+        Run alternate-election scenarios across all 255 Vermont municipalities.
+        Burlington, South Burlington, and Montpelier anchor the Democratic base,
+        while the Northeast Kingdom, Champlain towns, and southern hill country
+        shape the statewide swing map.
       </p>
       <div class="mode-tabs" role="tablist">
         <button id="tab-general"  class="mode-tab mode-tab--general is-active" role="tab">General Election</button>
@@ -218,7 +219,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     <div class="map-panel panel">
       <div class="panel__header">
         <div>
-          <p class="panel__eyebrow">County Map</p>
+          <p class="panel__eyebrow">Municipality Map</p>
           <h2>Vermont</h2>
         </div>
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
@@ -235,7 +236,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
       <div class="map-footer">
         <p class="map-footnote">
-          Baseline: 2024 Vermont presidential results. All 14 counties interactive.
+          Baseline: official 2024 Vermont presidential results by municipality, with
+          municipality population and ACS demographic profiles layered into the model.
+          All 255 municipalities are interactive.
         </p>
       </div>
     </div>
@@ -277,17 +280,52 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Burlington / Chittenden Co.</span>
+              <span class="slider-row__label">Chittenden Metro</span>
               <span class="slider-row__val" id="burlington-value">0.0</span>
             </div>
             <input type="range" id="burlington" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Northeast VT</span>
+              <span class="slider-row__label">Champlain Valley</span>
+              <span class="slider-row__val" id="champlain-value">0.0</span>
+            </div>
+            <input type="range" id="champlain" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Central Vermont</span>
+              <span class="slider-row__val" id="central-value">0.0</span>
+            </div>
+            <input type="range" id="central" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Northeast Kingdom</span>
               <span class="slider-row__val" id="northeast-value">0.0</span>
             </div>
             <input type="range" id="northeast" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Upper Valley / I-91</span>
+              <span class="slider-row__val" id="uppervalley-value">0.0</span>
+            </div>
+            <input type="range" id="uppervalley" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Southern Vermont</span>
+              <span class="slider-row__val" id="south-value">0.0</span>
+            </div>
+            <input type="range" id="south" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Rutland / Southwest</span>
+              <span class="slider-row__val" id="rutland-value">0.0</span>
+            </div>
+            <input type="range" id="rutland" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
@@ -311,11 +349,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         </div>
       </div>
 
-      <!-- selected county -->
+      <!-- selected municipality -->
       <div class="region-panel panel is-hidden" id="region-panel">
-        <p class="panel__eyebrow">Selected County</p>
+        <p class="panel__eyebrow">Selected Municipality</p>
         <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">—</h2>
-        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a county on the map.</p>
+        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a municipality on the map.</p>
         <div class="region-actions" id="region-actions"></div>
       </div>
 
@@ -331,7 +369,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="vermont-municipality-data.js"></script>
+<script src="vermont-municipal-svg.js"></script>
 <script>
 (function () {
   "use strict";
@@ -373,54 +412,116 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   function ideologyLabel(v) {
-    if (v <= -65) return "Progressive";
-    if (v <= -35) return "Progressive";
-    if (v <= -10) return "Liberal";
-    if (v <=  10) return "Centrist";
-    if (v <=  35) return "Moderate R";
-    if (v <=  65) return "Conservative";
-    return "Far Right";
+    if (v <= -85) return "Communist";
+    if (v <= -65) return "Socialist";
+    if (v <= -45) return "Progressive";
+    if (v <= -25) return "Liberal";
+    if (v <=  -8) return "Establishment D";
+    if (v <    8) return "Centrist";
+    if (v <   25) return "Establishment R";
+    if (v <   45) return "Neocon";
+    if (v <   65) return "Conservative";
+    if (v <   85) return "Nationalist";
+    return "Fascist";
   }
 
-  // ── county data ───────────────────────────────────────────────────────────
-  // lean = R% of 2-party vote (2024 presidential)
-  var COUNTIES = [
-    { fips:"50001", name:"Addison",    region:"central",   lean:37, pop:37363,  demo:{white:94,black:1,hisp:2,asian:1,other:2}, age:{y1829:16,y3044:22,y4564:33,y65p:22} },
-    { fips:"50003", name:"Bennington", region:"southeast", lean:36, pop:37347,  demo:{white:93,black:1,hisp:2,asian:1,other:3}, age:{y1829:14,y3044:21,y4564:33,y65p:25} },
-    { fips:"50005", name:"Caledonia",  region:"northeast", lean:49, pop:30233,  demo:{white:95,black:1,hisp:1,asian:1,other:2}, age:{y1829:14,y3044:22,y4564:33,y65p:25} },
-    { fips:"50007", name:"Chittenden", region:"burlington",lean:22, pop:168323, demo:{white:85,black:4,hisp:4,asian:4,other:3}, age:{y1829:22,y3044:26,y4564:29,y65p:17} },
-    { fips:"50009", name:"Essex",      region:"northeast", lean:62, pop:6265,   demo:{white:97,black:0,hisp:1,asian:0,other:2}, age:{y1829:13,y3044:21,y4564:36,y65p:25} },
-    { fips:"50011", name:"Franklin",   region:"northeast", lean:47, pop:49402,  demo:{white:95,black:1,hisp:1,asian:1,other:2}, age:{y1829:16,y3044:23,y4564:32,y65p:22} },
-    { fips:"50013", name:"Grand Isle", region:"central",   lean:45, pop:7293,   demo:{white:96,black:0,hisp:1,asian:1,other:2}, age:{y1829:13,y3044:22,y4564:35,y65p:24} },
-    { fips:"50015", name:"Lamoille",   region:"central",   lean:33, pop:25945,  demo:{white:94,black:1,hisp:2,asian:1,other:2}, age:{y1829:16,y3044:24,y4564:34,y65p:21} },
-    { fips:"50017", name:"Orange",     region:"central",   lean:43, pop:28892,  demo:{white:96,black:0,hisp:1,asian:1,other:2}, age:{y1829:14,y3044:22,y4564:35,y65p:24} },
-    { fips:"50019", name:"Orleans",    region:"northeast", lean:52, pop:27231,  demo:{white:96,black:0,hisp:1,asian:1,other:2}, age:{y1829:14,y3044:21,y4564:34,y65p:26} },
-    { fips:"50021", name:"Rutland",    region:"northeast", lean:44, pop:59273,  demo:{white:95,black:1,hisp:2,asian:1,other:1}, age:{y1829:14,y3044:21,y4564:33,y65p:26} },
-    { fips:"50023", name:"Washington", region:"central",   lean:31, pop:58477,  demo:{white:92,black:2,hisp:2,asian:2,other:2}, age:{y1829:16,y3044:24,y4564:33,y65p:22} },
-    { fips:"50025", name:"Windham",    region:"southeast", lean:31, pop:44513,  demo:{white:93,black:1,hisp:2,asian:1,other:3}, age:{y1829:14,y3044:22,y4564:33,y65p:25} },
-    { fips:"50027", name:"Windsor",    region:"southeast", lean:33, pop:56670,  demo:{white:94,black:1,hisp:2,asian:1,other:2}, age:{y1829:14,y3044:22,y4564:33,y65p:25} },
-  ];
+  // ── municipality data ─────────────────────────────────────────────────────
+  var COUNTIES = Array.isArray(window.VERMONT_MUNICIPALITIES) ? window.VERMONT_MUNICIPALITIES.slice() : [];
+  var MUNICIPALITY_BY_SVG_ID = {};
 
-  // De-duplicate by fips
   (function() {
     var seen = {};
     COUNTIES = COUNTIES.filter(function(c) {
-      if (seen[c.fips]) return false;
-      seen[c.fips] = true;
+      if (seen[c.svgId]) return false;
+      seen[c.svgId] = true;
+      MUNICIPALITY_BY_SVG_ID[c.svgId] = c;
       return true;
     });
   })();
 
   var TURNOUT_RATE = { general: 0.67, repPrimary: 0.15, demPrimary: 0.22 };
+  var REGION_META = [
+    { key:"burlington",  label:"Chittenden Metro" },
+    { key:"champlain",   label:"Champlain Valley" },
+    { key:"central",     label:"Central Vermont" },
+    { key:"northeast",   label:"Northeast Kingdom" },
+    { key:"uppervalley", label:"Upper Valley / I-91" },
+    { key:"south",       label:"Southern Vermont" },
+    { key:"rutland",     label:"Rutland / Southwest" }
+  ];
+  var REGION_KEYS = REGION_META.map(function(item) { return item.key; });
+  var REGION_LABELS = REGION_META.reduce(function(map, item) {
+    map[item.key] = item.label;
+    return map;
+  }, {});
+
+  function emptyRegionStrength() {
+    var out = {};
+    REGION_KEYS.forEach(function(key) { out[key] = 0; });
+    return out;
+  }
+
+  function regionStrength(overrides) {
+    var out = emptyRegionStrength();
+    if (overrides) Object.keys(overrides).forEach(function(key) {
+      if (out.hasOwnProperty(key)) out[key] = overrides[key];
+    });
+    return out;
+  }
+
+  function municipalityRegionBlend(muni) {
+    var county = (((muni || {}).county) || "").toLowerCase();
+    var blend = emptyRegionStrength();
+    switch (county) {
+      case "chittenden":
+        blend.burlington = 0.78; blend.champlain = 0.17; blend.central = 0.05; break;
+      case "grand isle":
+        blend.champlain = 0.72; blend.burlington = 0.18; blend.central = 0.10; break;
+      case "addison":
+        blend.champlain = 0.46; blend.central = 0.24; blend.rutland = 0.18; blend.uppervalley = 0.12; break;
+      case "franklin":
+        blend.champlain = 0.36; blend.northeast = 0.34; blend.burlington = 0.18; blend.central = 0.12; break;
+      case "lamoille":
+        blend.central = 0.42; blend.northeast = 0.28; blend.champlain = 0.16; blend.burlington = 0.14; break;
+      case "washington":
+        blend.central = 0.68; blend.uppervalley = 0.15; blend.northeast = 0.10; blend.burlington = 0.07; break;
+      case "orange":
+        blend.uppervalley = 0.44; blend.central = 0.34; blend.northeast = 0.22; break;
+      case "windsor":
+        blend.uppervalley = 0.58; blend.south = 0.25; blend.central = 0.17; break;
+      case "windham":
+        blend.south = 0.68; blend.uppervalley = 0.20; blend.central = 0.12; break;
+      case "bennington":
+        blend.south = 0.58; blend.rutland = 0.24; blend.uppervalley = 0.18; break;
+      case "rutland":
+        blend.rutland = 0.64; blend.south = 0.18; blend.central = 0.11; blend.champlain = 0.07; break;
+      case "caledonia":
+        blend.northeast = 0.58; blend.uppervalley = 0.24; blend.central = 0.18; break;
+      case "orleans":
+        blend.northeast = 0.80; blend.central = 0.12; blend.champlain = 0.08; break;
+      case "essex":
+        blend.northeast = 0.84; blend.uppervalley = 0.16; break;
+      default:
+        blend.central = 1;
+        break;
+    }
+    return blend;
+  }
+
+  function blendedRegionSignal(source, mix) {
+    return REGION_KEYS.reduce(function(sum, key) {
+      return sum + (source && source[key] || 0) * (mix && mix[key] || 0);
+    }, 0);
+  }
 
   // ── presets ───────────────────────────────────────────────────────────────
   var PRESETS = {
-    "baseline-2024":  { label:"2024 Baseline",     controls:{ swing:0,  burlington:0,   northeast:0,  volatility:3.5 } },
-    "blue-surge":     { label:"Urban Surge",        controls:{ swing:-6, burlington:-8,  northeast:0,  volatility:1.0 } },
-    "red-wave":       { label:"Republican Surge",   controls:{ swing:8,  burlington:4,   northeast:6,  volatility:1.0 } },
-    "burlington-lock":{ label:"Burlington Lock",    controls:{ swing:-2, burlington:-10, northeast:0,  volatility:0.8 } },
-    "rural-revolt":   { label:"Rural Revolt",       controls:{ swing:4,  burlington:0,   northeast:8,  volatility:1.0 } },
-    "competitive-vt": { label:"Competitive VT",     controls:{ swing:10, burlington:6,   northeast:8,  volatility:2.0 } },
+    "baseline-2024":  { label:"2024 Baseline",   controls:{ swing:0,  turnout:0, burlington:0,  champlain:0,  central:0,  northeast:0, uppervalley:0, south:0, rutland:0, volatility:3.5 } },
+    "blue-surge":     { label:"Urban Surge",      controls:{ swing:-6, turnout:2, burlington:-8, champlain:-4, central:-1, northeast:0, uppervalley:-3, south:-2, rutland:-1, volatility:1.0 } },
+    "red-wave":       { label:"Republican Surge", controls:{ swing:8,  turnout:2, burlington:2,  champlain:3,  central:5,  northeast:7, uppervalley:4,  south:6,  rutland:7,  volatility:1.0 } },
+    "burlington-lock":{ label:"Burlington Lock",  controls:{ swing:-2, turnout:0, burlington:-10,champlain:-5, central:-2, northeast:0, uppervalley:-3, south:-1, rutland:0,  volatility:0.8 } },
+    "rural-revolt":   { label:"Rural Revolt",     controls:{ swing:4,  turnout:1, burlington:0,  champlain:2,  central:3,  northeast:8, uppervalley:4,  south:6,  rutland:7,  volatility:1.0 } },
+    "competitive-vt": { label:"Competitive VT",   controls:{ swing:10, turnout:1, burlington:4,  champlain:6,  central:7,  northeast:8, uppervalley:6,  south:5,  rutland:6,  volatility:2.0 } },
   };
 
   // ── candidate factory ─────────────────────────────────────────────────────
@@ -436,25 +537,20 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       removable:o.removable !== false,
       demo:     o.demo     || { white:0, black:0, hisp:0, asian:0, other:0 },
       age:      o.age      || { y1829:0, y3044:0, y4564:0, y65p:0 },
-      region:   {
-        burlington: o.region&&o.region.burlington||0,
-        central:    o.region&&o.region.central||0,
-        southeast:  o.region&&o.region.southeast||0,
-        northeast:  o.region&&o.region.northeast||0
-      },
+      region:   regionStrength(o.region),
       palette:  { strong: o.palette&&o.palette.strong ? o.palette.strong : "#888" }
     };
   }
 
   function makeDefaultGeneralCandidates() {
     return [
-      makeCandidate({ id:"gen-r", name:"Republican", ideology:22, strength:78, buzz:0, turnout:0, anchor:"rep", removable:false,
+      makeCandidate({ id:"gen-r", name:"Republican", ideology:22, strength:76, buzz:0, turnout:0, anchor:"rep", removable:false,
         demo:{white:0,black:0,hisp:0,asian:0,other:0}, age:{y1829:0,y3044:0,y4564:0,y65p:0},
-        region:{burlington:0,central:0,southeast:0,northeast:0},
+        region:regionStrength(),
         palette:{strong:"#c0011a"} }),
-      makeCandidate({ id:"gen-d", name:"Democrat", ideology:-22, strength:82, buzz:0, turnout:0, anchor:"dem", removable:false,
+      makeCandidate({ id:"gen-d", name:"Democrat", ideology:-22, strength:84, buzz:0, turnout:0, anchor:"dem", removable:false,
         demo:{white:0,black:0,hisp:0,asian:0,other:0}, age:{y1829:0,y3044:0,y4564:0,y65p:0},
-        region:{burlington:0,central:0,southeast:0,northeast:0},
+        region:regionStrength(),
         palette:{strong:"#1037c2"} }),
     ];
   }
@@ -462,20 +558,20 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return [
       makeCandidate({ id:"rp1", name:"Establishment R", ideology:48, strength:72, buzz:2, turnout:3,
         demo:{white:5,black:-2,hisp:1,asian:-1,other:-1}, age:{y1829:-3,y3044:-1,y4564:3,y65p:5},
-        region:{burlington:2,central:3,southeast:2,northeast:3}, removable:true, palette:{strong:"#c0011a"} }),
+        region:{burlington:1,champlain:2,central:3,northeast:3,uppervalley:2,south:2,rutland:4}, removable:true, palette:{strong:"#c0011a"} }),
       makeCandidate({ id:"rp2", name:"MAGA Challenger", ideology:76, strength:58, buzz:2, turnout:2,
         demo:{white:8,black:-3,hisp:-2,asian:-2,other:-1}, age:{y1829:-2,y3044:0,y4564:3,y65p:6},
-        region:{burlington:-2,central:2,southeast:2,northeast:4}, removable:true, palette:{strong:"#8b0000"} }),
+        region:{burlington:-3,champlain:0,central:2,northeast:5,uppervalley:1,south:3,rutland:5}, removable:true, palette:{strong:"#8b0000"} }),
     ];
   }
   function makeDefaultDemPrimaryCandidates() {
     return [
       makeCandidate({ id:"dp1", name:"Moderate Democrat", ideology:-46, strength:65, buzz:2, turnout:2,
         demo:{white:3,black:6,hisp:5,asian:4,other:2}, age:{y1829:3,y3044:4,y4564:-1,y65p:-2},
-        region:{burlington:4,central:4,southeast:4,northeast:3}, removable:true, palette:{strong:"#1037c2"} }),
+        region:{burlington:4,champlain:5,central:4,northeast:2,uppervalley:5,south:3,rutland:1}, removable:true, palette:{strong:"#1037c2"} }),
       makeCandidate({ id:"dp2", name:"Progressive", ideology:-76, strength:62, buzz:4, turnout:4,
         demo:{white:-2,black:12,hisp:8,asian:7,other:4}, age:{y1829:14,y3044:6,y4564:-4,y65p:-8},
-        region:{burlington:14,central:-2,southeast:-3,northeast:-4}, removable:true, palette:{strong:"#0a1fa0"} }),
+        region:{burlington:14,champlain:7,central:-1,northeast:-4,uppervalley:1,south:-3,rutland:-5}, removable:true, palette:{strong:"#0a1fa0"} }),
     ];
   }
 
@@ -491,7 +587,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
     nextCandId: { general: 3, repPrimary: 3, demPrimary: 3 },
-    controls: { swing:0, turnout:0, burlington:0, northeast:0, volatility:3.5 },
+    controls: { swing:0, turnout:0, burlington:0, champlain:0, central:0, northeast:0, uppervalley:0, south:0, rutland:0, volatility:3.5 },
     regions: [], seed: 42, selectedId: null
   };
 
@@ -503,7 +599,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     { strong:"#0066b3" }, { strong:"#8b7000" }
   ];
 
-  var SLIDER_KEYS = ["swing","turnout","burlington","northeast","volatility"];
+  var SLIDER_KEYS = ["swing","turnout","burlington","champlain","central","northeast","uppervalley","south","rutland","volatility"];
 
   // ── init ──────────────────────────────────────────────────────────────────
   window.addEventListener("DOMContentLoaded", function () {
@@ -530,11 +626,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         var el = document.getElementById(k); if (el) el.value = p[k];
         var ve = document.getElementById(k + "-value"); if (ve) ve.textContent = Number(p[k]).toFixed(1);
       });
-      simulateAndRender(true);
+      simulateAndRender(false);
     });
     document.getElementById("reroll-button").addEventListener("click", function() { simulateAndRender(true); });
     document.getElementById("reset-button").addEventListener("click", function() {
-      state.controls = { swing:0, turnout:0, burlington:0, northeast:0, volatility:3.5 };
+      state.controls = { swing:0, turnout:0, burlington:0, champlain:0, central:0, northeast:0, uppervalley:0, south:0, rutland:0, volatility:3.5 };
       SLIDER_KEYS.forEach(function(k) {
         var el = document.getElementById(k); if (el) el.value = state.controls[k];
         var ve = document.getElementById(k + "-value"); if (ve) ve.textContent = Number(state.controls[k]).toFixed(1);
@@ -703,10 +799,13 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         gfld("45\u201364","data-age","y4564",c.age.y4564,c.id) +
         gfld("65+",       "data-age","y65p", c.age.y65p, c.id));
       var regSec = detailSection("reg", c.id, "Regional Strength",
-        gfld("Burlington / Chittenden","data-region","burlington", c.region.burlington, c.id) +
-        gfld("Central VT",             "data-region","central",    c.region.central,    c.id) +
-        gfld("Southeast VT",           "data-region","southeast",  c.region.southeast,  c.id) +
-        gfld("Northeast VT",           "data-region","northeast",  c.region.northeast,  c.id));
+        gfld("Chittenden Metro",     "data-region","burlington",  c.region.burlington,  c.id) +
+        gfld("Champlain Valley",     "data-region","champlain",   c.region.champlain,   c.id) +
+        gfld("Central Vermont",      "data-region","central",     c.region.central,     c.id) +
+        gfld("Northeast Kingdom",    "data-region","northeast",   c.region.northeast,   c.id) +
+        gfld("Upper Valley / I-91",  "data-region","uppervalley", c.region.uppervalley, c.id) +
+        gfld("Southern Vermont",     "data-region","south",       c.region.south,       c.id) +
+        gfld("Rutland / Southwest",  "data-region","rutland",     c.region.rutland,     c.id));
       return [
         '<article class="candidate-card" data-id="'+escapeHtml(c.id)+'">',
         '<div class="candidate-card__top"><div>',
@@ -747,7 +846,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       '</div>',
       '<p class="score-card__label">'+escapeHtml(ideologyLabel(c.ideology))+'</p>',
       '<p class="score-card__value" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</p>',
-      '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' counties</p>',
+      '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' municipalities</p>',
       '</article>'
     ].join("");
   }
@@ -830,45 +929,50 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   // ── map loading ───────────────────────────────────────────────────────────
   function loadMap() {
-    d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json").then(function(us) {
-      var all = topojson.feature(us, us.objects.counties);
-      var vtFeatures = all.features.filter(function(f) { return String(f.id).slice(0,2) === "50"; });
-      var geo = { type:"FeatureCollection", features: vtFeatures };
+    var mapEl = document.getElementById("map-shell");
+    if (!window.VERMONT_MUNICIPAL_SVG || !COUNTIES.length) {
+      document.getElementById("map-status").textContent = "Municipality map data is missing.";
+      return;
+    }
 
-      var mapEl = document.getElementById("map-shell");
-      var W = mapEl.clientWidth || 480, H = 420;
-      var proj = d3.geoAlbers().fitSize([W, H], geo);
-      var path = d3.geoPath().projection(proj);
-      var svg  = d3.select(mapEl).append("svg").attr("viewBox","0 0 "+W+" "+H).attr("width","100%");
+    state.regions = [];
+    mapEl.innerHTML = String(window.VERMONT_MUNICIPAL_SVG).replace(/^\s*<\?xml[^>]*>\s*/i, "");
 
-      vtFeatures.forEach(function(feat) {
-        var fips   = String(feat.id).padStart(5,"0");
-        var county = COUNTIES.find(function(c){ return c.fips === fips; });
-        var p = svg.append("path")
-          .attr("d", path(feat))
-          .attr("fill", "#d8cfc0")
-          .attr("data-fips", fips)
-          .attr("class", county ? "county-active" : "county-inactive");
+    d3.select(mapEl).selectAll("path").each(function() {
+      var node = d3.select(this);
+      var svgId = this.getAttribute("id");
+      var county = MUNICIPALITY_BY_SVG_ID[svgId] || null;
 
-        if (county) {
-          var idx = state.regions.length;
-          state.regions.push({ county: county, path: p, result: null, override: zeroOverride(), turnoutMult: 1 });
-          p.on("click",      function() { selectRegion(idx); })
-           .on("mouseover",  function() { showTooltip(idx); })
-           .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
-        }
+      node
+        .style("fill", "#d8cfc0")
+        .attr("fill", "#d8cfc0")
+        .attr("data-svg-id", svgId)
+        .attr("class", county ? "county-active" : "county-inactive");
+
+      if (!county) return;
+
+      var idx = state.regions.length;
+      state.regions.push({
+        county: county,
+        regionMix: municipalityRegionBlend(county),
+        path: node,
+        result: null,
+        override: zeroOverride(),
+        turnoutMult: 1,
+        countyVotes: county.votes && county.votes.total ? county.votes.total : 0
       });
 
-      document.getElementById("map-status").textContent = state.regions.length + " counties loaded";
-      renderCandidatePanel();
-      renderScoreGrid();
-      renderVoteStrip();
-      simulateAndRender(true);
-
-    }).catch(function(err) {
-      document.getElementById("map-status").textContent = "Map load failed";
-      console.error(err);
+      node
+        .on("click",      function() { selectRegion(idx); })
+        .on("mouseover",  function() { showTooltip(idx); })
+        .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
     });
+
+    document.getElementById("map-status").textContent = state.regions.length + " municipalities loaded";
+    renderCandidatePanel();
+    renderScoreGrid();
+    renderVoteStrip();
+    simulateAndRender(false);
   }
 
   // ── region interaction ────────────────────────────────────────────────────
@@ -888,8 +992,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     var tt  = document.getElementById("map-tooltip");
     var lean = r.county.lean;
     var leanStr = lean >= 50 ? "R+" + (lean-50) : "D+" + (50-lean);
-    document.getElementById("tt-title").textContent = r.county.name + " County";
-    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " · Baseline: " + leanStr;
+    document.getElementById("tt-title").textContent = r.county.name;
+    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " · " + r.county.county + " County · Baseline: " + leanStr;
     var cands = currentCandidates();
     var countyVotes = r.countyVotes || 0;
     document.getElementById("tt-candidates").innerHTML = r.result
@@ -907,7 +1011,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   function renderRegionPanel(idx) {
     var r = state.regions[idx];
-    document.getElementById("region-title").textContent   = r.county.name + " County";
+    document.getElementById("region-title").textContent   = r.county.name;
     document.getElementById("region-summary").textContent = r.result
       ? (function(){ var wId = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; })[0]; var wc = candById(wId); return wc ? wc.name+" leads with "+(r.result[wId]||0).toFixed(1)+"%" : ""; })()
       : "No results yet.";
@@ -929,7 +1033,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   // ── simulation ────────────────────────────────────────────────────────────
-  var DECAY = 60;
+  var DECAY = 45;
 
   function simulateAndRender(reroll) {
     if (reroll) state.seed = Math.floor(Math.random() * 1e9);
@@ -939,13 +1043,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
     state.regions.forEach(function(r) {
       var lean = r.county.lean;
-      var reg  = r.county.region;
+      var regionMix = r.regionMix || municipalityRegionBlend(r.county);
 
-      var regSwing = c.swing;
-      if (reg === "burlington") regSwing += c.burlington;
-      if (reg === "central")    regSwing += c.burlington * 0.3;
-      if (reg === "southeast")  regSwing += c.burlington * 0.2;
-      if (reg === "northeast")  regSwing += c.northeast;
+      var regSwing = c.swing + blendedRegionSignal(c, regionMix);
 
       var countyPos = (lean - 50) * 1.5 + regSwing * 2.5;
 
@@ -962,7 +1062,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         var ageBonus = ba
           ? (ba.y1829*(cd.age.y1829||0) + ba.y3044*(cd.age.y3044||0) + ba.y4564*(cd.age.y4564||0) + ba.y65p*(cd.age.y65p||0)) / 100
           : 0;
-        var regionBonus = (cd.region && cd.region[reg]) || 0;
+        var regionBonus = blendedRegionSignal(cd.region, regionMix);
         raw[cd.id] = Math.max(0.3, cd.strength * proximity + (cd.buzz||0) + demoBonus + ageBonus + regionBonus + noise() + (r.override[cd.id]||0));
       });
 
@@ -973,7 +1073,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
       var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
       r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
-      r.countyVotes = Math.round(r.county.pop * TURNOUT_RATE[state.mode] * r.turnoutMult);
+      var turnoutBase = state.mode === "general"
+        ? ((r.county.votes && r.county.votes.total) || Math.round(r.county.pop * TURNOUT_RATE.general))
+        : Math.round(r.county.pop * TURNOUT_RATE[state.mode]);
+      r.countyVotes = Math.round(turnoutBase * r.turnoutMult);
     });
 
     renderMap();
@@ -995,7 +1098,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       var wPct  = r.result[wId] || 0;
       var wCand = candById(wId);
       var color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
-      r.path.attr("fill", color).classed("selected", state.selectedId === i);
+      r.path.style("fill", color).attr("fill", color).classed("selected", state.selectedId === i);
     });
   }
 
@@ -1009,8 +1112,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       if (!r.result) return;
       var w = winnerOf(r.result);
       if (w && wins[w] !== undefined) wins[w]++;
-      var weight = r.county.pop * (r.turnoutMult || 1);
-      var countyVotes = r.countyVotes || 0;
+      var countyVotes = r.countyVotes || ((r.county.votes && r.county.votes.total) || 0);
+      var weight = countyVotes || Math.round(r.county.pop * (r.turnoutMult || 1));
       cands.forEach(function(c){
         votes[c.id] += (r.result[c.id]||0) * weight;
         rawVotes[c.id] += Math.round((r.result[c.id]||0) / 100 * countyVotes);

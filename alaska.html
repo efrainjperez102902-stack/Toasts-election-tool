@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -396,13 +396,17 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   // ── ideology helpers ──────────────────────────────────────────────────────
   function ideologyLabel(v) {
-    if (v <= -70) return "Far Left";
-    if (v <= -35) return "Progressive";
-    if (v <= -10) return "Liberal";
-    if (v <=  10) return "Centrist";
-    if (v <=  35) return "Moderate R";
-    if (v <=  65) return "Conservative";
-    return "Far Right";
+    if (v <= -85) return "Communist";
+    if (v <= -65) return "Socialist";
+    if (v <= -45) return "Progressive";
+    if (v <= -25) return "Liberal";
+    if (v <=  -8) return "Establishment D";
+    if (v <    8) return "Centrist";
+    if (v <   25) return "Establishment R";
+    if (v <   45) return "Neocon";
+    if (v <   65) return "Conservative";
+    if (v <   85) return "Nationalist";
+    return "Fascist";
   }
 
   // ── borough data ──────────────────────────────────────────────────────────
@@ -543,9 +547,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   // ── init ──────────────────────────────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", function() {
-    renderCandidatePanel();\r
-    renderScoreGrid();\r
-    renderVoteStrip();\r
+    renderCandidatePanel();
+    renderScoreGrid();
+    renderVoteStrip();
     renderBoostButtons();
     bindControls();
     loadMap();
@@ -586,9 +590,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     document.getElementById("tab-topfour").setAttribute("aria-selected", mode === "topFour" ? "true" : "false");
     // Reset region overrides to match new candidate set
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
-    renderCandidatePanel();\r
-    renderScoreGrid();\r
-    renderVoteStrip();\r
+    renderCandidatePanel();
+    renderScoreGrid();
+    renderVoteStrip();
     renderBoostButtons();
     document.getElementById("region-panel").classList.add("is-hidden");
     if (state.regions.length) simulateAndRender(false);
@@ -634,9 +638,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     state.nextCandId[state.mode]++;
     state.candidates[state.mode].push(nc);
     state.regions.forEach(function(r) { r.override[nc.id] = 0; });
-    renderCandidatePanel();\r
-    renderScoreGrid();\r
-    renderVoteStrip();\r
+    renderCandidatePanel();
+    renderScoreGrid();
+    renderVoteStrip();
     renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
@@ -646,9 +650,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     state.candidates.topFour = makeDefaultTopFourCandidates();
     state.nextCandId = { general: 3, topFour: 5 };
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
-    renderCandidatePanel();\r
-    renderScoreGrid();\r
-    renderVoteStrip();\r
+    renderCandidatePanel();
+    renderScoreGrid();
+    renderVoteStrip();
     renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
@@ -661,9 +665,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     if (cands.length <= 1) return;
     state.candidates[state.mode] = cands.filter(function(c){ return c.id !== id; });
     state.regions.forEach(function(r) { delete r.override[id]; if (r.result) delete r.result[id]; });
-    renderCandidatePanel();\r
-    renderScoreGrid();\r
-    renderVoteStrip();\r
+    renderCandidatePanel();
+    renderScoreGrid();
+    renderVoteStrip();
     renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
@@ -976,9 +980,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   // ── simulation ────────────────────────────────────────────────────────────
-  // Uses ideology-proximity model: each candidate's raw share ∝ strength × exp(-|ideology - boroughPos| / 60)
+  // Uses ideology-proximity model: each candidate's raw share ∝ strength × exp(-|ideology - boroughPos| / 47)
   // boroughPos maps borough lean (0–100 R%) to ideological axis (−100 to +100)
-  var DECAY = 62;
+  var DECAY = 47;
 
   function simulateAndRender(reroll) {
     if (reroll) state.seed = Math.floor(Math.random() * 1e9);

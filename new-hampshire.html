@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -72,8 +72,8 @@ button, input, select { font: inherit; }
 .panel__header h2 { margin: 0; font-size: 1.35rem; }
 .panel__note { margin: 0; max-width: 28ch; text-align: right; color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
 
-.map-stage { position: relative; min-height: 420px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(20,50,100,0.12); background: linear-gradient(180deg, rgba(210,225,245,0.9), rgba(198,215,238,0.9)); }
-.map-shell { min-height: 420px; display: flex; align-items: stretch; justify-content: center; }
+.map-stage { position: relative; min-height: clamp(580px, 74vh, 760px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(20,50,100,0.12); background: linear-gradient(180deg, rgba(210,225,245,0.9), rgba(198,215,238,0.9)); }
+.map-shell { min-height: clamp(580px, 74vh, 760px); display: flex; align-items: stretch; justify-content: center; }
 .map-shell svg { width: 100%; height: auto; display: block; }
 .map-shell .county-active { transition: fill 220ms ease; cursor: pointer; stroke: rgba(0,0,0,0.5); stroke-width: 1.0px; }
 .map-shell .county-active:hover { opacity: 0.82; }
@@ -182,9 +182,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <p class="eyebrow">New Hampshire &middot; Presidential / Statewide</p>
       <h1>Granite State Simulator</h1>
       <p class="hero__lede">
-        Run alternate-election scenarios across all 10 New Hampshire counties.
-        Hillsborough and Rockingham anchor the southern suburban battleground, while
-        northern Coos and Grafton counties provide the rural Republican base.
+        Run alternate-election scenarios across New Hampshire's cities, towns, locations, and other local voting units.
+        Southern New Hampshire still drives the suburban battleground, while
+        the Lakes Region, North Country, and Upper Valley shape the rest of the statewide map.
       </p>
       <div class="mode-tabs" role="tablist">
         <button id="tab-general"  class="mode-tab mode-tab--general is-active" role="tab">General Election</button>
@@ -218,7 +218,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     <div class="map-panel panel">
       <div class="panel__header">
         <div>
-          <p class="panel__eyebrow">County Map</p>
+          <p class="panel__eyebrow">Municipality Map</p>
           <h2>New Hampshire</h2>
         </div>
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
@@ -235,7 +235,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
       <div class="map-footer">
         <p class="map-footnote">
-          Baseline: 2024 New Hampshire presidential results. All 10 counties interactive.
+          Baseline: 2024 New Hampshire presidential results by town, city, and local unit.
+          All mapped municipalities are interactive.
         </p>
       </div>
     </div>
@@ -277,14 +278,49 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Southern NH <span style="font-size:0.72rem;color:var(--muted);">(Hillsborough/Rockingham)</span></span>
+              <span class="slider-row__label">Southern NH <span style="font-size:0.72rem;color:var(--muted);">(Manchester / Nashua belt)</span></span>
               <span class="slider-row__val" id="south-value">0.0</span>
             </div>
             <input type="range" id="south" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Northern NH <span style="font-size:0.72rem;color:var(--muted);">(Coos/Grafton)</span></span>
+              <span class="slider-row__label">Seacoast</span>
+              <span class="slider-row__val" id="seacoast-value">0.0</span>
+            </div>
+            <input type="range" id="seacoast" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Merrimack Valley</span>
+              <span class="slider-row__val" id="merrimack-value">0.0</span>
+            </div>
+            <input type="range" id="merrimack" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Lakes Region</span>
+              <span class="slider-row__val" id="lakes-value">0.0</span>
+            </div>
+            <input type="range" id="lakes" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Monadnock Region</span>
+              <span class="slider-row__val" id="monadnock-value">0.0</span>
+            </div>
+            <input type="range" id="monadnock" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Upper Valley</span>
+              <span class="slider-row__val" id="upperValley-value">0.0</span>
+            </div>
+            <input type="range" id="upperValley" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">North Country <span style="font-size:0.72rem;color:var(--muted);">(Coos / far north)</span></span>
               <span class="slider-row__val" id="north-value">0.0</span>
             </div>
             <input type="range" id="north" min="-10" max="10" step="0.5" value="0">
@@ -292,9 +328,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
           <div class="slider-row">
             <div class="slider-row__top">
               <span class="slider-row__label">Volatility</span>
-              <span class="slider-row__val" id="volatility-value">3.5</span>
+              <span class="slider-row__val" id="volatility-value">1.0</span>
             </div>
-            <input type="range" id="volatility" min="0" max="12" step="0.5" value="3.5">
+            <input type="range" id="volatility" min="0" max="12" step="0.5" value="1.0">
           </div>
         </div>
       </div>
@@ -311,11 +347,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         </div>
       </div>
 
-      <!-- selected county -->
+      <!-- selected municipality -->
       <div class="region-panel panel is-hidden" id="region-panel">
-        <p class="panel__eyebrow">Selected County</p>
+        <p class="panel__eyebrow">Selected Municipality</p>
         <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">—</h2>
-        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a county on the map.</p>
+        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a municipality on the map.</p>
         <div class="region-actions" id="region-actions"></div>
       </div>
 
@@ -331,7 +367,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="new-hampshire-municipality-data.js"></script>
+<script src="new-hampshire-municipal-geo.js"></script>
 <script>
 (function () {
   "use strict";
@@ -373,50 +410,92 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   function ideologyLabel(v) {
-    if (v <= -65) return "Progressive";
-    if (v <= -35) return "Progressive";
-    if (v <= -10) return "Liberal";
-    if (v <=  10) return "Centrist";
-    if (v <=  35) return "Moderate R";
-    if (v <=  65) return "Conservative";
-    return "Far Right";
+    if (v <= -85) return "Communist";
+    if (v <= -65) return "Socialist";
+    if (v <= -45) return "Progressive";
+    if (v <= -25) return "Liberal";
+    if (v <=  -8) return "Establishment D";
+    if (v <    8) return "Centrist";
+    if (v <   25) return "Establishment R";
+    if (v <   45) return "Neocon";
+    if (v <   65) return "Conservative";
+    if (v <   85) return "Nationalist";
+    return "Fascist";
   }
 
-  // ── county data ───────────────────────────────────────────────────────────
-  // lean = R% of 2-party vote (2024 presidential)
-  var COUNTIES = [
-    { fips:"33001", name:"Belknap",      region:"central",  lean:59, pop:61303,  demo:{white:95,black:1,hisp:2,asian:1,other:1}, age:{y1829:14,y3044:22,y4564:35,y65p:24} },
-    { fips:"33003", name:"Carroll",      region:"central",  lean:57, pop:48910,  demo:{white:96,black:0,hisp:1,asian:1,other:2}, age:{y1829:12,y3044:20,y4564:33,y65p:29} },
-    { fips:"33005", name:"Cheshire",     region:"seacoast", lean:43, pop:77117,  demo:{white:93,black:1,hisp:2,asian:2,other:2}, age:{y1829:16,y3044:23,y4564:32,y65p:23} },
-    { fips:"33007", name:"Coos",         region:"north",    lean:61, pop:31563,  demo:{white:96,black:0,hisp:1,asian:1,other:2}, age:{y1829:13,y3044:20,y4564:34,y65p:28} },
-    { fips:"33009", name:"Grafton",      region:"north",    lean:42, pop:89811,  demo:{white:93,black:1,hisp:2,asian:2,other:2}, age:{y1829:19,y3044:22,y4564:31,y65p:22} },
-    { fips:"33011", name:"Hillsborough", region:"south",    lean:47, pop:421172, demo:{white:82,black:4,hisp:8,asian:4,other:2}, age:{y1829:18,y3044:27,y4564:31,y65p:18} },
-    { fips:"33013", name:"Merrimack",    region:"central",  lean:47, pop:153808, demo:{white:91,black:2,hisp:3,asian:2,other:2}, age:{y1829:15,y3044:24,y4564:33,y65p:22} },
-    { fips:"33015", name:"Rockingham",   region:"south",    lean:53, pop:316997, demo:{white:90,black:2,hisp:3,asian:3,other:2}, age:{y1829:15,y3044:25,y4564:33,y65p:21} },
-    { fips:"33017", name:"Strafford",    region:"seacoast", lean:43, pop:130225, demo:{white:87,black:3,hisp:4,asian:3,other:3}, age:{y1829:21,y3044:25,y4564:30,y65p:18} },
-    { fips:"33019", name:"Sullivan",     region:"seacoast", lean:55, pop:43019,  demo:{white:95,black:1,hisp:2,asian:1,other:1}, age:{y1829:14,y3044:22,y4564:34,y65p:25} },
-  ];
+  function normPlaceName(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[’']/g, "")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
 
-  // De-duplicate by fips
-  (function() {
-    var seen = {};
-    COUNTIES = COUNTIES.filter(function(c) {
-      if (seen[c.fips]) return false;
-      seen[c.fips] = true;
-      return true;
-    });
-  })();
+  function setFromList(items) {
+    var out = {};
+    items.forEach(function(item) { out[normPlaceName(item)] = true; });
+    return out;
+  }
+
+  var NH_REGION_TOWNS = {
+    south: setFromList(["Manchester","Nashua","Salem","Derry","Londonderry","Windham","Pelham","Hudson","Bedford","Merrimack","Amherst","Hollis","Brookline","Goffstown","Auburn","Candia","Atkinson","Plaistow","Sandown","Danville","Newton"]),
+    seacoast: setFromList(["Portsmouth","Rye","New Castle","Greenland","Newington","Stratham","Exeter","Newfields","Newmarket","Hampton","North Hampton","Hampton Falls","Seabrook","Dover","Durham","Lee","Madbury","Rollinsford","Somersworth","Barrington"]),
+    merrimack: setFromList(["Concord","Bow","Pembroke","Allenstown","Hooksett","Chichester","Loudon","Canterbury","Boscawen","Franklin","Salisbury","Andover","Webster","Hopkinton","Dunbarton"]),
+    lakes: setFromList(["Laconia","Meredith","Gilford","Moultonborough","Center Harbor","Tuftonboro","Wolfeboro","Sandwich","Ashland","Holderness","Conway","Ossipee","Freedom","Tamworth","Alton","Barnstead","Belmont","Tilton","New Hampton"]),
+    monadnock: setFromList(["Keene","Dublin","Jaffrey","Rindge","Peterborough","Hancock","Marlborough","Swanzey","Troy","Fitzwilliam","New Ipswich","Antrim","Bennington","Francestown","Temple","Wilton","Lyndeborough","Greenville","Mason"]),
+    upperValley: setFromList(["Lebanon","Hanover","Enfield","Canaan","Plainfield","Lyme","Orford","Cornish","Newport","Claremont","Grantham","Sunapee","Springfield","Goshen","Lempster","Unity"]),
+    north: setFromList(["Berlin","Gorham","Colebrook","Pittsburg","Lancaster","Littleton","Whitefield","Jefferson","Dalton","Randolph","Bethlehem","Franconia","Lincoln","Woodstock","Jackson","Bartlett","Chatham","Errol","Millsfield","Dixville","Hales Location","Harts Location","Wentworths Location"])
+  };
+
+  function normalizeBlend(blend) {
+    var keys = Object.keys(blend);
+    var total = keys.reduce(function(sum, key) { return sum + Math.max(0, blend[key] || 0); }, 0);
+    if (total <= 0) return blend;
+    keys.forEach(function(key) { blend[key] = blend[key] / total; });
+    return blend;
+  }
+
+  function getRegionBlend(unit) {
+    var county = String(unit.county || "");
+    var name = normPlaceName(unit.name);
+    var blend = { south:0, seacoast:0, merrimack:0, lakes:0, monadnock:0, upperValley:0, north:0 };
+
+    if (county === "Belknap")      { blend.lakes = 0.85; blend.merrimack = 0.15; }
+    if (county === "Carroll")      { blend.lakes = 0.65; blend.north = 0.35; }
+    if (county === "Cheshire")     { blend.monadnock = 0.85; blend.upperValley = 0.15; }
+    if (county === "Coos")         { blend.north = 1.0; }
+    if (county === "Grafton")      { blend.upperValley = 0.5; blend.north = 0.35; blend.lakes = 0.15; }
+    if (county === "Hillsborough") { blend.south = 0.8; blend.monadnock = 0.1; blend.merrimack = 0.1; }
+    if (county === "Merrimack")    { blend.merrimack = 0.75; blend.lakes = 0.15; blend.upperValley = 0.1; }
+    if (county === "Rockingham")   { blend.south = 0.55; blend.seacoast = 0.45; }
+    if (county === "Strafford")    { blend.seacoast = 0.55; blend.south = 0.25; blend.lakes = 0.1; blend.merrimack = 0.1; }
+    if (county === "Sullivan")     { blend.upperValley = 0.75; blend.monadnock = 0.15; blend.merrimack = 0.1; }
+
+    if (NH_REGION_TOWNS.south[name])       blend.south += 0.35;
+    if (NH_REGION_TOWNS.seacoast[name])    blend.seacoast += 0.35;
+    if (NH_REGION_TOWNS.merrimack[name])   blend.merrimack += 0.35;
+    if (NH_REGION_TOWNS.lakes[name])       blend.lakes += 0.35;
+    if (NH_REGION_TOWNS.monadnock[name])   blend.monadnock += 0.35;
+    if (NH_REGION_TOWNS.upperValley[name]) blend.upperValley += 0.35;
+    if (NH_REGION_TOWNS.north[name])       blend.north += 0.35;
+
+    return normalizeBlend(blend);
+  }
+
+  // ── municipal data ────────────────────────────────────────────────────────
+  // lean = R% of 2-party vote (2024 presidential)
+  var COUNTIES = Array.isArray(window.NH_MUNICIPALITIES) ? window.NH_MUNICIPALITIES.slice() : [];
 
   var TURNOUT_RATE = { general: 0.72, repPrimary: 0.22, demPrimary: 0.20 };
 
   // ── presets ───────────────────────────────────────────────────────────────
   var PRESETS = {
-    "baseline-2024":  { label:"2024 Baseline",     controls:{ swing:0,  south:0,  north:0,  volatility:3.5 } },
-    "blue-surge":     { label:"Democratic Surge",  controls:{ swing:-6, south:-5, north:0,  volatility:1.0 } },
-    "red-wave":       { label:"Republican Wave",   controls:{ swing:6,  south:4,  north:6,  volatility:1.0 } },
-    "southern-shift": { label:"Southern Shift",    controls:{ swing:-4, south:-8, north:0,  volatility:1.0 } },
-    "rural-revolt":   { label:"Rural Revolt",      controls:{ swing:4,  south:0,  north:8,  volatility:1.0 } },
-    "tossup":         { label:"Tossup Scenario",   controls:{ swing:-2, south:-3, north:2,  volatility:2.5 } },
+    "baseline-2024":  { label:"2024 Baseline",     controls:{ swing:0,  south:0,  seacoast:0, merrimack:0, lakes:0, monadnock:0, upperValley:0, north:0, volatility:1.0 } },
+    "blue-surge":     { label:"Democratic Surge",  controls:{ swing:-6, south:-5, seacoast:-4, merrimack:-3, lakes:-1, monadnock:-3, upperValley:-2, north:0, volatility:1.0 } },
+    "red-wave":       { label:"Republican Wave",   controls:{ swing:6,  south:4,  seacoast:1,  merrimack:2,  lakes:4,  monadnock:2,  upperValley:1,  north:6, volatility:1.0 } },
+    "southern-shift": { label:"Southern Shift",    controls:{ swing:-4, south:-8, seacoast:-3, merrimack:-2, lakes:0,  monadnock:0,  upperValley:0,  north:0, volatility:1.0 } },
+    "rural-revolt":   { label:"Rural Revolt",      controls:{ swing:4,  south:0,  seacoast:0,  merrimack:1,  lakes:4,  monadnock:2,  upperValley:3,  north:8, volatility:1.0 } },
+    "tossup":         { label:"Tossup Scenario",   controls:{ swing:-2, south:-3, seacoast:-1, merrimack:1,  lakes:1,  monadnock:0,  upperValley:-1, north:2, volatility:2.5 } },
   };
 
   // ── candidate factory ─────────────────────────────────────────────────────
@@ -434,9 +513,12 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       age:      o.age      || { y1829:0, y3044:0, y4564:0, y65p:0 },
       region:   {
         south:    o.region&&o.region.south    !== undefined ? o.region.south    : 0,
-        central:  o.region&&o.region.central  !== undefined ? o.region.central  : 0,
+        seacoast: o.region&&o.region.seacoast !== undefined ? o.region.seacoast : 0,
+        merrimack:o.region&&o.region.merrimack!== undefined ? o.region.merrimack: 0,
+        lakes:    o.region&&o.region.lakes    !== undefined ? o.region.lakes    : 0,
+        monadnock:o.region&&o.region.monadnock!== undefined ? o.region.monadnock: 0,
+        upperValley:o.region&&o.region.upperValley !== undefined ? o.region.upperValley : 0,
         north:    o.region&&o.region.north    !== undefined ? o.region.north    : 0,
-        seacoast: o.region&&o.region.seacoast !== undefined ? o.region.seacoast : 0
       },
       palette:  { strong: o.palette&&o.palette.strong ? o.palette.strong : "#888" }
     };
@@ -446,11 +528,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return [
       makeCandidate({ id:"gen-r", name:"Republican", ideology:22, strength:78, buzz:0, turnout:0, anchor:"rep", removable:false,
         demo:{white:0,black:0,hisp:0,asian:0,other:0}, age:{y1829:0,y3044:0,y4564:0,y65p:0},
-        region:{south:0,central:0,north:0,seacoast:0},
+        region:{south:0,seacoast:0,merrimack:0,lakes:0,monadnock:0,upperValley:0,north:0},
         palette:{strong:"#c0011a"} }),
       makeCandidate({ id:"gen-d", name:"Democrat", ideology:-22, strength:82, buzz:0, turnout:0, anchor:"dem", removable:false,
         demo:{white:0,black:0,hisp:0,asian:0,other:0}, age:{y1829:0,y3044:0,y4564:0,y65p:0},
-        region:{south:0,central:0,north:0,seacoast:0},
+        region:{south:0,seacoast:0,merrimack:0,lakes:0,monadnock:0,upperValley:0,north:0},
         palette:{strong:"#1037c2"} }),
     ];
   }
@@ -458,20 +540,20 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return [
       makeCandidate({ id:"rp1", name:"Establishment R", ideology:48, strength:72, buzz:2, turnout:3,
         demo:{white:5,black:-2,hisp:1,asian:-1,other:-1}, age:{y1829:-3,y3044:-1,y4564:3,y65p:5},
-        region:{south:3,central:2,north:2,seacoast:2}, removable:true, palette:{strong:"#c0011a"} }),
+        region:{south:3,seacoast:2,merrimack:2,lakes:2,monadnock:1,upperValley:1,north:2}, removable:true, palette:{strong:"#c0011a"} }),
       makeCandidate({ id:"rp2", name:"MAGA Challenger", ideology:76, strength:58, buzz:2, turnout:2,
         demo:{white:8,black:-3,hisp:-2,asian:-2,other:-1}, age:{y1829:-2,y3044:0,y4564:3,y65p:6},
-        region:{south:1,central:2,north:5,seacoast:1}, removable:true, palette:{strong:"#8b0000"} }),
+        region:{south:1,seacoast:1,merrimack:2,lakes:3,monadnock:1,upperValley:2,north:5}, removable:true, palette:{strong:"#8b0000"} }),
     ];
   }
   function makeDefaultDemPrimaryCandidates() {
     return [
       makeCandidate({ id:"dp1", name:"Moderate Democrat", ideology:-46, strength:65, buzz:2, turnout:2,
         demo:{white:3,black:6,hisp:5,asian:4,other:2}, age:{y1829:3,y3044:4,y4564:-1,y65p:-2},
-        region:{south:4,central:3,north:2,seacoast:4}, removable:true, palette:{strong:"#1037c2"} }),
+        region:{south:4,seacoast:4,merrimack:3,lakes:1,monadnock:3,upperValley:3,north:2}, removable:true, palette:{strong:"#1037c2"} }),
       makeCandidate({ id:"dp2", name:"Progressive", ideology:-76, strength:62, buzz:4, turnout:4,
         demo:{white:-2,black:12,hisp:8,asian:7,other:4}, age:{y1829:14,y3044:6,y4564:-4,y65p:-8},
-        region:{south:8,central:-2,north:-3,seacoast:6}, removable:true, palette:{strong:"#0a1fa0"} }),
+        region:{south:8,seacoast:6,merrimack:-1,lakes:-2,monadnock:4,upperValley:6,north:-3}, removable:true, palette:{strong:"#0a1fa0"} }),
     ];
   }
 
@@ -487,7 +569,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
     nextCandId: { general: 3, repPrimary: 3, demPrimary: 3 },
-    controls: { swing:0, turnout:0, south:0, north:0, volatility:3.5 },
+    controls: { swing:0, turnout:0, south:0, seacoast:0, merrimack:0, lakes:0, monadnock:0, upperValley:0, north:0, volatility:1.0 },
     regions: [], seed: 42, selectedId: null
   };
 
@@ -499,7 +581,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     { strong:"#0066b3" }, { strong:"#8b7000" }
   ];
 
-  var SLIDER_KEYS = ["swing","turnout","south","north","volatility"];
+  var SLIDER_KEYS = ["swing","turnout","south","seacoast","merrimack","lakes","monadnock","upperValley","north","volatility"];
 
   // ── init ──────────────────────────────────────────────────────────────────
   window.addEventListener("DOMContentLoaded", function () {
@@ -530,7 +612,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     });
     document.getElementById("reroll-button").addEventListener("click", function() { simulateAndRender(true); });
     document.getElementById("reset-button").addEventListener("click", function() {
-      state.controls = { swing:0, turnout:0, south:0, north:0, volatility:3.5 };
+      state.controls = { swing:0, turnout:0, south:0, seacoast:0, merrimack:0, lakes:0, monadnock:0, upperValley:0, north:0, volatility:1.0 };
       SLIDER_KEYS.forEach(function(k) {
         var el = document.getElementById(k); if (el) el.value = state.controls[k];
         var ve = document.getElementById(k + "-value"); if (ve) ve.textContent = Number(state.controls[k]).toFixed(1);
@@ -699,10 +781,13 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         gfld("45\u201364","data-age","y4564",c.age.y4564,c.id) +
         gfld("65+",       "data-age","y65p", c.age.y65p, c.id));
       var regSec = detailSection("reg", c.id, "Regional Strength",
-        gfld("Southern NH",  "data-region","south",    c.region.south,    c.id) +
-        gfld("Central NH",   "data-region","central",  c.region.central,  c.id) +
-        gfld("Northern NH",  "data-region","north",    c.region.north,    c.id) +
-        gfld("Seacoast NH",  "data-region","seacoast", c.region.seacoast, c.id));
+        gfld("Southern NH",      "data-region","south",       c.region.south,       c.id) +
+        gfld("Seacoast",         "data-region","seacoast",    c.region.seacoast,    c.id) +
+        gfld("Merrimack Valley", "data-region","merrimack",   c.region.merrimack,   c.id) +
+        gfld("Lakes Region",     "data-region","lakes",       c.region.lakes,       c.id) +
+        gfld("Monadnock",        "data-region","monadnock",   c.region.monadnock,   c.id) +
+        gfld("Upper Valley",     "data-region","upperValley", c.region.upperValley, c.id) +
+        gfld("North Country",    "data-region","north",       c.region.north,       c.id));
       return [
         '<article class="candidate-card" data-id="'+escapeHtml(c.id)+'">',
         '<div class="candidate-card__top"><div>',
@@ -743,7 +828,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       '</div>',
       '<p class="score-card__label">'+escapeHtml(ideologyLabel(c.ideology))+'</p>',
       '<p class="score-card__value" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</p>',
-      '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' counties</p>',
+      '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' municipalities</p>',
       '</article>'
     ].join("");
   }
@@ -826,45 +911,49 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   // ── map loading ───────────────────────────────────────────────────────────
   function loadMap() {
-    d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json").then(function(us) {
-      var all = topojson.feature(us, us.objects.counties);
-      var nhFeatures = all.features.filter(function(f) { return String(f.id).slice(0,2) === "33"; });
-      var geo = { type:"FeatureCollection", features: nhFeatures };
+    var geo = window.NH_MUNICIPAL_GEOJSON;
+    if (!geo || !Array.isArray(geo.features)) {
+      document.getElementById("map-status").textContent = "Municipal map failed to load";
+      return;
+    }
 
-      var mapEl = document.getElementById("map-shell");
-      var W = mapEl.clientWidth || 480, H = 420;
-      var proj = d3.geoAlbers().fitSize([W, H], geo);
-      var path = d3.geoPath().projection(proj);
-      var svg  = d3.select(mapEl).append("svg").attr("viewBox","0 0 "+W+" "+H).attr("width","100%");
+    var mapEl = document.getElementById("map-shell");
+    mapEl.innerHTML = "";
+    state.regions = [];
 
-      nhFeatures.forEach(function(feat) {
-        var fips   = String(feat.id).padStart(5,"0");
-        var county = COUNTIES.find(function(c){ return c.fips === fips; });
-        var p = svg.append("path")
-          .attr("d", path(feat))
-          .attr("fill", "#d8cfc0")
-          .attr("data-fips", fips)
-          .attr("class", county ? "county-active" : "county-inactive");
+    var stageEl = document.querySelector(".map-stage");
+    var W = mapEl.clientWidth || 480;
+    var H = Math.max(Math.round((stageEl && stageEl.getBoundingClientRect().height) || mapEl.clientHeight || 0), 700);
+    var proj = d3.geoIdentity().reflectY(true).fitExtent([[14, 14], [W - 14, H - 14]], geo);
+    var path = d3.geoPath().projection(proj);
+    var svg  = d3.select(mapEl).append("svg").attr("viewBox","0 0 "+W+" "+H).attr("width","100%");
+    var unitByGeoId = {};
+    COUNTIES.forEach(function(unit) { unitByGeoId[unit.geoId] = unit; });
 
-        if (county) {
-          var idx = state.regions.length;
-          state.regions.push({ county: county, path: p, result: null, override: zeroOverride(), turnoutMult: 1 });
-          p.on("click",      function() { selectRegion(idx); })
-           .on("mouseover",  function() { showTooltip(idx); })
-           .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
-        }
-      });
+    geo.features.forEach(function(feat) {
+      var geoId = feat && feat.properties ? feat.properties.geoId : "";
+      var county = unitByGeoId[geoId] || null;
+      var isActive = !!county;
+      var p = svg.append("path")
+        .attr("d", path(feat))
+        .attr("fill", "#d8cfc0")
+        .attr("data-geo-id", geoId || "")
+        .attr("class", isActive ? "county-active" : "county-inactive");
 
-      document.getElementById("map-status").textContent = state.regions.length + " counties loaded";
-      renderCandidatePanel();
-      renderScoreGrid();
-      renderVoteStrip();
-      simulateAndRender(true);
-
-    }).catch(function(err) {
-      document.getElementById("map-status").textContent = "Map load failed";
-      console.error(err);
+      if (county) {
+        var idx = state.regions.length;
+        state.regions.push({ county: county, path: p, result: null, override: zeroOverride(), turnoutMult: 1, regionBlend: getRegionBlend(county) });
+        p.on("click",      function() { selectRegion(idx); })
+         .on("mouseover",  function() { showTooltip(idx); })
+         .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
+      }
     });
+
+    document.getElementById("map-status").textContent = state.regions.length + " municipalities loaded";
+    renderCandidatePanel();
+    renderScoreGrid();
+    renderVoteStrip();
+    simulateAndRender(false);
   }
 
   // ── region interaction ────────────────────────────────────────────────────
@@ -884,8 +973,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     var tt  = document.getElementById("map-tooltip");
     var lean = r.county.lean;
     var leanStr = lean >= 50 ? "R+" + (lean-50) : "D+" + (50-lean);
-    document.getElementById("tt-title").textContent = r.county.name + " County";
-    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " · Baseline: " + leanStr;
+    document.getElementById("tt-title").textContent = r.county.name;
+    document.getElementById("tt-meta").textContent  = r.county.county + " County · Pop: " + r.county.pop.toLocaleString() + " · Baseline: " + leanStr;
     var cands = currentCandidates();
     var countyVotes = r.countyVotes || 0;
     document.getElementById("tt-candidates").innerHTML = r.result
@@ -903,9 +992,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   function renderRegionPanel(idx) {
     var r = state.regions[idx];
-    document.getElementById("region-title").textContent   = r.county.name + " County";
+    document.getElementById("region-title").textContent   = r.county.name;
     document.getElementById("region-summary").textContent = r.result
-      ? (function(){ var wId = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; })[0]; var wc = candById(wId); return wc ? wc.name+" leads with "+(r.result[wId]||0).toFixed(1)+"%" : ""; })()
+      ? (function(){ var wId = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; })[0]; var wc = candById(wId); return wc ? r.county.county+" County · "+wc.name+" leads with "+(r.result[wId]||0).toFixed(1)+"%" : ""; })()
       : "No results yet.";
     renderBoostButtons();
   }
@@ -925,7 +1014,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   // ── simulation ────────────────────────────────────────────────────────────
-  var DECAY = 60;
+  var DECAY = 45;
 
   function simulateAndRender(reroll) {
     if (reroll) state.seed = Math.floor(Math.random() * 1e9);
@@ -935,13 +1024,16 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
     state.regions.forEach(function(r) {
       var lean = r.county.lean;
-      var reg  = r.county.region;
+      var blend = r.regionBlend || getRegionBlend(r.county);
 
-      var regSwing = c.swing;
-      if (reg === "south")    regSwing += c.south;
-      if (reg === "central")  regSwing += c.south * 0.3;
-      if (reg === "north")    regSwing += c.north;
-      if (reg === "seacoast") regSwing += c.south * 0.2;
+      var regSwing = c.swing
+        + (blend.south || 0) * c.south
+        + (blend.seacoast || 0) * c.seacoast
+        + (blend.merrimack || 0) * c.merrimack
+        + (blend.lakes || 0) * c.lakes
+        + (blend.monadnock || 0) * c.monadnock
+        + (blend.upperValley || 0) * c.upperValley
+        + (blend.north || 0) * c.north;
 
       var countyPos = (lean - 50) * 1.5 + regSwing * 2.5;
 
@@ -958,7 +1050,15 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         var ageBonus = ba
           ? (ba.y1829*(cd.age.y1829||0) + ba.y3044*(cd.age.y3044||0) + ba.y4564*(cd.age.y4564||0) + ba.y65p*(cd.age.y65p||0)) / 100
           : 0;
-        var regionBonus = (cd.region && cd.region[reg]) || 0;
+        var regionBonus = cd.region
+          ? (blend.south || 0)       * (cd.region.south || 0)
+          + (blend.seacoast || 0)    * (cd.region.seacoast || 0)
+          + (blend.merrimack || 0)   * (cd.region.merrimack || 0)
+          + (blend.lakes || 0)       * (cd.region.lakes || 0)
+          + (blend.monadnock || 0)   * (cd.region.monadnock || 0)
+          + (blend.upperValley || 0) * (cd.region.upperValley || 0)
+          + (blend.north || 0)       * (cd.region.north || 0)
+          : 0;
         raw[cd.id] = Math.max(0.3, cd.strength * proximity + (cd.buzz||0) + demoBonus + ageBonus + regionBonus + noise() + (r.override[cd.id]||0));
       });
 
@@ -969,7 +1069,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
       var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
       r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
-      r.countyVotes = Math.round(r.county.pop * TURNOUT_RATE[state.mode] * r.turnoutMult);
+      var baseVotes = (state.mode === "general" && r.county.votes && r.county.votes.total)
+        ? r.county.votes.total
+        : Math.round(r.county.pop * TURNOUT_RATE[state.mode]);
+      r.countyVotes = Math.max(1, Math.round(baseVotes * r.turnoutMult));
     });
 
     renderMap();
@@ -1005,7 +1108,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       if (!r.result) return;
       var w = winnerOf(r.result);
       if (w && wins[w] !== undefined) wins[w]++;
-      var weight = r.county.pop * (r.turnoutMult || 1);
+      var weight = r.countyVotes || (r.county.pop * (r.turnoutMult || 1));
       var countyVotes = r.countyVotes || 0;
       cands.forEach(function(c){
         votes[c.id] += (r.result[c.id]||0) * weight;

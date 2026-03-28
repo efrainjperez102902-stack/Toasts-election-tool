@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -72,9 +72,9 @@ button, input, select { font: inherit; }
 .panel__header h2 { margin: 0; font-size: 1.35rem; }
 .panel__note { margin: 0; max-width: 28ch; text-align: right; color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
 
-.map-stage { position: relative; min-height: 460px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(20,50,100,0.12); background: linear-gradient(180deg, rgba(210,225,245,0.9), rgba(198,215,238,0.9)); }
-.map-shell { min-height: 460px; display: flex; align-items: stretch; justify-content: center; }
-.map-shell svg { width: 100%; height: auto; display: block; }
+.map-stage { position: relative; height: clamp(530px, calc(100vh - 195px), 730px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(20,50,100,0.12); background: linear-gradient(180deg, rgba(210,225,245,0.9), rgba(198,215,238,0.9)); }
+.map-shell { height: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0.35rem; }
+.map-shell svg { width: auto; max-width: 100%; max-height: 100%; height: auto; display: block; }
 .map-shell .county-active { transition: fill 220ms ease; cursor: pointer; stroke: rgba(0,0,0,0.5); stroke-width: 1.0px; }
 .map-shell .county-active:hover { opacity: 0.82; }
 .map-shell .county-active.selected { stroke: var(--ink); stroke-width: 1.8px; }
@@ -182,9 +182,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <p class="eyebrow">Rhode Island &middot; Presidential / Statewide</p>
       <h1>Ocean State Simulator</h1>
       <p class="hero__lede">
-        Run alternate-election scenarios across all 5 Rhode Island counties.
-        Providence anchors the Democratic base, while coastal Newport and
-        Washington counties provide competitive suburban battlegrounds.
+        Run alternate-election scenarios across all 39 Rhode Island municipalities.
+        Providence and the inner-core cities anchor the Democratic base, while the
+        East Bay, West Bay, and South County towns shape the rest of the battlefield.
       </p>
       <div class="mode-tabs" role="tablist">
         <button id="tab-general"  class="mode-tab mode-tab--general is-active" role="tab">General Election</button>
@@ -218,7 +218,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     <div class="map-panel panel">
       <div class="panel__header">
         <div>
-          <p class="panel__eyebrow">County Map</p>
+          <p class="panel__eyebrow">Municipality Map</p>
           <h2>Rhode Island</h2>
         </div>
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
@@ -235,8 +235,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
       <div class="map-footer">
         <p class="map-footnote">
-          Baseline: 2024 Rhode Island presidential results. County boundaries from US Census TIGER.
-          All 5 counties are interactive; click to apply local overrides.
+          Baseline: official 2024 Rhode Island presidential results by municipality, with
+          municipality population and ACS demographic profiles layered into the model.
+          All 39 cities and towns are interactive; click to apply local overrides.
         </p>
       </div>
     </div>
@@ -278,14 +279,14 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Providence County</span>
+              <span class="slider-row__label">Providence Core</span>
               <span class="slider-row__val" id="providence-value">0.0</span>
             </div>
             <input type="range" id="providence" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Coastal Counties</span>
+              <span class="slider-row__label">South County &amp; Islands</span>
               <span class="slider-row__val" id="coastal-value">0.0</span>
             </div>
             <input type="range" id="coastal" min="-10" max="10" step="0.5" value="0">
@@ -312,11 +313,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         </div>
       </div>
 
-      <!-- selected county -->
+      <!-- selected municipality -->
       <div class="region-panel panel is-hidden" id="region-panel">
-        <p class="panel__eyebrow">Selected County</p>
+        <p class="panel__eyebrow">Selected Municipality</p>
         <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">—</h2>
-        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a county on the map.</p>
+        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a city or town on the map.</p>
         <div class="region-actions" id="region-actions"></div>
       </div>
 
@@ -332,7 +333,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="rhode-island-municipality-data.js"></script>
+<script src="rhode-island-municipal-svg.js"></script>
 <script>
 (function () {
   "use strict";
@@ -374,34 +376,30 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   function ideologyLabel(v) {
-    if (v <= -65) return "Progressive";
-    if (v <= -35) return "Progressive";
-    if (v <= -10) return "Liberal";
-    if (v <=  10) return "Centrist";
-    if (v <=  35) return "Moderate R";
-    if (v <=  65) return "Conservative";
-    return "Far Right";
+    if (v <= -85) return "Communist";
+    if (v <= -65) return "Socialist";
+    if (v <= -45) return "Progressive";
+    if (v <= -25) return "Liberal";
+    if (v <=  -8) return "Establishment D";
+    if (v <    8) return "Centrist";
+    if (v <   25) return "Establishment R";
+    if (v <   45) return "Neocon";
+    if (v <   65) return "Conservative";
+    if (v <   85) return "Nationalist";
+    return "Fascist";
   }
 
-  // ── county data ───────────────────────────────────────────────────────────
+  // ── municipality data ─────────────────────────────────────────────────────
   // lean = R% of 2-party vote (2024 presidential)
-  var COUNTIES = [
-    { fips:"44007", name:"Providence", region:"providence", lean:43, pop:654374, demo:{white:60,black:10,hisp:20,asian:5,other:5}, age:{y1829:19,y3044:27,y4564:29,y65p:17} },
-    { fips:"44003", name:"Kent",       region:"kent",       lean:49, pop:170363, demo:{white:81,black:4,hisp:9,asian:3,other:3},  age:{y1829:15,y3044:25,y4564:33,y65p:21} },
-    { fips:"44005", name:"Newport",    region:"coastal",    lean:37, pop:87969,  demo:{white:78,black:6,hisp:9,asian:4,other:3},  age:{y1829:17,y3044:25,y4564:31,y65p:20} },
-    { fips:"44009", name:"Washington", region:"coastal",    lean:42, pop:129839, demo:{white:88,black:2,hisp:5,asian:3,other:2},  age:{y1829:14,y3044:23,y4564:33,y65p:23} },
-    { fips:"44001", name:"Bristol",    region:"bristol",    lean:37, pop:49875,  demo:{white:84,black:3,hisp:8,asian:3,other:2},  age:{y1829:16,y3044:24,y4564:32,y65p:22} },
-  ];
-
-  // De-duplicate by fips
-  (function() {
-    var seen = {};
-    COUNTIES = COUNTIES.filter(function(c) {
-      if (seen[c.fips]) return false;
-      seen[c.fips] = true;
-      return true;
-    });
-  })();
+  var MUNICIPALITIES = Array.isArray(window.RI_MUNICIPALITIES) ? window.RI_MUNICIPALITIES.slice() : [];
+  var MUNICIPALITY_BY_SVG_ID = {};
+  MUNICIPALITIES.forEach(function(m) { MUNICIPALITY_BY_SVG_ID[m.svgId] = m; });
+  var REGION_LABELS = {
+    providence: "Providence Core",
+    kent: "Blackstone & West Bay",
+    coastal: "South County & Islands",
+    bristol: "East Bay & Islands"
+  };
 
   var TURNOUT_RATE = { general: 0.63, repPrimary: 0.14, demPrimary: 0.24 };
 
@@ -695,10 +693,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         gfld("45\u201364","data-age","y4564",c.age.y4564,c.id) +
         gfld("65+",       "data-age","y65p", c.age.y65p, c.id));
       var regSec = detailSection("reg", c.id, "Regional Strength",
-        gfld("Providence County","data-region","providence", c.region.providence, c.id) +
-        gfld("Kent County",      "data-region","kent",       c.region.kent,       c.id) +
-        gfld("Coastal Counties", "data-region","coastal",    c.region.coastal,    c.id) +
-        gfld("Bristol County",   "data-region","bristol",    c.region.bristol,    c.id));
+        gfld(REGION_LABELS.providence,"data-region","providence", c.region.providence, c.id) +
+        gfld(REGION_LABELS.kent,      "data-region","kent",       c.region.kent,       c.id) +
+        gfld(REGION_LABELS.coastal,   "data-region","coastal",    c.region.coastal,    c.id) +
+        gfld(REGION_LABELS.bristol,   "data-region","bristol",    c.region.bristol,    c.id));
       return [
         '<article class="candidate-card" data-id="'+escapeHtml(c.id)+'">',
         '<div class="candidate-card__top"><div>',
@@ -727,7 +725,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   function renderScoreGrid() { renderVoteStrip(); }
 
-  function candidateStandingMarkup(c, pct, countyWins, rawVotes) {
+  function candidateStandingMarkup(c, pct, localityWins, rawVotes) {
     var shades = candidateShades(c.palette.strong);
     var votesStr = rawVotes > 0 ? " | ~" + Math.round(rawVotes / 1000).toLocaleString() + "K votes" : "";
     return [
@@ -739,7 +737,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       '</div>',
       '<p class="score-card__label">'+escapeHtml(ideologyLabel(c.ideology))+'</p>',
       '<p class="score-card__value" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</p>',
-      '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' counties</p>',
+      '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+localityWins+' municipalities</p>',
       '</article>'
     ].join("");
   }
@@ -822,45 +820,55 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   // ── map loading ───────────────────────────────────────────────────────────
   function loadMap() {
-    d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json").then(function(us) {
-      var all = topojson.feature(us, us.objects.counties);
-      var riFeatures = all.features.filter(function(f) { return String(f.id).slice(0,2) === "44"; });
-      var geo = { type:"FeatureCollection", features: riFeatures };
+    var mapEl = document.getElementById("map-shell");
+    if (!window.RI_MUNICIPAL_SVG || !MUNICIPALITIES.length) {
+      document.getElementById("map-status").textContent = "Municipality map data is missing.";
+      return;
+    }
 
-      var mapEl = document.getElementById("map-shell");
-      var W = mapEl.clientWidth || 480, H = 380;
-      var proj = d3.geoAlbers().fitSize([W, H], geo);
-      var path = d3.geoPath().projection(proj);
-      var svg  = d3.select(mapEl).append("svg").attr("viewBox","0 0 "+W+" "+H).attr("width","100%");
+    mapEl.innerHTML = window.RI_MUNICIPAL_SVG;
+    var svg = d3.select(mapEl).select("svg").attr("preserveAspectRatio", "xMidYMid meet");
+    var group = svg.select("g");
+    if (!group.empty()) {
+      group.attr("style", null).attr("stroke", null).attr("stroke-width", null);
+    }
 
-      riFeatures.forEach(function(feat) {
-        var fips   = String(feat.id).padStart(5,"0");
-        var county = COUNTIES.find(function(c){ return c.fips === fips; });
-        var p = svg.append("path")
-          .attr("d", path(feat))
-          .attr("fill", "#d8cfc0")
-          .attr("data-fips", fips)
-          .attr("class", county ? "county-active" : "county-inactive");
+    state.regions = [];
+    svg.selectAll("path").each(function() {
+      var pathNode = d3.select(this);
+      var svgId = pathNode.attr("id") || "";
+      var municipality = MUNICIPALITY_BY_SVG_ID[svgId] || null;
 
-        if (county) {
-          var idx = state.regions.length;
-          state.regions.push({ county: county, path: p, result: null, override: zeroOverride(), turnoutMult: 1 });
-          p.on("click",      function() { selectRegion(idx); })
-           .on("mouseover",  function() { showTooltip(idx); })
-           .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
-        }
+      pathNode
+        .attr("style", null)
+        .attr("data-svg-id", svgId)
+        .attr("class", municipality ? "county-active" : "county-inactive")
+        .style("fill", "#d8cfc0");
+
+      if (!municipality) return;
+
+      var idx = state.regions.length;
+      state.regions.push({
+        municipality: municipality,
+        path: pathNode,
+        result: null,
+        override: zeroOverride(),
+        turnoutMult: 1,
+        localityVotes: municipality.votes.total
       });
 
-      document.getElementById("map-status").textContent = state.regions.length + " counties loaded";
-      renderCandidatePanel();
-      renderScoreGrid();
-      renderVoteStrip();
-      simulateAndRender(true);
-
-    }).catch(function(err) {
-      document.getElementById("map-status").textContent = "Map load failed";
-      console.error(err);
+      pathNode
+        .on("click", function() { selectRegion(idx); })
+        .on("mouseover", function() { showTooltip(idx); })
+        .on("mousemove", function() { showTooltip(idx); })
+        .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
     });
+
+    document.getElementById("map-status").textContent = state.regions.length + " municipalities loaded";
+    renderCandidatePanel();
+    renderScoreGrid();
+    renderVoteStrip();
+    simulateAndRender(true);
   }
 
   // ── region interaction ────────────────────────────────────────────────────
@@ -878,16 +886,18 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   function showTooltip(idx) {
     var r   = state.regions[idx];
     var tt  = document.getElementById("map-tooltip");
-    var lean = r.county.lean;
-    var leanStr = lean >= 50 ? "R+" + (lean-50) : "D+" + (50-lean);
-    document.getElementById("tt-title").textContent = r.county.name + " County";
-    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " · Baseline: " + leanStr;
+    var m = r.municipality;
+    var lean = m.lean;
+    var leanStr = lean >= 50 ? "Trump +" + (lean-50).toFixed(1) : "Harris +" + (50-lean).toFixed(1);
+    var kindLabel = m.kind.charAt(0).toUpperCase() + m.kind.slice(1);
+    document.getElementById("tt-title").textContent = m.name;
+    document.getElementById("tt-meta").textContent  = kindLabel + " · Pop: " + m.pop.toLocaleString() + " · 2024 base: " + leanStr;
     var cands = currentCandidates();
-    var countyVotes = r.countyVotes || 0;
+    var localityVotes = r.localityVotes || m.votes.total || 0;
     document.getElementById("tt-candidates").innerHTML = r.result
       ? cands.slice().sort(function(a,b){ return (r.result[b.id]||0)-(r.result[a.id]||0); }).map(function(c) {
           var pct   = (r.result[c.id] || 0).toFixed(1);
-          var votes = Math.round((r.result[c.id]||0) / 100 * countyVotes).toLocaleString();
+          var votes = Math.round((r.result[c.id]||0) / 100 * localityVotes).toLocaleString();
           return '<div class="map-tooltip__row">' +
             '<span style="color:'+c.palette.strong+';font-weight:700;">'+escapeHtml(c.name.split(" ")[0])+'</span>' +
             '<span style="font-variant-numeric:tabular-nums;">'+pct+'% &nbsp;<span style="color:var(--muted);font-size:0.75rem;">('+votes+')</span></span>' +
@@ -899,10 +909,12 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   function renderRegionPanel(idx) {
     var r = state.regions[idx];
-    document.getElementById("region-title").textContent   = r.county.name + " County";
+    var m = r.municipality;
+    var kindLabel = m.kind.charAt(0).toUpperCase() + m.kind.slice(1);
+    document.getElementById("region-title").textContent   = m.name;
     document.getElementById("region-summary").textContent = r.result
-      ? (function(){ var wId = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; })[0]; var wc = candById(wId); return wc ? wc.name+" leads with "+(r.result[wId]||0).toFixed(1)+"%" : ""; })()
-      : "No results yet.";
+      ? (function(){ var wId = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; })[0]; var wc = candById(wId); return wc ? kindLabel + " · " + REGION_LABELS[m.region] + " · " + wc.name+" leads with "+(r.result[wId]||0).toFixed(1)+"%" : ""; })()
+      : kindLabel + " · " + REGION_LABELS[m.region];
     renderBoostButtons();
   }
 
@@ -921,7 +933,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   // ── simulation ────────────────────────────────────────────────────────────
-  var DECAY = 60;
+  var DECAY = 45;
 
   function simulateAndRender(reroll) {
     if (reroll) state.seed = Math.floor(Math.random() * 1e9);
@@ -930,8 +942,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     var cands = currentCandidates();
 
     state.regions.forEach(function(r) {
-      var lean = r.county.lean;
-      var reg  = r.county.region;
+      var lean = r.municipality.lean;
+      var reg  = r.municipality.region;
 
       var regSwing = c.swing;
       if (reg === "providence") regSwing += c.providence;
@@ -939,14 +951,14 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       if (reg === "coastal")    regSwing += c.coastal;
       if (reg === "bristol")    regSwing += c.providence * 0.1;
 
-      var countyPos = (lean - 50) * 1.5 + regSwing * 2.5;
+      var localityPos = (lean - 50) * 1.65 + regSwing * 2.5;
 
       function noise() { return (rand() * 2 - 1) * c.volatility; }
 
-      var bd = r.county.demo, ba = r.county.age;
+      var bd = r.municipality.demo, ba = r.municipality.age;
       var raw = {};
       cands.forEach(function(cd) {
-        var dist      = Math.abs(cd.ideology - countyPos);
+        var dist      = Math.abs(cd.ideology - localityPos);
         var proximity = Math.exp(-dist / DECAY);
         var demoBonus = bd
           ? (bd.white*(cd.demo.white||0) + bd.black*(cd.demo.black||0) + bd.hisp*(cd.demo.hisp||0) + bd.asian*(cd.demo.asian||0) + bd.other*(cd.demo.other||0)) / 100
@@ -965,7 +977,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
       var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
       r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
-      r.countyVotes = Math.round(r.county.pop * TURNOUT_RATE[state.mode] * r.turnoutMult);
+      var turnoutBase = state.mode === "general"
+        ? r.municipality.votes.total
+        : Math.round(r.municipality.pop * TURNOUT_RATE[state.mode]);
+      r.localityVotes = Math.round(turnoutBase * r.turnoutMult);
     });
 
     renderMap();
@@ -987,7 +1002,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       var wPct  = r.result[wId] || 0;
       var wCand = candById(wId);
       var color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
-      r.path.attr("fill", color).classed("selected", state.selectedId === i);
+      r.path.style("fill", color).classed("selected", state.selectedId === i);
     });
   }
 
@@ -1001,11 +1016,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       if (!r.result) return;
       var w = winnerOf(r.result);
       if (w && wins[w] !== undefined) wins[w]++;
-      var weight = r.county.pop * (r.turnoutMult || 1);
-      var countyVotes = r.countyVotes || 0;
+      var weight = r.localityVotes || r.municipality.votes.total || 0;
+      var localityVotes = r.localityVotes || 0;
       cands.forEach(function(c){
         votes[c.id] += (r.result[c.id]||0) * weight;
-        rawVotes[c.id] += Math.round((r.result[c.id]||0) / 100 * countyVotes);
+        rawVotes[c.id] += Math.round((r.result[c.id]||0) / 100 * localityVotes);
       });
     });
 
@@ -1052,7 +1067,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   function renderCloseRaces() {
     var items = state.regions.filter(function(r){ return r.result; }).map(function(r) {
       var keys = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; });
-      return { name: r.county.name, margin: r.result[keys[0]]-(r.result[keys[1]]||0), winnerId: keys[0] };
+      return { name: r.municipality.name, margin: r.result[keys[0]]-(r.result[keys[1]]||0), winnerId: keys[0] };
     }).sort(function(a,b){ return a.margin-b.margin; }).slice(0,6);
 
     document.getElementById("close-races").innerHTML = items.map(function(item) {

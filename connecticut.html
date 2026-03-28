@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -182,9 +182,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <p class="eyebrow">Connecticut &middot; Presidential / Statewide</p>
       <h1>Constitution State Simulator</h1>
       <p class="hero__lede">
-        Run alternate-election scenarios across all 8 Connecticut counties.
-        Hartford and New Haven anchor the Democratic base, while Fairfield County's
-        NYC commuter suburbs remain the key swing battleground.
+        Run alternate-election scenarios across all 169 Connecticut municipalities.
+        Hartford and New Haven still anchor the Democratic base, while the Gold Coast,
+        Naugatuck Valley, shoreline towns, and Quiet Corner shape the swing map.
       </p>
       <div class="mode-tabs" role="tablist">
         <button id="tab-general"  class="mode-tab mode-tab--general is-active" role="tab">General Election</button>
@@ -218,7 +218,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     <div class="map-panel panel">
       <div class="panel__header">
         <div>
-          <p class="panel__eyebrow">County Map</p>
+          <p class="panel__eyebrow">Municipality Map</p>
           <h2>Connecticut</h2>
         </div>
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
@@ -235,8 +235,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
       <div class="map-footer">
         <p class="map-footnote">
-          Baseline: 2024 Connecticut presidential results. County boundaries from US Census TIGER.
-          All 8 counties are interactive; click to apply local overrides.
+          Baseline: official 2024 Connecticut presidential results by municipality, with
+          town-level ACS population, race, and age profiles layered into the model.
+          All 169 municipalities are interactive; click to apply local overrides.
         </p>
       </div>
     </div>
@@ -278,17 +279,38 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Fairfield County</span>
+              <span class="slider-row__label">Fairfield / Gold Coast</span>
               <span class="slider-row__val" id="fairfield-value">0.0</span>
             </div>
             <input type="range" id="fairfield" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Eastern CT / Rural</span>
+              <span class="slider-row__label">Hartford / Capitol</span>
+              <span class="slider-row__val" id="hartford-value">0.0</span>
+            </div>
+            <input type="range" id="hartford" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">New Haven Corridor</span>
+              <span class="slider-row__val" id="newhaven-value">0.0</span>
+            </div>
+            <input type="range" id="newhaven" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Eastern CT</span>
               <span class="slider-row__val" id="eastern-value">0.0</span>
             </div>
             <input type="range" id="eastern" min="-10" max="10" step="0.5" value="0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-row__top">
+              <span class="slider-row__label">Northwest Hills</span>
+              <span class="slider-row__val" id="northwest-value">0.0</span>
+            </div>
+            <input type="range" id="northwest" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
@@ -312,11 +334,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         </div>
       </div>
 
-      <!-- selected county -->
+      <!-- selected municipality -->
       <div class="region-panel panel is-hidden" id="region-panel">
-        <p class="panel__eyebrow">Selected County</p>
+        <p class="panel__eyebrow">Selected Municipality</p>
         <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">—</h2>
-        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a county on the map.</p>
+        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a municipality on the map.</p>
         <div class="region-actions" id="region-actions"></div>
       </div>
 
@@ -332,7 +354,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="connecticut-municipality-data.js"></script>
+<script src="connecticut-municipal-geo.js"></script>
 <script>
 (function () {
   "use strict";
@@ -341,6 +364,16 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
   function escapeHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function signedStr(v, d) { return (v >= 0 ? "+" : "") + v.toFixed(d !== undefined ? d : 1); }
+  function normalizeTownName(name) {
+    return String(name || "")
+      .replace(/^E\.\s/, "East ")
+      .replace(/^N\.\s/, "North ")
+      .replace(/^S\.\s/, "South ")
+      .replace(/^W\.\s/, "West ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
 
   // ── color utilities ───────────────────────────────────────────────────────
   function hexToRgb(hex) { return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)]; }
@@ -374,57 +407,35 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   function ideologyLabel(v) {
-    if (v <= -65) return "Progressive";
-    if (v <= -35) return "Progressive";
-    if (v <= -10) return "Liberal";
-    if (v <=  10) return "Centrist";
-    if (v <=  35) return "Moderate R";
-    if (v <=  65) return "Conservative";
-    return "Far Right";
+    if (v <= -85) return "Communist";
+    if (v <= -65) return "Socialist";
+    if (v <= -45) return "Progressive";
+    if (v <= -25) return "Liberal";
+    if (v <=  -8) return "Establishment D";
+    if (v <    8) return "Centrist";
+    if (v <   25) return "Establishment R";
+    if (v <   45) return "Neocon";
+    if (v <   65) return "Conservative";
+    if (v <   85) return "Nationalist";
+    return "Fascist";
   }
 
-  // ── county data ───────────────────────────────────────────────────────────
+  // ── municipality data ─────────────────────────────────────────────────────
   // lean = R% of 2-party vote (2024 presidential)
-  var COUNTIES = [
-    // Fairfield County (NYC commuter, swing area)
-    { fips:"09001", name:"Fairfield",   region:"fairfield", lean:40, pop:973383,  demo:{white:69,black:10,hisp:16,asian:5,other:0}, age:{y1829:16,y3044:27,y4564:32,y65p:19} },
+  var COUNTIES = Array.isArray(window.CONNECTICUT_MUNICIPALITIES) ? window.CONNECTICUT_MUNICIPALITIES.slice() : [];
+  var COUNTIES_BY_NAME = {};
+  COUNTIES.forEach(function(c) { COUNTIES_BY_NAME[normalizeTownName(c.name)] = c; });
 
-    // Hartford (capital, most D)
-    { fips:"09003", name:"Hartford",    region:"hartford",  lean:39, pop:891720,  demo:{white:53,black:16,hisp:25,asian:5,other:1}, age:{y1829:17,y3044:26,y4564:31,y65p:19} },
-
-    // New Haven (college city + suburbs)
-    { fips:"09009", name:"New Haven",   region:"newhaven",  lean:44, pop:864835,  demo:{white:58,black:16,hisp:20,asian:5,other:1}, age:{y1829:18,y3044:26,y4564:30,y65p:19} },
-
-    // Eastern CT
-    { fips:"09011", name:"New London",  region:"eastern",   lean:44, pop:269702,  demo:{white:71,black:8,hisp:12,asian:5,other:4}, age:{y1829:18,y3044:25,y4564:32,y65p:19} },
-    { fips:"09013", name:"Tolland",     region:"eastern",   lean:46, pop:152691,  demo:{white:82,black:4,hisp:7,asian:5,other:2},  age:{y1829:19,y3044:24,y4564:33,y65p:18} },
-    { fips:"09007", name:"Middlesex",   region:"eastern",   lean:44, pop:163368,  demo:{white:80,black:7,hisp:7,asian:4,other:2},  age:{y1829:14,y3044:23,y4564:33,y65p:24} },
-
-    // Rural CT
-    { fips:"09005", name:"Litchfield",  region:"rural",     lean:54, pop:183031,  demo:{white:88,black:2,hisp:6,asian:3,other:1},  age:{y1829:14,y3044:22,y4564:34,y65p:24} },
-    { fips:"09015", name:"Windham",     region:"rural",     lean:55, pop:118428,  demo:{white:65,black:5,hisp:25,asian:3,other:2},  age:{y1829:17,y3044:25,y4564:32,y65p:19} },
-  ];
-
-  // De-duplicate by fips
-  (function() {
-    var seen = {};
-    COUNTIES = COUNTIES.filter(function(c) {
-      if (seen[c.fips]) return false;
-      seen[c.fips] = true;
-      return true;
-    });
-  })();
-
-  var TURNOUT_RATE = { general: 0.70, repPrimary: 0.14, demPrimary: 0.25 };
+  var TURNOUT_RATE = { general: 0.49, repPrimary: 0.14, demPrimary: 0.25 };
 
   // ── presets ───────────────────────────────────────────────────────────────
   var PRESETS = {
-    "baseline-2024": { label:"2024 Baseline",    controls:{ swing:0,  fairfield:0,  eastern:0,  volatility:3.5 } },
-    "blue-surge":    { label:"Urban Surge",       controls:{ swing:-4, fairfield:-6, eastern:-2, volatility:0.9 } },
-    "red-wave":      { label:"Republican Surge",  controls:{ swing:6,  fairfield:4,  eastern:5,  volatility:1.1 } },
-    "fairfield-flip":{ label:"Fairfield Shift",   controls:{ swing:2,  fairfield:10, eastern:0,  volatility:0.9 } },
-    "rural-revolt":  { label:"Rural Rally",       controls:{ swing:2,  fairfield:0,  eastern:8,  volatility:1.0 } },
-    "hartford-surge":{ label:"Hartford Lock",     controls:{ swing:-3, fairfield:-3, eastern:-4, volatility:0.9 } },
+    "baseline-2024": { label:"2024 Baseline",    controls:{ swing:0,  fairfield:0,  hartford:0,  newhaven:0,  eastern:0, northwest:0, volatility:3.5 } },
+    "blue-surge":    { label:"Urban Surge",       controls:{ swing:-4, fairfield:-6, hartford:-5, newhaven:-4, eastern:-2, northwest:-1, volatility:0.9 } },
+    "red-wave":      { label:"Republican Surge",  controls:{ swing:6,  fairfield:4,  hartford:2,  newhaven:2,  eastern:5, northwest:6,  volatility:1.1 } },
+    "fairfield-flip":{ label:"Fairfield Shift",   controls:{ swing:2,  fairfield:10, hartford:1,  newhaven:2,  eastern:0, northwest:0,  volatility:0.9 } },
+    "rural-revolt":  { label:"Rural Rally",       controls:{ swing:2,  fairfield:0,  hartford:0,  newhaven:0,  eastern:8, northwest:10, volatility:1.0 } },
+    "hartford-surge":{ label:"Hartford Lock",     controls:{ swing:-3, fairfield:-3, hartford:-10,newhaven:-4, eastern:-4, northwest:-2, volatility:0.9 } },
   };
 
   // ── candidate factory ─────────────────────────────────────────────────────
@@ -445,7 +456,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         hartford:   o.region&&o.region.hartford||0,
         newhaven:   o.region&&o.region.newhaven||0,
         eastern:    o.region&&o.region.eastern||0,
-        rural:      o.region&&o.region.rural||0
+        northwest:  o.region ? (o.region.northwest !== undefined ? o.region.northwest : (o.region.rural || 0)) : 0
       },
       palette:  { strong: o.palette&&o.palette.strong ? o.palette.strong : "#888" }
     };
@@ -455,11 +466,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return [
       makeCandidate({ id:"gen-r", name:"Republican", ideology:22, strength:78, buzz:0, turnout:0, anchor:"rep", removable:false,
         demo:{white:2,black:-3,hisp:-1,asian:-1,other:0}, age:{y1829:-1,y3044:0,y4564:1,y65p:1},
-        region:{fairfield:1,hartford:-2,newhaven:-1,eastern:0,rural:2},
+        region:{fairfield:1,hartford:-2,newhaven:-1,eastern:0,northwest:2},
         palette:{strong:"#c0011a"} }),
       makeCandidate({ id:"gen-d", name:"Democrat", ideology:-22, strength:82, buzz:0, turnout:0, anchor:"dem", removable:false,
         demo:{white:-2,black:4,hisp:2,asian:2,other:1}, age:{y1829:2,y3044:1,y4564:-1,y65p:-1},
-        region:{fairfield:0,hartford:2,newhaven:1,eastern:1,rural:-2},
+        region:{fairfield:0,hartford:2,newhaven:1,eastern:1,northwest:-2},
         palette:{strong:"#1037c2"} }),
     ];
   }
@@ -467,20 +478,20 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return [
       makeCandidate({ id:"rp1", name:"Establishment R", ideology:48, strength:72, buzz:2, turnout:3,
         demo:{white:5,black:-2,hisp:1,asian:-1,other:-1}, age:{y1829:-3,y3044:-1,y4564:3,y65p:5},
-        region:{fairfield:4,hartford:2,newhaven:3,eastern:3,rural:2}, removable:true, palette:{strong:"#c0011a"} }),
+        region:{fairfield:4,hartford:2,newhaven:3,eastern:3,northwest:2}, removable:true, palette:{strong:"#c0011a"} }),
       makeCandidate({ id:"rp2", name:"MAGA Challenger", ideology:76, strength:58, buzz:2, turnout:2,
         demo:{white:8,black:-3,hisp:-2,asian:-2,other:-1}, age:{y1829:-2,y3044:0,y4564:3,y65p:6},
-        region:{fairfield:0,hartford:-2,newhaven:-1,eastern:5,rural:7}, removable:true, palette:{strong:"#8b0000"} }),
+        region:{fairfield:0,hartford:-2,newhaven:-1,eastern:5,northwest:7}, removable:true, palette:{strong:"#8b0000"} }),
     ];
   }
   function makeDefaultDemPrimaryCandidates() {
     return [
       makeCandidate({ id:"dp1", name:"Moderate Democrat", ideology:-46, strength:65, buzz:2, turnout:2,
         demo:{white:3,black:6,hisp:5,asian:4,other:2}, age:{y1829:3,y3044:4,y4564:-1,y65p:-2},
-        region:{fairfield:5,hartford:4,newhaven:4,eastern:4,rural:3}, removable:true, palette:{strong:"#1037c2"} }),
+        region:{fairfield:5,hartford:4,newhaven:4,eastern:4,northwest:3}, removable:true, palette:{strong:"#1037c2"} }),
       makeCandidate({ id:"dp2", name:"Progressive", ideology:-76, strength:62, buzz:4, turnout:4,
         demo:{white:-2,black:12,hisp:8,asian:7,other:4}, age:{y1829:14,y3044:6,y4564:-4,y65p:-8},
-        region:{fairfield:4,hartford:14,newhaven:10,eastern:-2,rural:-5}, removable:true, palette:{strong:"#0a1fa0"} }),
+        region:{fairfield:4,hartford:14,newhaven:10,eastern:-2,northwest:-5}, removable:true, palette:{strong:"#0a1fa0"} }),
     ];
   }
 
@@ -496,7 +507,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
     nextCandId: { general: 3, repPrimary: 3, demPrimary: 3 },
-    controls: { swing:0, turnout:0, fairfield:0, eastern:0, volatility:3.5 },
+    controls: { swing:0, turnout:0, fairfield:0, hartford:0, newhaven:0, eastern:0, northwest:0, volatility:3.5 },
     regions: [], seed: 42, selectedId: null
   };
 
@@ -508,7 +519,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     { strong:"#0066b3" }, { strong:"#8b7000" }
   ];
 
-  var SLIDER_KEYS = ["swing","turnout","fairfield","eastern","volatility"];
+  var SLIDER_KEYS = ["swing","turnout","fairfield","hartford","newhaven","eastern","northwest","volatility"];
 
   // ── init ──────────────────────────────────────────────────────────────────
   window.addEventListener("DOMContentLoaded", function () {
@@ -539,7 +550,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     });
     document.getElementById("reroll-button").addEventListener("click", function() { simulateAndRender(true); });
     document.getElementById("reset-button").addEventListener("click", function() {
-      state.controls = { swing:0, turnout:0, fairfield:0, eastern:0, volatility:3.5 };
+      state.controls = { swing:0, turnout:0, fairfield:0, hartford:0, newhaven:0, eastern:0, northwest:0, volatility:3.5 };
       SLIDER_KEYS.forEach(function(k) {
         var el = document.getElementById(k); if (el) el.value = state.controls[k];
         var ve = document.getElementById(k + "-value"); if (ve) ve.textContent = Number(state.controls[k]).toFixed(1);
@@ -708,11 +719,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         gfld("45\u201364","data-age","y4564",c.age.y4564,c.id) +
         gfld("65+",       "data-age","y65p", c.age.y65p, c.id));
       var regSec = detailSection("reg", c.id, "Regional Strength",
-        gfld("Fairfield County",  "data-region","fairfield", c.region.fairfield, c.id) +
-        gfld("Hartford County",   "data-region","hartford",  c.region.hartford,  c.id) +
-        gfld("New Haven County",  "data-region","newhaven",  c.region.newhaven,  c.id) +
-        gfld("Eastern CT",        "data-region","eastern",   c.region.eastern,   c.id) +
-        gfld("Rural CT",          "data-region","rural",     c.region.rural,     c.id));
+        gfld("Fairfield / Gold Coast", "data-region","fairfield", c.region.fairfield, c.id) +
+        gfld("Hartford / Capitol",     "data-region","hartford",  c.region.hartford,  c.id) +
+        gfld("New Haven Corridor",     "data-region","newhaven",  c.region.newhaven,  c.id) +
+        gfld("Eastern CT",             "data-region","eastern",   c.region.eastern,   c.id) +
+        gfld("Northwest Hills",        "data-region","northwest", c.region.northwest, c.id));
       return [
         '<article class="candidate-card" data-id="'+escapeHtml(c.id)+'">',
         '<div class="candidate-card__top"><div>',
@@ -753,7 +764,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       '</div>',
       '<p class="score-card__label">'+escapeHtml(ideologyLabel(c.ideology))+'</p>',
       '<p class="score-card__value" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</p>',
-      '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' counties</p>',
+      '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' municipalities</p>',
       '</article>'
     ].join("");
   }
@@ -836,24 +847,54 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   // ── map loading ───────────────────────────────────────────────────────────
   function loadMap() {
-    d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json").then(function(us) {
-      var all = topojson.feature(us, us.objects.counties);
-      var ctFeatures = all.features.filter(function(f) { return String(f.id).slice(0,2) === "09"; });
-      var geo = { type:"FeatureCollection", features: ctFeatures };
+    var geo = window.CONNECTICUT_MUNICIPAL_GEOJSON;
+    if (!geo || !Array.isArray(geo.features)) {
+      document.getElementById("map-status").textContent = "Municipality map data is missing.";
+      return;
+    }
 
+    try {
       var mapEl = document.getElementById("map-shell");
-      var W = mapEl.clientWidth || 480, H = 400;
-      var proj = d3.geoAlbers().fitSize([W, H], geo);
+      mapEl.innerHTML = "";
+      var W = Math.max(480, mapEl.clientWidth || 480);
+      var H = Math.max(430, mapEl.clientHeight || 460);
+      var lonScale = Math.cos(41.6 * Math.PI / 180);
+      function projectCoords(coords) {
+        if (typeof coords[0] === "number") {
+          return [coords[0] * lonScale, coords[1]];
+        }
+        return coords.map(projectCoords);
+      }
+      var planarGeo = {
+        type: "FeatureCollection",
+        features: geo.features.map(function(feat) {
+          return {
+            type: "Feature",
+            properties: feat.properties || {},
+            geometry: {
+              type: feat.geometry.type,
+              coordinates: projectCoords(feat.geometry.coordinates)
+            }
+          };
+        })
+      };
+      var proj = d3.geoIdentity().reflectY(true).fitExtent([[16, 16], [W - 16, H - 16]], planarGeo);
       var path = d3.geoPath().projection(proj);
-      var svg  = d3.select(mapEl).append("svg").attr("viewBox","0 0 "+W+" "+H).attr("width","100%");
+      var svg  = d3.select(mapEl).append("svg")
+        .attr("viewBox","0 0 "+W+" "+H)
+        .attr("width","100%")
+        .attr("height","100%")
+        .attr("preserveAspectRatio", "xMidYMid meet");
 
-      ctFeatures.forEach(function(feat) {
-        var fips   = String(feat.id).padStart(5,"0");
-        var county = COUNTIES.find(function(c){ return c.fips === fips; });
+      planarGeo.features.forEach(function(feat) {
+        var lookup = feat.properties && feat.properties.lookupName
+          ? feat.properties.lookupName
+          : normalizeTownName(feat.properties && feat.properties.name);
+        var county = COUNTIES_BY_NAME[lookup] || null;
         var p = svg.append("path")
           .attr("d", path(feat))
           .attr("fill", "#d8cfc0")
-          .attr("data-fips", fips)
+          .attr("data-name", feat.properties && feat.properties.name ? feat.properties.name : "")
           .attr("class", county ? "county-active" : "county-inactive");
 
         if (county) {
@@ -865,16 +906,15 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         }
       });
 
-      document.getElementById("map-status").textContent = state.regions.length + " counties loaded";
+      document.getElementById("map-status").textContent = state.regions.length + " municipalities loaded";
       renderCandidatePanel();
       renderScoreGrid();
       renderVoteStrip();
       simulateAndRender(true);
-
-    }).catch(function(err) {
+    } catch (err) {
       document.getElementById("map-status").textContent = "Map load failed";
       console.error(err);
-    });
+    }
   }
 
   // ── region interaction ────────────────────────────────────────────────────
@@ -894,7 +934,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     var tt  = document.getElementById("map-tooltip");
     var lean = r.county.lean;
     var leanStr = lean >= 50 ? "R+" + (lean-50) : "D+" + (50-lean);
-    document.getElementById("tt-title").textContent = r.county.name + " County";
+    document.getElementById("tt-title").textContent = r.county.name;
     document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " · Baseline: " + leanStr;
     var cands = currentCandidates();
     var countyVotes = r.countyVotes || 0;
@@ -913,7 +953,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   function renderRegionPanel(idx) {
     var r = state.regions[idx];
-    document.getElementById("region-title").textContent   = r.county.name + " County";
+    document.getElementById("region-title").textContent   = r.county.name;
     document.getElementById("region-summary").textContent = r.result
       ? (function(){ var wId = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; })[0]; var wc = candById(wId); return wc ? wc.name+" leads with "+(r.result[wId]||0).toFixed(1)+"%" : ""; })()
       : "No results yet.";
@@ -935,7 +975,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   }
 
   // ── simulation ────────────────────────────────────────────────────────────
-  var DECAY = 60;
+  var DECAY = 45;
 
   function simulateAndRender(reroll) {
     if (reroll) state.seed = Math.floor(Math.random() * 1e9);
@@ -949,10 +989,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
       var regSwing = c.swing;
       if (reg === "fairfield") regSwing += c.fairfield;
-      if (reg === "hartford")  regSwing += c.fairfield * 0.2;
-      if (reg === "newhaven")  regSwing += c.fairfield * 0.3;
+      if (reg === "hartford")  regSwing += c.hartford;
+      if (reg === "newhaven")  regSwing += c.newhaven;
       if (reg === "eastern")   regSwing += c.eastern;
-      if (reg === "rural")     regSwing += c.eastern * 0.3;
+      if (reg === "rural")     regSwing += c.northwest;
 
       var countyPos = (lean - 50) * 2 + regSwing * 2.5;
 
@@ -969,7 +1009,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         var ageBonus = ba
           ? (ba.y1829*(cd.age.y1829||0) + ba.y3044*(cd.age.y3044||0) + ba.y4564*(cd.age.y4564||0) + ba.y65p*(cd.age.y65p||0)) / 100
           : 0;
-        var regionBonus = (cd.region && cd.region[reg]) || 0;
+        var regionBonus = cd.region
+          ? (cd.region[reg] !== undefined
+              ? cd.region[reg]
+              : (reg === "rural" ? (cd.region.northwest || 0) : 0))
+          : 0;
         raw[cd.id] = Math.max(0.3, cd.strength * proximity + (cd.buzz||0) + demoBonus + ageBonus + regionBonus + noise() + (r.override[cd.id]||0));
       });
 

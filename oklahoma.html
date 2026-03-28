@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -3819,7 +3819,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     var baseRepShare = region.baseTotal ? region.baseRep / region.baseTotal : 0.5;
     var weights = currentCandidates().map(function (candidate) {
       var baseAnchorShare = generalAnchorShare(candidate, baseDemShare, baseRepShare);
-      var ideologyFit = clamp(1.04 - Math.abs(candidate.ideology - environment.rightLean) / 900, 0.70, 1.40);
+      var ideologyFit = clamp(1.04 - Math.abs(candidate.ideology - environment.rightLean) / 240, 0.70, 1.40);
       var strengthFactor = 0.42 + candidate.strength / 100;
       var buzzFactor = 1 + candidate.buzz / 45;
       var turnoutFactor = 1 + candidate.turnout / 70;
@@ -3848,7 +3848,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   function allocatePrimaryVotes(region, environment) {
     var weights = currentCandidates().map(function (candidate) {
-      var ideologyFit = clamp(1.26 - Math.abs(candidate.ideology - environment.rightLean) / 150, 0.15, 1.85);
+      var ideologyFit = clamp(1.26 - Math.abs(candidate.ideology - environment.rightLean) / 120, 0.15, 1.85);
       var strengthFactor = 0.12 + candidate.strength / 52;
       var buzzFactor = clamp(1 + candidate.buzz / 35, 0.35, 1.65);
       var turnoutFactor = clamp(1 + candidate.turnout / 70, 0.45, 1.4);
@@ -4598,25 +4598,37 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   function ideologyLabel(value) {
     var number = Number(value || 0);
-    if (number <= -70) {
-      return "Progressive left";
+    if (number <= -85) {
+      return "Communist";
     }
-    if (number <= -35) {
+    if (number <= -65) {
+      return "Socialist";
+    }
+    if (number <= -45) {
+      return "Progressive";
+    }
+    if (number <= -25) {
       return "Liberal";
     }
-    if (number <= -10) {
-      return "Center-left";
+    if (number <= -8) {
+      return "Establishment D";
     }
-    if (number < 10) {
+    if (number < 8) {
       return "Centrist";
     }
-    if (number < 35) {
-      return "Center-right";
+    if (number < 25) {
+      return "Establishment R";
     }
-    if (number < 70) {
+    if (number < 45) {
+      return "Neocon";
+    }
+    if (number < 65) {
       return "Conservative";
     }
-    return "Hard right";
+    if (number < 85) {
+      return "Nationalist";
+    }
+    return "Fascist";
   }
 
   function candidateColorForShare(candidate, share) {

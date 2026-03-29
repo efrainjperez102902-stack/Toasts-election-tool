@@ -52,42 +52,48 @@ window.PR_REVAMP_ACTIVE = true;
 
   function makeDefaultParties() {
     return [
-      makeParty({
-        key: "dem", label: "DEM", name: "Demokraatit", color: "#2365d1",
-        ideology: -12, strength: 57, funding: 63, turnout: 2, buzz: 4,
-        age: { y1829: 6, y3044: 5, y4564: -1, y65p: -5 },
-        region: { north: 1, disko: 1, central: 0, capital: 6, south: 2 }
-      }),
-      makeParty({
-        key: "sia", label: "SIU", name: "Siumut", color: "#d2353f",
-        ideology: 18, strength: 59, funding: 58, turnout: 2, buzz: 1,
-        age: { y1829: -2, y3044: 1, y4564: 3, y65p: 3 },
-        region: { north: 3, disko: 5, central: 3, capital: 0, south: 4 }
-      }),
-      makeParty({
-        key: "ia", label: "IA", name: "Inuit Ataqatigiit", color: "#2b8a57",
-        ideology: 38, strength: 54, funding: 50, turnout: 1, buzz: 0,
-        age: { y1829: 4, y3044: 3, y4564: -1, y65p: -3 },
-        region: { north: -1, disko: 0, central: -1, capital: 6, south: 1 }
-      }),
-      makeParty({
-        key: "nal", label: "NAL", name: "Naleraq", color: "#8e3bb8",
-        ideology: 80, strength: 49, funding: 42, turnout: 3, buzz: 3,
-        age: { y1829: 2, y3044: 1, y4564: 2, y65p: -1 },
-        region: { north: 8, disko: 2, central: 7, capital: -4, south: -3 }
-      }),
-      makeParty({
-        key: "ata", label: "ATA", name: "Atassut", color: "#de8b23",
-        ideology: -62, strength: 34, funding: 34, turnout: -1, buzz: -2,
-        age: { y1829: -4, y3044: -2, y4564: 1, y65p: 4 },
-        region: { north: 2, disko: 2, central: 1, capital: -2, south: -1 }
-      }),
-      makeParty({
-        key: "qul", label: "QUL", name: "Qulleq", color: "#4f6f52",
-        ideology: 64, strength: 18, funding: 16, turnout: 0, buzz: 1,
-        age: { y1829: 0, y3044: 1, y4564: 2, y65p: -1 },
-        region: { north: 0, disko: 0, central: 1, capital: -3, south: 3 }
-      })
+        makeParty({
+          key: "dem", label: "DEM", name: "Demokraatit", color: "#2365d1",
+          ideology: -12, strength: 57, funding: 63, turnout: 2, buzz: 4,
+          removable: true,
+          age: { y1829: 6, y3044: 5, y4564: -1, y65p: -5 },
+          region: { north: 1, disko: 1, central: 0, capital: 6, south: 2 }
+        }),
+        makeParty({
+          key: "sia", label: "SIU", name: "Siumut", color: "#d2353f",
+          ideology: 18, strength: 59, funding: 58, turnout: 2, buzz: 1,
+          removable: true,
+          age: { y1829: -2, y3044: 1, y4564: 3, y65p: 3 },
+          region: { north: 3, disko: 5, central: 3, capital: 0, south: 4 }
+        }),
+        makeParty({
+          key: "ia", label: "IA", name: "Inuit Ataqatigiit", color: "#2b8a57",
+          ideology: 38, strength: 54, funding: 50, turnout: 1, buzz: 0,
+          removable: true,
+          age: { y1829: 4, y3044: 3, y4564: -1, y65p: -3 },
+          region: { north: -1, disko: 0, central: -1, capital: 6, south: 1 }
+        }),
+        makeParty({
+          key: "nal", label: "NAL", name: "Naleraq", color: "#8e3bb8",
+          ideology: 80, strength: 49, funding: 42, turnout: 3, buzz: 3,
+          removable: true,
+          age: { y1829: 2, y3044: 1, y4564: 2, y65p: -1 },
+          region: { north: 8, disko: 2, central: 7, capital: -4, south: -3 }
+        }),
+        makeParty({
+          key: "ata", label: "ATA", name: "Atassut", color: "#de8b23",
+          ideology: -62, strength: 34, funding: 34, turnout: -1, buzz: -2,
+          removable: true,
+          age: { y1829: -4, y3044: -2, y4564: 1, y65p: 4 },
+          region: { north: 2, disko: 2, central: 1, capital: -2, south: -1 }
+        }),
+        makeParty({
+          key: "qul", label: "QUL", name: "Qulleq", color: "#4f6f52",
+          ideology: 64, strength: 18, funding: 16, turnout: 0, buzz: 1,
+          removable: true,
+          age: { y1829: 0, y3044: 1, y4564: 2, y65p: -1 },
+          region: { north: 0, disko: 0, central: 1, capital: -3, south: 3 }
+        })
     ];
   }
 
@@ -342,6 +348,7 @@ window.PR_REVAMP_ACTIVE = true;
     var key = btn.getAttribute("data-key");
     var party = state.parties.find(function (p) { return p.key === key; });
     if (!party || !party.removable) return;
+    if (state.parties.length <= 2) return;
     state.parties = state.parties.filter(function (p) { return p.key !== key; });
     state.regions.forEach(function (r) {
       delete r.override[key];
@@ -449,7 +456,7 @@ window.PR_REVAMP_ACTIVE = true;
 
     container.innerHTML = state.parties.map(function (p) {
       var shades = partyShades(p.color);
-      var removeBtn = p.removable ? '<button class="party-remove" data-key="' + escapeHtml(p.key) + '" type="button" title="Remove party">&times;</button>' : "";
+      var removeBtn = p.removable && state.parties.length > 2 ? '<button class="party-remove" data-key="' + escapeHtml(p.key) + '" type="button" title="Remove party">&times;</button>' : "";
       var ageSec = detailSection("age", p.key, "Age Support",
         gfld("18-29", "data-age", "y1829", p.age.y1829, p.key) +
         gfld("30-44", "data-age", "y3044", p.age.y3044, p.key) +

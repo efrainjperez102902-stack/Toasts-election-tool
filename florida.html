@@ -607,6 +607,24 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
   margin-bottom: 0.8rem;
 }
 
+.scoreboard__controls {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin: 0.2rem 0 0.75rem;
+}
+
+.scoreboard__controls .button {
+  padding: 0.34rem 0.72rem;
+  font-size: 0.78rem;
+}
+
+.scoreboard__controls .button.is-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+
 .metrics-grid {
   margin-top: 0.3rem;
 }
@@ -1368,6 +1386,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
             <p id="winner-subline" class="panel__note">Waiting for map data.</p>
           </div>
 
+          <div class="scoreboard__controls" aria-label="Pie chart order">
+            <button id="pie-sort-ideology" class="button" type="button">Left-Right Wing</button>
+            <button id="pie-sort-votes" class="button is-active" type="button">Vote Totals</button>
+          </div>
+
           <div id="vote-strip" class="vote-strip vote-strip--multi"></div>
           <div id="candidate-standings" class="score-grid candidate-standings"></div>
 
@@ -2027,7 +2050,8 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
     svgSource: "inline florida.svg bundle",
     regions: [],
     selectedRegionId: null,
-    runSeed: 20260311,
+runSeed: 20260311,
+    pieOrder: "votes",
     primaryTurnout: 58,
     controls: {
       statewideSwing: 0,
@@ -2103,7 +2127,9 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
     elements.tabGeneral = document.getElementById("tab-general");
     elements.tabDemPrimary = document.getElementById("tab-dem-primary");
     elements.tabRepPrimary = document.getElementById("tab-rep-primary");
-    elements.voteStrip = document.getElementById("vote-strip");
+elements.voteStrip = document.getElementById("vote-strip");
+    elements.pieSortIdeology = document.getElementById("pie-sort-ideology");
+    elements.pieSortVotes = document.getElementById("pie-sort-votes");
     elements.mapStrip = document.getElementById("map-strip");
     elements.mapStripLabels = document.getElementById("map-strip-labels");
     elements.candidateStandings = document.getElementById("candidate-standings");
@@ -2190,6 +2216,14 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
       resetCurrentModeCandidates();
     });
 
+    elements.pieSortIdeology.addEventListener("click", function () {
+      setPieOrder("ideology");
+    });
+    elements.pieSortVotes.addEventListener("click", function () {
+      setPieOrder("votes");
+    });
+    syncPieOrderButtons();
+
     elements.candidateList.addEventListener("click", handleCandidateListClick);
     elements.candidateList.addEventListener("change", handleCandidateListChange);
     elements.candidateList.addEventListener("input", handleCandidateListInput);
@@ -2258,7 +2292,7 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
         buzz: 0,
         turnout: 0,
         anchor: "dem",
-        removable: false,
+        removable:true,
         demographics: defaultDemographicAdjustments(),
         polls: [46, 44, 45, 43, 42],
         palette: { base: "#1037c2" }
@@ -2271,7 +2305,7 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
         buzz: 0,
         turnout: 0,
         anchor: "rep",
-        removable: false,
+        removable:true,
         demographics: defaultDemographicAdjustments(),
         polls: [47, 48, 49, 50, 49],
         palette: { base: "#c0011a" }
@@ -4263,6 +4297,50 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
     );
   }
 
+function syncPieOrderButtons() {
+    if (elements.pieSortIdeology) {
+      elements.pieSortIdeology.classList.toggle("is-active", state.pieOrder === "ideology");
+    }
+    if (elements.pieSortVotes) {
+      elements.pieSortVotes.classList.toggle("is-active", state.pieOrder === "votes");
+    }
+  }
+
+  function setPieOrder(order) {
+    if (order !== "ideology" && order !== "votes") {
+      return;
+    }
+    if (state.pieOrder === order) {
+      return;
+    }
+    state.pieOrder = order;
+    syncPieOrderButtons();
+    renderScoreboard();
+  }
+
+  function orderedVotePieEntries(order) {
+    var pieOrder = order.slice();
+    if (state.pieOrder === "ideology") {
+      pieOrder.sort(function (a, b) {
+        if (a.candidate.ideology !== b.candidate.ideology) {
+          return b.candidate.ideology - a.candidate.ideology;
+        }
+        if (b.share !== a.share) {
+          return b.share - a.share;
+        }
+        return a.candidate.name.localeCompare(b.candidate.name);
+      });
+      return pieOrder;
+    }
+    pieOrder.sort(function (a, b) {
+      if (b.share !== a.share) {
+        return b.share - a.share;
+      }
+      return a.candidate.name.localeCompare(b.candidate.name);
+    });
+    return pieOrder;
+  }
+
   function renderScoreboard() {
     if (!state.results || !state.results.statewideOrder.length) {
       elements.voteStrip.innerHTML = "";
@@ -4281,13 +4359,15 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
       return;
     }
 
-    var order = state.results.statewideOrder;
+var order = state.results.statewideOrder;
+    var pieOrder = orderedVotePieEntries(order);
     var winner = state.results.winner;
     var runnerUp = state.results.runnerUp;
     var bellwether = state.results.bellwether;
     var bellwetherRegion = bellwether ? getRegionById(bellwether.id) : null;
 
-    elements.voteStrip.innerHTML = renderVotePie(order, winner);
+syncPieOrderButtons();
+    elements.voteStrip.innerHTML = renderVotePie(pieOrder, winner);
 
     if (elements.mapStrip && elements.mapStripLabels) {
       var stripOrder = [];
@@ -4349,10 +4429,11 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
     var defaultName = winner && winner.candidate ? winner.candidate.name : "Statewide leader";
     var defaultShare = winner ? formatPercent(winner.share) : "--";
     var defaultDetail = winner ? "Statewide leader" : "Hover slice";
+    var defaultColor = winner && winner.candidate ? winner.candidate.palette.strong : "#8a7a67";
 
     return [
       '<div class="vote-pie-wrap">',
-      '<div class="vote-pie" data-default-name="' + escapeHtml(defaultName) + '" data-default-share="' + escapeHtml(defaultShare) + '" data-default-detail="' + escapeHtml(defaultDetail) + '">',
+      '<div class="vote-pie" data-default-name="' + escapeHtml(defaultName) + '" data-default-share="' + escapeHtml(defaultShare) + '" data-default-detail="' + escapeHtml(defaultDetail) + '" data-default-color="' + escapeHtml(defaultColor) + '">',
       '<svg class="vote-pie__svg" viewBox="0 0 ' + size + " " + size + '" aria-label="Statewide vote share pie chart">',
       order.map(function (entry) {
         var candidate = entry.candidate;
@@ -4367,7 +4448,8 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
           ' fill="' + escapeHtml(candidate.palette.strong) + '"',
           ' data-pie-name="' + escapeHtml(candidate.name) + '"',
           ' data-pie-share="' + escapeHtml(formatPercent(entry.share)) + '"',
-          ' data-pie-detail="' + escapeHtml(formatNumber(entry.votes) + " votes") + '"',
+' data-pie-detail="' + escapeHtml(formatNumber(entry.votes) + " votes") + '"',
+          ' data-pie-color="' + escapeHtml(candidate.palette.strong) + '"',
           ' aria-label="' + escapeHtml(label) + '" tabindex="0">',
           "<title>" + escapeHtml(label) + "</title>",
           "</path>"
@@ -4376,7 +4458,7 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
       "</svg>",
       '<div class="vote-pie__readout">',
       '<span class="vote-pie__eyebrow">' + escapeHtml(defaultDetail) + "</span>",
-      '<strong class="vote-pie__label">' + escapeHtml(defaultName) + "</strong>",
+      '<strong class="vote-pie__label" style="color:' + escapeHtml(defaultColor) + ';">' + escapeHtml(defaultName) + "</strong>",
       '<span class="vote-pie__share">' + escapeHtml(defaultShare) + "</span>",
       "</div>",
       "</div>",
@@ -4424,11 +4506,12 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
     setVotePieCenter(
       slice.getAttribute("data-pie-name"),
       slice.getAttribute("data-pie-share"),
-      slice.getAttribute("data-pie-detail")
+      slice.getAttribute("data-pie-detail"),
+      slice.getAttribute("data-pie-color")
     );
   }
 
-  function setVotePieCenter(name, share, detail) {
+  function setVotePieCenter(name, share, detail, color) {
     var pie = elements.voteStrip.querySelector(".vote-pie");
     if (!pie) {
       return;
@@ -4441,7 +4524,8 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
     }
     eyebrow.textContent = detail || pie.getAttribute("data-default-detail") || "";
     label.textContent = name || pie.getAttribute("data-default-name") || "";
-    shareNode.textContent = share || pie.getAttribute("data-default-share") || "";
+shareNode.textContent = share || pie.getAttribute("data-default-share") || "";
+    label.style.color = color || pie.getAttribute("data-default-color") || "";
   }
 
   function restoreVotePieCenter() {
@@ -4452,7 +4536,8 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
     setVotePieCenter(
       pie.getAttribute("data-default-name"),
       pie.getAttribute("data-default-share"),
-      pie.getAttribute("data-default-detail")
+      pie.getAttribute("data-default-detail"),
+      pie.getAttribute("data-default-color")
     );
   }
 
@@ -4988,5 +5073,6 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
 
   </script>
 <div id="map-tooltip" class="map-tooltip" hidden></div>
+<script src="map-export.js"></script>
 </body>
 </html>

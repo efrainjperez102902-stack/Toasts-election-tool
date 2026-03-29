@@ -998,6 +998,8 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     var btn = event.target.closest(".party-remove");
     if (!btn) return;
     var key = btn.getAttribute("data-key");
+    var party = state.parties.find(function (p) { return p.key === key; });
+    if (!party || !party.removable) return;
     if (state.parties.length <= 2) return;
     state.parties = state.parties.filter(function (p) { return p.key !== key; });
     delete state.controls[key + "Trend"];
@@ -1044,9 +1046,9 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     var container = document.getElementById("party-list");
     container.innerHTML = state.parties.map(function (p) {
       var shades = partyShades(p.color);
-      var removeBtn = state.parties.length > 2
-        ? '<button class="party-remove" data-key="' + escapeHtml(p.key) + '" type="button" title="Remove party">\u00d7</button>'
-        : "";
+        var removeBtn = p.removable && state.parties.length > 2
+          ? '<button class="party-remove" data-key="' + escapeHtml(p.key) + '" type="button" title="Remove party">\u00d7</button>'
+          : "";
       var isCustom = ORIG_KEYS.indexOf(p.key) === -1;
       var strengthField = isCustom
         ? '<label class="party-field"><span class="party-field__row"><span>Base Strength</span><span class="party-bs-val">' + p.baseStrength + '%</span></span>' +
@@ -1486,5 +1488,6 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
 
 }());
 </script>
+<script src="map-export.js"></script>
 </body>
 </html>

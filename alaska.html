@@ -100,6 +100,9 @@ button, input, select { font: inherit; }
 
 /* ── score panel ── */
 .score-panel { padding: 1.25rem; }
+.score-panel__controls { display: flex; gap: 0.45rem; flex-wrap: wrap; margin: 0.2rem 0 0.7rem; }
+.score-panel__controls .button { padding: 0.34rem 0.72rem; font-size: 0.78rem; }
+.score-panel__controls .button.is-active { background: var(--accent); color: #fff; border-color: transparent; }
 .candidate-standings { display: grid; gap: 0.5rem; margin-top: 0.5rem; }
 .score-card--candidate { position: relative; overflow: hidden; padding: 0.85rem 1rem; border-radius: 16px; border: 1px solid var(--line); background: var(--panel-strong); }
 .score-card__swatches { display: flex; gap: 0.25rem; margin-bottom: 0.5rem; }
@@ -261,6 +264,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
             <h2 id="winner-headline" style="margin:0 0 0.1rem;">Simulating&hellip;</h2>
           </div>
           <p id="winner-subline" class="panel__note">Waiting for map data.</p>
+        </div>
+        <div class="score-panel__controls" aria-label="Pie chart order">
+          <button id="pie-sort-ideology" class="button" type="button">Left-Right Wing</button>
+          <button id="pie-sort-votes" class="button is-active" type="button">Vote Totals</button>
         </div>
         <div id="pie-container"></div>
         <div id="candidate-standings" class="candidate-standings"></div>
@@ -483,8 +490,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
   function makeDefaultGeneralCandidates() {
     return [
-      makeCandidate({ id:"gen-r", name:"Republican",  ideology:60,  strength:100, buzz:0, turnout:0, anchor:"rep", removable:false, palette:{ strong:"#d90022" } }),
-      makeCandidate({ id:"gen-d", name:"Democrat",    ideology:-60, strength:100, buzz:0, turnout:0, anchor:"dem", removable:false, palette:{ strong:"#1a3fd4" } })
+      makeCandidate({ id:"gen-r", name:"Republican",  ideology:60,  strength:100, buzz:0, turnout:0, anchor:"rep", removable:true, palette:{ strong:"#d90022" } }),
+      makeCandidate({ id:"gen-d", name:"Democrat",    ideology:-60, strength:100, buzz:0, turnout:0, anchor:"dem", removable:true, palette:{ strong:"#1a3fd4" } })
     ];
   }
 
@@ -530,7 +537,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     candidates: { general: makeDefaultGeneralCandidates(), topFour: makeDefaultTopFourCandidates() },
     nextCandId: { general: 3, topFour: 5 },
     regions: [],    // [{ borough, feature, path, override:{[candId]:pts}, result:{[candId]:pct} }]
-    selectedId: null,
+    selectedId: null, pieOrder: "votes",
     seed: Date.now(),
     controls: { swing:0, turnout:0, anchorage:0, suburban:0, rural:0, southeast:0, volatility:4 }
   };
@@ -543,6 +550,21 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     var s = seed;
     return function() { s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/0xffffffff; };
   }
+function syncPieOrderButtons() {
+    var ideologyBtn = document.getElementById("pie-sort-ideology");
+    var votesBtn = document.getElementById("pie-sort-votes");
+    if (ideologyBtn) ideologyBtn.classList.toggle("is-active", state.pieOrder === "ideology");
+    if (votesBtn) votesBtn.classList.toggle("is-active", state.pieOrder === "votes");
+  }
+
+  function setPieOrder(order) {
+    if (order !== "ideology" && order !== "votes") return;
+    if (state.pieOrder === order) return;
+    state.pieOrder = order;
+    syncPieOrderButtons();
+    if (state.regions.length) renderScores();
+  }
+
   function zeroOverride() { var o={}; currentCandidates().forEach(function(c){ o[c.id]=0; }); return o; }
 
   // ── init ──────────────────────────────────────────────────────────────────
@@ -574,7 +596,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     document.getElementById("tab-general").addEventListener("click", function() { switchMode("general"); });
     document.getElementById("tab-topfour").addEventListener("click", function() { switchMode("topFour"); });
     document.getElementById("add-candidate").addEventListener("click", addCandidate);
-    document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
+document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
+    document.getElementById("pie-sort-ideology").addEventListener("click", function() { setPieOrder("ideology"); });
+    document.getElementById("pie-sort-votes").addEventListener("click", function() { setPieOrder("votes"); });
+    syncPieOrderButtons();
     document.getElementById("candidate-list").addEventListener("click", handleCandListClick);
     document.getElementById("candidate-list").addEventListener("input", handleCandListInput);
     document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
@@ -879,9 +904,25 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return ["M",cx,cy,"L",s.x.toFixed(2),s.y.toFixed(2),"A",r,r,0,sw>Math.PI?1:0,1,e.x.toFixed(2),e.y.toFixed(2),"Z"].join(" ");
   }
 
-  function updatePie(shares) {
+function orderedPieShares(shares) {
+    var pieShares = shares.slice();
+    if (state.pieOrder === "ideology") {
+      pieShares.sort(function(a, b) {
+        if (a.c.ideology !== b.c.ideology) return b.c.ideology - a.c.ideology;
+        if (b.pct !== a.pct) return b.pct - a.pct;
+        return a.c.name.localeCompare(b.c.name);
+      });
+      return pieShares;
+    }
+    pieShares.sort(function(a, b) {
+      if (b.pct !== a.pct) return b.pct - a.pct;
+      return a.c.name.localeCompare(b.c.name);
+    });
+    return pieShares;
+  }
+  function updatePie(shares, defaultEntry) {
     var size=208, cx=104, cy=104, r=82, angle=-Math.PI/2;
-    var winner = shares[0];
+    var winner = defaultEntry || shares[0];
     var defName  = winner ? winner.c.name.split(" ")[0] : "—";
     var defShare = winner ? winner.pct.toFixed(1)+"%" : "—";
     var defDetail= winner ? winner.c.name : "Hover a slice";
@@ -893,14 +934,15 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         ' data-pie-name="'+escapeHtml(e.c.name.split(" ")[0])+'"' +
         ' data-pie-share="'+e.pct.toFixed(1)+'%"' +
         ' data-pie-detail="'+escapeHtml(e.c.name)+'"' +
+        ' data-pie-color="'+e.c.palette.strong+'"' +
         ' aria-label="'+escapeHtml(lbl)+'" tabindex="0"><title>'+escapeHtml(lbl)+'</title></path>';
     }).join("");
     var html = '<div class="vote-pie-wrap">' +
-      '<div class="vote-pie" id="vote-pie" data-default-name="'+escapeHtml(defName)+'" data-default-share="'+escapeHtml(defShare)+'" data-default-detail="'+escapeHtml(defDetail)+'">' +
+      '<div class="vote-pie" id="vote-pie" data-default-name="'+escapeHtml(defName)+'" data-default-share="'+escapeHtml(defShare)+'" data-default-detail="'+escapeHtml(defDetail)+'" data-default-color="'+(winner ? winner.c.palette.strong : "#8a7a67")+'">' +
       '<svg class="vote-pie__svg" viewBox="0 0 '+size+' '+size+'" aria-label="Vote share pie chart">'+slices+'</svg></div>' +
       '<div class="vote-pie__readout">' +
       '<span class="vote-pie__eyebrow" id="pie-eyebrow">'+escapeHtml(defDetail)+'</span>' +
-      '<strong class="vote-pie__label" id="pie-label">'+escapeHtml(defName)+'</strong>' +
+      '<strong class="vote-pie__label" id="pie-label" style="color:'+(winner ? winner.c.palette.strong : "#8a7a67")+';">'+escapeHtml(defName)+'</strong>' +
       '<span class="vote-pie__share" id="pie-share">'+escapeHtml(defShare)+'</span>' +
       '</div></div>';
     var container = document.getElementById("pie-container");
@@ -911,11 +953,13 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       var sl = ev.target.closest("[data-pie-name]"); if (!sl) return;
       document.getElementById("pie-eyebrow").textContent = sl.getAttribute("data-pie-detail")||"";
       document.getElementById("pie-label").textContent   = sl.getAttribute("data-pie-name")||"";
+      document.getElementById("pie-label").style.color   = sl.getAttribute("data-pie-color")||"";
       document.getElementById("pie-share").textContent   = sl.getAttribute("data-pie-share")||"";
     });
     pie.addEventListener("mouseleave", function() {
       document.getElementById("pie-eyebrow").textContent = pie.getAttribute("data-default-detail")||"";
       document.getElementById("pie-label").textContent   = pie.getAttribute("data-default-name")||"";
+      document.getElementById("pie-label").style.color   = pie.getAttribute("data-default-color")||"";
       document.getElementById("pie-share").textContent   = pie.getAttribute("data-default-share")||"";
     });
   }
@@ -1082,8 +1126,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     var shares = cands.map(function(c) {
       return { c:c, pct: totalVotes ? votes[c.id]/totalVotes*100 : 0 };
     }).sort(function(a,b){ return b.pct-a.pct; });
+    var pieShares = orderedPieShares(shares);
 
-    updatePie(shares);
+    syncPieOrderButtons();
+    updatePie(pieShares, shares[0] || null);
 
     // Candidate standings cards
     var standingsEl = document.getElementById("candidate-standings");
@@ -1217,5 +1263,6 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 
 }());
 </script>
+<script src="map-export.js"></script>
 </body>
 </html>

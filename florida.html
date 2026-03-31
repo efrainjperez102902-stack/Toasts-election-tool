@@ -402,12 +402,120 @@ input[type="range"]:focus,
   padding: 1rem;
 }
 
+.map-shell.is-draggable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.map-shell.is-dragging {
+  cursor: grabbing;
+}
+
 .map-shell svg {
   width: 100%;
   height: auto;
   max-height: 700px;
   display: block;
   filter: drop-shadow(0 22px 36px rgba(35, 26, 20, 0.12));
+}
+
+.map-zoom-controls {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  display: grid;
+  gap: 0.45rem;
+  z-index: 3;
+}
+
+.map-zoom-button {
+  width: 2.35rem;
+  min-width: 2.35rem;
+  height: 2.35rem;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.group-box {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 3;
+  width: min(260px, calc(100% - 2rem));
+  padding: 0.7rem 0.8rem;
+  border-radius: 16px;
+  border: 1px solid rgba(46, 29, 14, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px rgba(35, 26, 20, 0.12);
+}
+
+.group-box__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.group-box__title {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.group-box__toggle {
+  min-width: 5.2rem;
+}
+
+.group-box__toggle.is-active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.group-box__meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.group-box__rows {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.group-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.84rem;
+}
+
+.group-row__swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+}
+
+.group-row__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-row__value {
+  font-variant-numeric: tabular-nums;
 }
 
 .map-boot {
@@ -1352,6 +1460,18 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         </div>
 
         <div class="map-stage">
+          <div class="map-zoom-controls" aria-label="Map zoom controls">
+            <button id="map-zoom-in" class="button button--ghost map-zoom-button" type="button">+</button>
+            <button id="map-zoom-out" class="button button--ghost map-zoom-button" type="button">-</button>
+          </div>
+          <div class="group-box" aria-live="polite">
+            <div class="group-box__top">
+              <p class="group-box__title">Group</p>
+              <button id="group-toggle" class="button button--ghost group-box__toggle" type="button">Group</button>
+            </div>
+            <p id="group-meta" class="group-box__meta">Grouping off.</p>
+            <div id="group-rows" class="group-box__rows"></div>
+          </div>
           <div id="map-shell" class="map-shell">
             <div id="map-boot" class="map-boot">
               <p>Booting the map engine.</p>
@@ -2048,10 +2168,21 @@ window.FLORIDA_INLINE_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\
   var state = window.state = {
     mode: "general",
     svgRoot: null,
+    zoomLayer: null,
+    zoom: { scale: 1, x: 0, y: 0 },
+    dragPointerId: null,
+    dragStartX: 0,
+    dragStartY: 0,
+    dragOriginX: 0,
+    dragOriginY: 0,
+    dragMoved: false,
+    suppressClickUntil: 0,
     svgSource: "inline florida.svg bundle",
     regions: [],
     selectedRegionId: null,
     isolatedCandidateId: null,
+    groupMode: false,
+    groupedRegionIds: [],
 runSeed: 20260311,
     pieOrder: "votes",
     primaryTurnout: 58,
@@ -2119,6 +2250,11 @@ runSeed: 20260311,
     elements.mapStatus = document.getElementById("map-status");
     elements.mapTooltip = document.getElementById("map-tooltip");
     elements.mapFootnote = document.querySelector(".map-footnote");
+    elements.mapZoomIn = document.getElementById("map-zoom-in");
+    elements.mapZoomOut = document.getElementById("map-zoom-out");
+    elements.groupToggle = document.getElementById("group-toggle");
+    elements.groupMeta = document.getElementById("group-meta");
+    elements.groupRows = document.getElementById("group-rows");
     elements.svgLoader = document.getElementById("svg-loader");
     elements.fileInput = document.getElementById("svg-file");
     elements.importButton = document.getElementById("import-button");
@@ -2223,6 +2359,15 @@ elements.voteStrip = document.getElementById("vote-strip");
     });
     elements.pieSortVotes.addEventListener("click", function () {
       setPieOrder("votes");
+    });
+    elements.groupToggle.addEventListener("click", function () {
+      toggleGroupMode();
+    });
+    elements.mapZoomIn.addEventListener("click", function () {
+      zoomMapBy(1.2);
+    });
+    elements.mapZoomOut.addEventListener("click", function () {
+      zoomMapBy(1 / 1.2);
     });
     syncPieOrderButtons();
 
@@ -2664,6 +2809,8 @@ elements.voteStrip = document.getElementById("vote-strip");
     }
     state.selectedRegionId = null;
     state.isolatedCandidateId = null;
+    state.groupMode = false;
+    state.groupedRegionIds = [];
     renderModeTabs();
     setControlDisplays();
     renderCandidatePanel();
@@ -3359,6 +3506,8 @@ elements.voteStrip = document.getElementById("vote-strip");
     state.events = [];
     state.selectedRegionId = null;
     state.isolatedCandidateId = null;
+    state.groupMode = false;
+    state.groupedRegionIds = [];
     state.regions.forEach(function (region) {
       region.modifier = makeDefaultModifier();
     });
@@ -3428,6 +3577,10 @@ elements.voteStrip = document.getElementById("vote-strip");
     var localSvgRoot = document.importNode(svgRoot, true);
     state.svgSource = sourceLabel;
     state.svgRoot = localSvgRoot;
+    state.zoomLayer = null;
+    state.zoom = { scale: 1, x: 0, y: 0 };
+    state.dragPointerId = null;
+    state.dragMoved = false;
     state.regions = [];
     state.selectedRegionId = null;
     state.isolatedCandidateId = null;
@@ -3444,8 +3597,136 @@ elements.voteStrip = document.getElementById("vote-strip");
 
     initializeRegions(localSvgRoot);
     fitSvgToRegions(localSvgRoot);
+    setupMapZoom(localSvgRoot);
     applyPreset(elements.presetSelect.value, true);
     elements.mapStatus.textContent = "Loaded " + sourceLabel + ". Hover or click any county to inspect the map.";
+  }
+
+  function ensureZoomLayer(svgRoot) {
+    var existingLayer = svgRoot.querySelector(':scope > g[data-zoom-layer="true"]');
+    if (existingLayer) {
+      return existingLayer;
+    }
+
+    var svgNS = "http://www.w3.org/2000/svg";
+    var layer = document.createElementNS(svgNS, "g");
+    layer.setAttribute("data-zoom-layer", "true");
+
+    Array.prototype.slice.call(svgRoot.childNodes).forEach(function (child) {
+      if (!child || child.nodeType !== 1) {
+        return;
+      }
+      var tag = String(child.tagName || "").toLowerCase();
+      if (tag === "defs" || tag === "style" || tag === "title" || tag === "desc" || tag === "metadata") {
+        return;
+      }
+      layer.appendChild(child);
+    });
+
+    svgRoot.appendChild(layer);
+    return layer;
+  }
+
+  function applyMapTransform() {
+    if (!state.zoomLayer) {
+      return;
+    }
+    state.zoomLayer.setAttribute(
+      "transform",
+      "translate(" + state.zoom.x.toFixed(2) + " " + state.zoom.y.toFixed(2) + ") scale(" + state.zoom.scale.toFixed(4) + ")"
+    );
+  }
+
+  function setupMapZoom(svgRoot) {
+    if (!svgRoot || !elements.mapShell) {
+      return;
+    }
+
+    state.zoomLayer = ensureZoomLayer(svgRoot);
+    state.zoom = { scale: 1, x: 0, y: 0 };
+    applyMapTransform();
+    elements.mapShell.classList.add("is-draggable");
+
+    svgRoot.onpointerdown = handleMapPointerDown;
+    svgRoot.onpointermove = handleMapPointerMove;
+    svgRoot.onpointerup = handleMapPointerUp;
+    svgRoot.onpointercancel = handleMapPointerUp;
+    svgRoot.onpointerleave = handleMapPointerUp;
+    svgRoot.onwheel = handleMapWheel;
+  }
+
+  function zoomMapBy(factor) {
+    setMapZoom(state.zoom.scale * factor);
+  }
+
+  function setMapZoom(nextScale, anchorX, anchorY) {
+    if (!state.svgRoot || !state.zoomLayer) {
+      return;
+    }
+    var svgRect = state.svgRoot.getBoundingClientRect();
+    var targetScale = clamp(Number(nextScale || 1), 1, 8);
+    var focusX = typeof anchorX === "number" ? anchorX : svgRect.width / 2;
+    var focusY = typeof anchorY === "number" ? anchorY : svgRect.height / 2;
+    var scaleRatio = targetScale / state.zoom.scale;
+
+    state.zoom.x = focusX - (focusX - state.zoom.x) * scaleRatio;
+    state.zoom.y = focusY - (focusY - state.zoom.y) * scaleRatio;
+    state.zoom.scale = targetScale;
+    applyMapTransform();
+  }
+
+  function handleMapPointerDown(event) {
+    if (!state.svgRoot || event.button !== 0) {
+      return;
+    }
+    state.dragPointerId = event.pointerId;
+    state.dragStartX = event.clientX;
+    state.dragStartY = event.clientY;
+    state.dragOriginX = state.zoom.x;
+    state.dragOriginY = state.zoom.y;
+    state.dragMoved = false;
+    elements.mapShell.classList.add("is-dragging");
+  }
+
+  function handleMapPointerMove(event) {
+    if (state.dragPointerId !== event.pointerId) {
+      return;
+    }
+    var dx = event.clientX - state.dragStartX;
+    var dy = event.clientY - state.dragStartY;
+    if (!state.dragMoved && Math.hypot(dx, dy) > 4) {
+      state.dragMoved = true;
+    }
+    if (!state.dragMoved) {
+      return;
+    }
+    state.zoom.x = state.dragOriginX + dx;
+    state.zoom.y = state.dragOriginY + dy;
+    applyMapTransform();
+  }
+
+  function handleMapPointerUp(event) {
+    if (state.dragPointerId !== event.pointerId) {
+      return;
+    }
+    if (state.dragMoved) {
+      state.suppressClickUntil = Date.now() + 180;
+    }
+    state.dragPointerId = null;
+    state.dragMoved = false;
+    elements.mapShell.classList.remove("is-dragging");
+  }
+
+  function handleMapWheel(event) {
+    if (!state.svgRoot) {
+      return;
+    }
+    event.preventDefault();
+    var rect = state.svgRoot.getBoundingClientRect();
+    var anchorX = event.clientX - rect.left;
+    var anchorY = event.clientY - rect.top;
+    var factor = event.deltaY < 0 ? 1.14 : (1 / 1.14);
+    setMapZoom(state.zoom.scale * factor, anchorX, anchorY);
   }
 
   function initializeRegions(svgRoot) {
@@ -4278,6 +4559,7 @@ elements.voteStrip = document.getElementById("vote-strip");
   function renderAll() {
     renderModeTabs();
     renderPollingPanel();
+    renderGroupBox();
     renderMap();
     renderScoreboard();
     renderSelectedRegion();
@@ -4290,6 +4572,86 @@ elements.voteStrip = document.getElementById("vote-strip");
     state.regions.forEach(function (region) {
       applyRegionVisual(region);
     });
+    renderGroupBox();
+  }
+
+  function isGroupedRegion(regionId) {
+    return state.groupedRegionIds.indexOf(regionId) !== -1;
+  }
+
+  function clearGroupedRegions() {
+    state.groupedRegionIds = [];
+    renderGroupBox();
+    if (state.regions.length) {
+      renderMap();
+    }
+  }
+
+  function toggleGroupMode() {
+    state.groupMode = !state.groupMode;
+    state.selectedRegionId = null;
+    clearGroupedRegions();
+    renderSelectedRegion();
+    renderMapStatus(null);
+  }
+
+  function toggleGroupedRegion(regionId) {
+    var index = state.groupedRegionIds.indexOf(regionId);
+    if (index === -1) {
+      state.groupedRegionIds.push(regionId);
+    } else {
+      state.groupedRegionIds.splice(index, 1);
+    }
+    renderMap();
+    renderGroupBox();
+  }
+
+  function renderGroupBox() {
+    if (!elements.groupToggle || !elements.groupMeta || !elements.groupRows) {
+      return;
+    }
+    elements.groupToggle.classList.toggle("is-active", state.groupMode);
+    elements.groupToggle.textContent = state.groupMode ? "On" : "Group";
+    if (!state.groupMode) {
+      elements.groupMeta.textContent = "Grouping off.";
+      elements.groupRows.innerHTML = "";
+      return;
+    }
+    if (!state.groupedRegionIds.length) {
+      elements.groupMeta.textContent = "Click counties to group. Toggle again to clear all.";
+      elements.groupRows.innerHTML = "";
+      return;
+    }
+
+    var totalVotes = 0;
+    var totals = {};
+    currentCandidates().forEach(function (candidate) {
+      totals[candidate.id] = 0;
+    });
+
+    state.groupedRegionIds.forEach(function (regionId) {
+      var region = getRegionById(regionId);
+      var result = region && state.results && state.results.byId ? state.results.byId[regionId] : null;
+      if (!region || !result) {
+        return;
+      }
+      totalVotes += Number(result.totalVotes || 0);
+      result.results.forEach(function (entry) {
+        totals[entry.id] = (totals[entry.id] || 0) + Number(entry.votes || 0);
+      });
+    });
+
+    elements.groupMeta.textContent = state.groupedRegionIds.length + " " + (state.groupedRegionIds.length === 1 ? "county" : "counties") +
+      " selected | " + formatNumber(totalVotes) + " votes";
+    elements.groupRows.innerHTML = currentCandidates().map(function (candidate) {
+      var votes = totals[candidate.id] || 0;
+      var pct = totalVotes ? (votes / totalVotes) * 100 : 0;
+      return '<div class="group-row">' +
+        '<span class="group-row__swatch" style="background:' + candidate.palette.strong + ';"></span>' +
+        '<span class="group-row__name">' + escapeHtml(candidate.name) + '</span>' +
+        '<span class="group-row__value">' + pct.toFixed(1) + '%</span>' +
+      '</div>';
+    }).join("");
   }
 
   function applyRegionVisual(region) {
@@ -4311,12 +4673,18 @@ elements.voteStrip = document.getElementById("vote-strip");
       : "rgba(215, 206, 195, 0.78)";
     var stroke = "#000000";
     var isSelected = state.selectedRegionId === region.id;
+    var isGrouped = isGroupedRegion(region.id);
     var isHovered = Boolean(region.svgNode.__hovering);
-    var strokeWidth = isSelected ? 2.6 : (isHovered ? 1.85 : 1.15);
-    var opacity = isHovered || isSelected ? 1 : 0.97;
+    var strokeWidth = isGrouped ? (isSelected ? 3.4 : 3) : (isSelected ? 2.6 : (isHovered ? 1.85 : 1.15));
+    if (isGrouped) {
+      stroke = isSelected ? "#ffffff" : "#fff7e8";
+    }
+    var opacity = isHovered || isSelected || isGrouped ? 1 : 0.97;
+    var filter = isGrouped ? "drop-shadow(0 0 4px rgba(255,251,244,0.92))" : "none";
 
     region.svgNode.classList.toggle("region-selected", isSelected);
     region.svgNode.classList.toggle("region-hover", isHovered);
+    region.svgNode.classList.toggle("region-grouped", isGrouped);
     region.svgNode.setAttribute(
       "style",
       [
@@ -4326,6 +4694,7 @@ elements.voteStrip = document.getElementById("vote-strip");
         "vector-effect:non-scaling-stroke",
         "cursor:pointer",
         "opacity:" + opacity,
+        "filter:" + filter,
         "transition:fill 160ms ease, stroke 160ms ease, opacity 160ms ease, filter 160ms ease"
       ].join(";")
     );
@@ -4766,6 +5135,10 @@ shareNode.textContent = share || pie.getAttribute("data-default-share") || "";
     if (!state.svgRoot || !state.results) {
       return;
     }
+    if (state.groupMode) {
+      elements.mapStatus.textContent = "Loaded " + state.svgSource + ". Group mode is on: click counties to bundle their vote totals together.";
+      return;
+    }
     elements.mapStatus.textContent = "Loaded " + state.svgSource + ". Hover any county for a tooltip, or click a county to inspect it in the sidebar.";
   }
 
@@ -4834,6 +5207,13 @@ shareNode.textContent = share || pie.getAttribute("data-default-share") || "";
   }
 
   function selectRegion(regionId) {
+    if (Date.now() < state.suppressClickUntil) {
+      return;
+    }
+    if (state.groupMode) {
+      toggleGroupedRegion(regionId);
+      return;
+    }
     state.selectedRegionId = regionId;
     renderMap();
     renderSelectedRegion();

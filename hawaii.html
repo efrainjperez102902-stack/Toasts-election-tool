@@ -78,10 +78,64 @@ button, input, select { font: inherit; }
 .map-shell .county-active { transition: fill 220ms ease; cursor: pointer; stroke: rgba(0,0,0,0.5); stroke-width: 1.0px; }
 .map-shell .county-active:hover { opacity: 0.82; }
 .map-shell .county-active.selected { stroke: var(--ink); stroke-width: 1.8px; }
+.map-shell .county-active.grouped {
+  stroke: #f7fbff;
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 4px rgba(244,248,255,0.92));
+}
+.map-shell .county-active.grouped.selected {
+  stroke: #fff;
+  stroke-width: 3.2px;
+}
 .map-shell .county-inactive { stroke: rgba(0,0,0,0.18); stroke-width: 0.4px; cursor: default; fill: #d8cfc0; }
+.group-box {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: min(220px, calc(100% - 1.5rem));
+  padding: 0.7rem 0.8rem;
+  border-radius: 14px;
+  border: 1px solid rgba(20,50,100,0.12);
+  background: rgba(244,248,255,0.94);
+  box-shadow: 0 10px 24px rgba(20,50,100,0.12);
+  backdrop-filter: blur(10px);
+  z-index: 6;
+}
+.group-box__top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.45rem; }
+.group-box__title { margin: 0; font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.group-box__toggle { padding: 0.3rem 0.62rem; font-size: 0.76rem; }
+.group-box__toggle.is-active { background: var(--accent); color: #fff; border-color: transparent; }
+.group-box__meta { margin: 0 0 0.4rem; color: var(--muted); font-size: 0.76rem; line-height: 1.35; }
+.group-box__rows { display: grid; gap: 0.18rem; }
+.group-box__row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.79rem; }
+.group-box__row strong { font-weight: 800; }
+.map-zoom-controls {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: grid;
+  gap: 0.35rem;
+  z-index: 6;
+}
+.map-zoom-button {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+.map-shell.is-draggable { cursor: grab; }
+.map-shell.is-draggable:active { cursor: grabbing; }
+.map-layer { will-change: transform; }
 
 .map-footer { margin-top: 0.55rem; }
 .map-footnote { margin: 0; font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.map-footer__actions { margin-top: 0.6rem; display: flex; justify-content: flex-end; }
+.map-footer__actions .button { padding: 0.34rem 0.72rem; font-size: 0.78rem; }
 
 /* ── vote strip ── */
 .vote-strip-wrap { margin-top: 1rem; }
@@ -152,8 +206,41 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .cand-section__body { padding: 0.45rem 0.55rem; display: grid; gap: 0.35rem; }
 
 /* ── region panel ── */
+.poll-panel { padding: 1.25rem; }
+.poll-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+.poll-toolbar__actions { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+.poll-point-control { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: var(--muted); }
+.poll-point-control input { width: 4.2rem; padding: 0.28rem 0.4rem; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-strong); color: var(--ink); }
+.poll-chart { border: 1px solid rgba(20,50,100,0.1); border-radius: 16px; padding: 0.6rem; background: rgba(244,248,255,0.55); }
+.poll-chart svg { width: 100%; height: auto; display: block; }
+.poll-grid, .poll-baseline { stroke: rgba(58,82,120,0.18); stroke-width: 1; }
+.poll-baseline { stroke: rgba(58,82,120,0.32); }
+.poll-label { fill: var(--muted); font-size: 10px; font-weight: 600; }
+.poll-line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.poll-point { stroke: rgba(255,255,255,0.88); }
+.poll-editor-scroll { margin-top: 0.7rem; overflow-x: auto; padding-bottom: 0.1rem; }
+.poll-editor { display: grid; gap: 0.35rem; width: max-content; min-width: 100%; }
+.poll-editor__header, .poll-editor__row { display: grid; align-items: center; gap: 0.45rem; }
+.poll-editor__header { font-size: 0.76rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.poll-editor__row { padding: 0.45rem 0; border-top: 1px solid rgba(20,50,100,0.08); }
+.poll-editor__candidate { display: flex; align-items: center; gap: 0.45rem; min-width: 0; }
+.poll-editor__swatch { width: 0.8rem; height: 0.8rem; border-radius: 50%; flex: 0 0 auto; }
+.poll-editor__name { font-weight: 700; font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poll-input { display: grid; gap: 0.15rem; justify-items: center; font-size: 0.72rem; color: var(--muted); }
+.poll-input input { width: 100%; min-width: 3.2rem; padding: 0.28rem 0.2rem; border: 1px solid rgba(20,50,100,0.14); border-radius: 8px; background: var(--panel-strong); color: var(--ink); text-align: center; }
+.poll-empty { margin: 0; color: var(--muted); font-size: 0.86rem; }
+
 .region-panel { padding: 1.25rem; }
 .region-panel.is-hidden { display: none; }
+.region-summary { display: grid; gap: 0.7rem; }
+.region-summary__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+.region-kpi { padding: 0.6rem 0.7rem; border-radius: 12px; border: 1px solid rgba(20,50,100,0.08); background: rgba(244,248,255,0.45); }
+.region-kpi__label { margin: 0; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.region-kpi__value { margin: 0.18rem 0 0; font-size: 1rem; font-weight: 800; color: var(--ink); }
+.region-kpi__meta { margin: 0.2rem 0 0; font-size: 0.76rem; color: var(--muted); line-height: 1.35; }
+.region-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.region-tag { display: inline-flex; align-items: center; padding: 0.24rem 0.56rem; border-radius: 999px; background: rgba(28,79,138,0.1); color: var(--accent); font-size: 0.75rem; font-weight: 700; }
+.region-summary__lead { margin: 0; color: var(--muted); font-size: 0.84rem; line-height: 1.45; }
 .region-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .region-actions .button { flex: 1; min-width: 4rem; font-size: 0.8rem; }
 
@@ -229,6 +316,18 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       </div>
 
                         <div class="map-stage">
+        <div class="map-zoom-controls">
+          <button id="map-zoom-in" class="button button--ghost map-zoom-button" type="button">+</button>
+          <button id="map-zoom-out" class="button button--ghost map-zoom-button" type="button">-</button>
+        </div>
+        <div class="group-box" id="group-box">
+          <div class="group-box__top">
+            <p class="group-box__title">Group</p>
+            <button id="group-toggle" class="button button--ghost group-box__toggle" type="button">Group</button>
+          </div>
+          <p class="group-box__meta" id="group-meta">Grouping off.</p>
+          <div class="group-box__rows" id="group-rows"></div>
+        </div>
         <div class="map-shell" id="map-shell"></div>
       </div>
       <div class="vote-strip-wrap">
@@ -240,6 +339,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
           Baseline: 2024 Hawaii presidential results. County boundaries from US Census TIGER.
           All 5 counties are interactive; click to apply local overrides.
         </p>
+        <div class="map-footer__actions">
+          <button id="export-svg" class="button button--ghost" type="button">Export SVG</button>
+        </div>
       </div>
     </div>
 
@@ -311,11 +413,34 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         </div>
       </div>
 
+      <div class="poll-panel panel">
+        <p class="panel__eyebrow">Polling</p>
+        <h2 id="poll-panel-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.1rem;">Polling Timeline</h2>
+        <p id="poll-panel-note" style="margin:0 0 0.6rem;color:var(--muted);font-size:0.82rem;">Sketch a hypothetical polling arc for the active field, then edit the checkpoints below.</p>
+        <div class="poll-toolbar">
+          <p class="panel__note" style="text-align:left;max-width:none;">This chart is hypothetical and separate from the vote simulator.</p>
+          <div class="poll-toolbar__actions">
+            <label class="poll-point-control">
+              <span>Points</span>
+              <input id="poll-point-count" type="number" min="3" max="24" step="1" value="5">
+            </label>
+            <button id="reset-polls" class="button button--ghost" type="button">Reset timeline</button>
+          </div>
+        </div>
+        <div id="poll-chart" class="poll-chart"></div>
+        <div class="poll-editor-scroll">
+          <div id="poll-editor" class="poll-editor"></div>
+        </div>
+      </div>
+
       <!-- selected county -->
       <div class="region-panel panel is-hidden" id="region-panel">
         <p class="panel__eyebrow">Selected County</p>
         <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">&mdash;</h2>
-        <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a county on the map.</p>
+        <p id="region-location" style="margin:0 0 0.5rem;color:var(--muted);font-size:0.82rem;">Local campaigns show up here.</p>
+        <div id="region-summary" class="region-summary">
+          <p class="region-summary__lead">Click a county on the map to view its baseline, simulated margin, geography tags, and local campaign controls.</p>
+        </div>
         <div class="region-actions" id="region-actions"></div>
       </div>
 
@@ -339,6 +464,55 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
   function escapeHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function signedStr(v, d) { return (v >= 0 ? "+" : "") + v.toFixed(d !== undefined ? d : 1); }
+  function inlineSvgStyles(sourceSvg, cloneSvg) {
+    var sourceNodes = [sourceSvg].concat(Array.prototype.slice.call(sourceSvg.querySelectorAll("*")));
+    var cloneNodes = [cloneSvg].concat(Array.prototype.slice.call(cloneSvg.querySelectorAll("*")));
+    sourceNodes.forEach(function(node, idx) {
+      var cloneNode = cloneNodes[idx];
+      if (!cloneNode || cloneNode.nodeType !== 1) return;
+      var computed = window.getComputedStyle(node);
+      [
+        "fill",
+        "stroke",
+        "stroke-width",
+        "stroke-linejoin",
+        "stroke-linecap",
+        "opacity",
+        "display",
+        "visibility",
+        "vector-effect"
+      ].forEach(function(prop) {
+        var value = computed.getPropertyValue(prop);
+        if (value) cloneNode.style.setProperty(prop, value);
+      });
+    });
+  }
+  function exportMapSvg() {
+    var sourceSvg = document.querySelector("#map-shell svg");
+    if (!sourceSvg) return;
+
+    var cloneSvg = sourceSvg.cloneNode(true);
+    cloneSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    cloneSvg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+    cloneSvg.style.setProperty("background", "none");
+    cloneSvg.setAttribute("version", "1.1");
+    inlineSvgStyles(sourceSvg, cloneSvg);
+
+    var markup = new XMLSerializer().serializeToString(cloneSvg);
+    if (!/^<svg[^>]+xmlns=/.test(markup)) {
+      markup = markup.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+
+    var blob = new Blob([markup], { type: "image/svg+xml;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "hawaii-election-map.svg";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+  }
 
   function hexToRgb(hex) { return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)]; }
   function rgbToHex(r,g,b) { return "#"+[r,g,b].map(function(v){ return Math.round(clamp(v,0,255)).toString(16).padStart(2,"0"); }).join(""); }
@@ -437,7 +611,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         honolulu: o.region&&o.region.honolulu||0,
         neighbor: o.region&&o.region.neighbor||0
       },
-      palette:  { strong: o.palette&&o.palette.strong ? o.palette.strong : "#888" }
+      palette:  { strong: o.palette&&o.palette.strong ? o.palette.strong : "#888" },
+      polls:    (o.polls || []).slice()
     };
   }
 
@@ -485,8 +660,12 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
     nextCandId: { general: 3, repPrimary: 3, demPrimary: 3 },
     controls: { swing:0, turnout:0, honolulu:0, volatility:3.5 },
-    regions: [], seed: 42, selectedId: null, pieOrder: "votes", isolatedCandidateId: null
+    regions: [], seed: 42, selectedId: null, pieOrder: "votes", isolatedCandidateId: null, groupMode: false, groupedIds: [], pollPointCount: 5
   };
+  var mapSvg = null;
+  var mapLayer = null;
+  var mapZoomBehavior = null;
+  var MAX_POLL_POINTS = 24;
 
   function currentCandidates() { return state.candidates[state.mode]; }
   function candById(id) { return currentCandidates().find(function(c){ return c.id === id; }) || null; }
@@ -539,11 +718,22 @@ window.addEventListener("DOMContentLoaded", function () {
     document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
     document.getElementById("candidate-standings").addEventListener("click", handleStandingClick);
     document.getElementById("add-candidate").addEventListener("click",   addCandidate);
-document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
+    document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
     document.getElementById("pie-sort-ideology").addEventListener("click", function() { setPieOrder("ideology"); });
     document.getElementById("pie-sort-votes").addEventListener("click", function() { setPieOrder("votes"); });
-syncPieOrderButtons();
-loadMap();
+    document.getElementById("export-svg").addEventListener("click", exportMapSvg);
+    document.getElementById("group-toggle").addEventListener("click", toggleGroupMode);
+    document.getElementById("map-zoom-in").addEventListener("click", function() { zoomMapBy(1.25); });
+    document.getElementById("map-zoom-out").addEventListener("click", function() { zoomMapBy(0.8); });
+    document.getElementById("poll-point-count").addEventListener("input", function() { setCurrentPollPointCount(Number(this.value)); });
+    document.getElementById("reset-polls").addEventListener("click", resetPollsForCurrentMode);
+    document.getElementById("poll-editor").addEventListener("input", handlePollEditorInput);
+    document.getElementById("poll-editor").addEventListener("change", handlePollEditorChange);
+    syncPieOrderButtons();
+    renderGroupBox();
+    ensurePollsForMode();
+    renderPollingPanel();
+    loadMap();
 
     document.addEventListener("mousemove", function(ev) {
       var tt = document.getElementById("map-tooltip");
@@ -565,8 +755,11 @@ loadMap();
     });
     state.selectedId = null;
     state.isolatedCandidateId = null;
+    clearGroupedRegions();
     document.getElementById("region-panel").classList.add("is-hidden");
+    ensurePollsForMode();
     renderCandidatePanel();
+    renderPollingPanel();
     renderScoreGrid();
     renderVoteStrip();
     renderBoostButtons();
@@ -587,6 +780,232 @@ function syncPieOrderButtons() {
     syncPieOrderButtons();
     if (state.regions.length) renderScores();
   }
+  function zoomMapBy(factor) {
+    if (!mapSvg || !mapZoomBehavior) return;
+    mapSvg.transition().duration(180).call(mapZoomBehavior.scaleBy, factor);
+  }
+  function isGrouped(idx) {
+    return state.groupedIds.indexOf(idx) !== -1;
+  }
+  function clearGroupedRegions() {
+    state.groupedIds = [];
+    renderGroupBox();
+    if (state.regions.length) renderMap();
+  }
+  function toggleGroupMode() {
+    state.groupMode = !state.groupMode;
+    state.selectedId = null;
+    document.getElementById("region-panel").classList.add("is-hidden");
+    clearGroupedRegions();
+  }
+  function toggleGroupedRegion(idx) {
+    var pos = state.groupedIds.indexOf(idx);
+    if (pos === -1) state.groupedIds.push(idx);
+    else state.groupedIds.splice(pos, 1);
+    renderMap();
+    renderGroupBox();
+  }
+  function renderGroupBox() {
+    var toggle = document.getElementById("group-toggle");
+    var meta = document.getElementById("group-meta");
+    var rows = document.getElementById("group-rows");
+    if (!toggle || !meta || !rows) return;
+
+    toggle.classList.toggle("is-active", state.groupMode);
+    toggle.textContent = state.groupMode ? "On" : "Group";
+
+    if (!state.groupMode) {
+      meta.textContent = "Grouping off.";
+      rows.innerHTML = "";
+      return;
+    }
+
+    if (!state.groupedIds.length) {
+      meta.textContent = "Click counties to group. Toggle again to clear all.";
+      rows.innerHTML = "";
+      return;
+    }
+
+    var cands = currentCandidates();
+    var totals = {};
+    var totalVotes = 0;
+    cands.forEach(function(c) { totals[c.id] = 0; });
+
+    state.groupedIds.forEach(function(idx) {
+      var region = state.regions[idx];
+      if (!region || !region.result) return;
+      var countyVotes = Math.max(0, region.countyVotes || 0);
+      totalVotes += countyVotes;
+      cands.forEach(function(c) {
+        totals[c.id] += Math.round((region.result[c.id] || 0) / 100 * countyVotes);
+      });
+    });
+
+    meta.textContent = state.groupedIds.length + " " + (state.groupedIds.length === 1 ? "county" : "counties") +
+      " selected · " + totalVotes.toLocaleString() + " votes";
+
+    rows.innerHTML = cands.map(function(c) {
+      var pct = totalVotes ? (totals[c.id] / totalVotes * 100) : 0;
+      return { c: c, pct: pct };
+    }).sort(function(a, b) {
+      return b.pct - a.pct;
+    }).map(function(entry) {
+      return '<div class="group-box__row">' +
+        '<span style="color:' + entry.c.palette.strong + ';font-weight:700;">' + escapeHtml(entry.c.name) + '</span>' +
+        '<strong>' + entry.pct.toFixed(1) + '%</strong>' +
+        '</div>';
+    }).join("");
+  }
+  function currentPollPointCount() {
+    return clamp(Math.round(Number(state.pollPointCount || 5)), 3, MAX_POLL_POINTS);
+  }
+  function pollStageLabels(pointCount) {
+    var base = ["Launch", "Early", "Mid", "Late", "Final"];
+    var count = clamp(Math.round(Number(pointCount || currentPollPointCount())), 3, MAX_POLL_POINTS);
+    if (count <= base.length) return base.slice(0, count);
+    var labels = [];
+    for (var i = 0; i < count; i++) labels.push("Point " + (i + 1));
+    return labels;
+  }
+  function shortPollStageLabel(stage) {
+    if (/^Point \d+$/i.test(stage)) return "P" + stage.replace(/[^\d]/g, "");
+    return stage;
+  }
+  function defaultPollSeriesForCandidate(candidate, pointCount) {
+    var count = clamp(Math.round(Number(pointCount || currentPollPointCount())), 3, MAX_POLL_POINTS);
+    var start = candidate.anchor === "dem" ? 60 : candidate.anchor === "rep" ? 40 : 18;
+    var end = candidate.anchor === "dem" ? 55 : candidate.anchor === "rep" ? 45 : 12;
+    if (state.mode === "repPrimary") {
+      start = candidate.ideology >= 65 ? 42 : 58;
+      end = candidate.ideology >= 65 ? 48 : 52;
+    } else if (state.mode === "demPrimary") {
+      start = candidate.ideology <= -65 ? 44 : 56;
+      end = candidate.ideology <= -65 ? 49 : 51;
+    }
+    if (count === 1) return [clamp((start + end) / 2, 0, 100)];
+    var series = [];
+    for (var i = 0; i < count; i++) {
+      var t = i / (count - 1);
+      series.push(clamp(start + (end - start) * t, 0, 100));
+    }
+    return series;
+  }
+  function resizePollSeries(series, pointCount, candidate) {
+    var count = clamp(Math.round(Number(pointCount || currentPollPointCount())), 3, MAX_POLL_POINTS);
+    var next = Array.isArray(series) ? series.slice(0, count) : [];
+    if (!next.length) return defaultPollSeriesForCandidate(candidate || {}, count);
+    while (next.length < count) next.push(next[next.length - 1]);
+    return next;
+  }
+  function pollingSeriesForCandidate(candidate) {
+    candidate.polls = resizePollSeries(candidate.polls, currentPollPointCount(), candidate);
+    return candidate.polls;
+  }
+  function ensurePollsForMode() {
+    currentCandidates().forEach(function(candidate) {
+      candidate.polls = resizePollSeries(candidate.polls, currentPollPointCount(), candidate);
+    });
+  }
+  function setCurrentPollPointCount(nextCount) {
+    state.pollPointCount = clamp(Math.round(Number(nextCount || currentPollPointCount())), 3, MAX_POLL_POINTS);
+    ensurePollsForMode();
+    renderPollingPanel();
+  }
+  function resetPollsForCurrentMode() {
+    currentCandidates().forEach(function(candidate) {
+      candidate.polls = defaultPollSeriesForCandidate(candidate, currentPollPointCount());
+    });
+    renderPollingPanel();
+  }
+  function renderPollingPanel() {
+    var titleEl = document.getElementById("poll-panel-title");
+    var noteEl = document.getElementById("poll-panel-note");
+    var chartEl = document.getElementById("poll-chart");
+    var editorEl = document.getElementById("poll-editor");
+    var countEl = document.getElementById("poll-point-count");
+    if (!titleEl || !noteEl || !chartEl || !editorEl || !countEl) return;
+
+    var candidates = currentCandidates();
+    var pointCount = currentPollPointCount();
+    var labels = pollStageLabels(pointCount);
+    titleEl.textContent = MODE_META[state.mode].title.replace("Roster", "").replace("Field", "").trim() + " Polling Timeline";
+    noteEl.textContent = state.mode === "general"
+      ? "Edit a hypothetical polling trend for every ticket in the general-election field."
+      : "Edit a hypothetical horse-race timeline for the active primary field.";
+    countEl.max = String(MAX_POLL_POINTS);
+    countEl.value = String(pointCount);
+
+    if (!candidates.length) {
+      chartEl.innerHTML = '<p class="poll-empty">Add candidates to sketch a polling timeline.</p>';
+      editorEl.innerHTML = "";
+      return;
+    }
+    ensurePollsForMode();
+    chartEl.innerHTML = renderPollingChart(candidates, labels);
+    editorEl.innerHTML = renderPollingEditor(candidates, labels);
+  }
+  function renderPollingChart(candidates, labels) {
+    var width = 360, height = 220, left = 36, right = 12, top = 12, bottom = 30;
+    var innerWidth = width - left - right;
+    var innerHeight = height - top - bottom;
+    var xStep = labels.length > 1 ? innerWidth / (labels.length - 1) : 0;
+    var yTicks = [0, 25, 50, 75, 100];
+    function xFor(index) { return left + xStep * index; }
+    function yFor(value) { return top + (1 - clamp(Number(value || 0), 0, 100) / 100) * innerHeight; }
+    return [
+      '<svg viewBox="0 0 ' + width + ' ' + height + '" aria-label="Polling timeline chart">',
+      yTicks.map(function(tick) {
+        var y = yFor(tick);
+        return '<line class="' + (tick === 0 ? 'poll-baseline' : 'poll-grid') + '" x1="' + left + '" y1="' + y.toFixed(2) + '" x2="' + (width - right) + '" y2="' + y.toFixed(2) + '"></line>' +
+          '<text class="poll-label" x="' + (left - 8) + '" y="' + (y + 4).toFixed(2) + '" text-anchor="end">' + tick + '</text>';
+      }).join(""),
+      labels.map(function(label, index) {
+        return '<text class="poll-label" x="' + xFor(index).toFixed(2) + '" y="' + (height - 8) + '" text-anchor="middle">' + escapeHtml(shortPollStageLabel(label)) + '</text>';
+      }).join(""),
+      candidates.map(function(candidate) {
+        var series = pollingSeriesForCandidate(candidate);
+        var points = series.map(function(value, index) { return xFor(index).toFixed(2) + ',' + yFor(value).toFixed(2); }).join(' ');
+        return '<polyline class="poll-line" points="' + points + '" stroke="' + escapeHtml(candidate.palette.strong) + '" style="stroke-width:2.6px"></polyline>' +
+          series.map(function(value, index) {
+            return '<circle class="poll-point" cx="' + xFor(index).toFixed(2) + '" cy="' + yFor(value).toFixed(2) + '" r="' + (index === series.length - 1 ? '4.6' : '4') + '" fill="' + escapeHtml(candidate.palette.strong) + '" style="stroke-width:1.3px"></circle>';
+          }).join("");
+      }).join(""),
+      '</svg>'
+    ].join("");
+  }
+  function renderPollingEditor(candidates, labels) {
+    var gridStyle = ' style="grid-template-columns:minmax(116px,1.2fr) repeat(' + labels.length + ', minmax(3.2rem,1fr));"';
+    return '<div class="poll-editor__header"' + gridStyle + '><span>Candidate</span>' +
+      labels.map(function(label) { return '<span>' + escapeHtml(shortPollStageLabel(label)) + '</span>'; }).join("") +
+      '</div>' +
+      candidates.map(function(candidate) { return renderPollEditorRow(candidate, labels.length); }).join("");
+  }
+  function renderPollEditorRow(candidate, pointCount) {
+    var series = pollingSeriesForCandidate(candidate);
+    var gridStyle = ' style="grid-template-columns:minmax(116px,1.2fr) repeat(' + pointCount + ', minmax(3.2rem,1fr));"';
+    return '<div class="poll-editor__row"' + gridStyle + '>' +
+      '<div class="poll-editor__candidate"><span class="poll-editor__swatch" style="background:' + escapeHtml(candidate.palette.strong) + ';"></span><span class="poll-editor__name">' + escapeHtml(candidate.name) + '</span></div>' +
+      series.map(function(value, index) {
+        return '<label class="poll-input"><input type="number" min="0" max="100" step="1" data-candidate-id="' + escapeHtml(candidate.id) + '" data-poll-index="' + index + '" value="' + Math.round(value) + '"><span>%</span></label>';
+      }).join("") +
+      '</div>';
+  }
+  function updatePollValueFromInput(input) {
+    var candidate = candById(input.getAttribute("data-candidate-id"));
+    var pollIndex = Number(input.getAttribute("data-poll-index"));
+    if (!candidate || pollIndex < 0 || pollIndex >= currentPollPointCount()) return;
+    pollingSeriesForCandidate(candidate)[pollIndex] = clamp(Number(input.value || 0), 0, 100);
+  }
+  function handlePollEditorInput(event) {
+    if (!event.target.matches("input[data-poll-index]")) return;
+    updatePollValueFromInput(event.target);
+    document.getElementById("poll-chart").innerHTML = renderPollingChart(currentCandidates(), pollStageLabels(currentPollPointCount()));
+  }
+  function handlePollEditorChange(event) {
+    if (!event.target.matches("input[data-poll-index]")) return;
+    updatePollValueFromInput(event.target);
+    renderPollingPanel();
+  }
   function zeroOverride() {
     var o = {};
     currentCandidates().forEach(function(c){ o[c.id] = 0; });
@@ -598,11 +1017,12 @@ function syncPieOrderButtons() {
     var isR = state.mode === "repPrimary", isD = state.mode === "demPrimary";
     var n = state.nextCandId[state.mode];
     var nc = makeCandidate({ name: isR ? ("R Candidate "+n) : isD ? ("D Candidate "+n) : ("Independent "+n),
-      ideology: isR ? 55 : isD ? -55 : 0, strength: 14, buzz: 0, anchor:"none", removable:true, palette: palette });
+      ideology: isR ? 55 : isD ? -55 : 0, strength: 14, buzz: 0, anchor:"none", removable:true, palette: palette,
+      polls: defaultPollSeriesForCandidate({ anchor:"none", ideology:isR ? 55 : isD ? -55 : 0 }, currentPollPointCount()) });
     state.nextCandId[state.mode]++;
     state.candidates[state.mode].push(nc);
     state.regions.forEach(function(r) { r.override[nc.id] = 0; });
-    renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    renderCandidatePanel(); renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -613,7 +1033,8 @@ function syncPieOrderButtons() {
     state.nextCandId = { general:3, repPrimary:3, demPrimary:3 };
     state.isolatedCandidateId = null;
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
-    renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    ensurePollsForMode();
+    renderCandidatePanel(); renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -626,7 +1047,7 @@ function syncPieOrderButtons() {
     if (cands.length <= 1) return;
     state.candidates[state.mode] = cands.filter(function(c){ return c.id !== id; });
     state.regions.forEach(function(r) { delete r.override[id]; if (r.result) delete r.result[id]; });
-    renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    renderCandidatePanel(); renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -659,7 +1080,7 @@ function syncPieOrderButtons() {
       c.name = el.value || "Unnamed";
       var card = el.closest(".candidate-card");
       if (card) { var nameEl = card.querySelector(".cand-name-display"); if (nameEl) nameEl.textContent = c.name; }
-      renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+      renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
       if (state.regions.length) simulateAndRender(false);
       return;
     }
@@ -671,7 +1092,7 @@ function syncPieOrderButtons() {
         var preview2 = card2.querySelector(".candidate-palette-preview");
         if (preview2) preview2.innerHTML = shades2.map(function(s){ return '<span style="background:'+s+'"></span>'; }).join("");
       }
-      renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+      renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
       if (state.regions.length) simulateAndRender(false);
       return;
     }
@@ -680,7 +1101,7 @@ function syncPieOrderButtons() {
     else if (ageKey)    c.age[ageKey]       = Number(el.value);
     else if (regionKey) c.region[regionKey] = Number(el.value);
     if (el.type === "range") { var _row = el.previousElementSibling; if (_row) { var _vs = _row.querySelector("span:last-child"); if (_vs) _vs.textContent = (Number(el.value) >= 0 ? "+" : "") + Number(el.value); } }
-    renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -882,14 +1303,25 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
       var geo = { type:"FeatureCollection", features: hiFeatures };
 
       var mapEl = document.getElementById("map-shell");
+      mapEl.classList.add("is-draggable");
       var W = mapEl.clientWidth || 480, H = 360;
       var proj = d3.geoAlbers().fitSize([W, H], geo);
       var path = d3.geoPath().projection(proj);
-      var svg  = d3.select(mapEl).append("svg").attr("viewBox","0 0 "+W+" "+H).attr("width","100%").attr("height","100%");
+      var svg  = d3.select(mapEl).append("svg").attr("viewBox","0 0 "+W+" "+H).attr("width","100%").attr("height","100%").attr("preserveAspectRatio","xMidYMid meet");
+      var layer = svg.append("g").attr("class", "map-layer");
+      mapSvg = svg;
+      mapLayer = layer;
+      mapZoomBehavior = d3.zoom()
+        .scaleExtent([1, 8])
+        .translateExtent([[-W * 0.25, -H * 0.25], [W * 1.25, H * 1.25]])
+        .on("zoom", function(ev) {
+          if (mapLayer) mapLayer.attr("transform", ev.transform);
+        });
+      svg.call(mapZoomBehavior);
 hiFeatures.forEach(function(feat) {
         var fips   = String(feat.id).padStart(5,"0");
         var county = COUNTIES.find(function(c){ return c.fips === fips; });
-        var p = svg.append("path")
+        var p = layer.append("path")
           .attr("d", path(feat))
           .attr("fill", "#d8cfc0")
           .attr("data-fips", fips)
@@ -898,7 +1330,7 @@ hiFeatures.forEach(function(feat) {
         if (county) {
           var idx = state.regions.length;
           state.regions.push({ county: county, path: p, result: null, override: zeroOverride(), turnoutMult: 1 });
-          p.on("click",      function() { selectRegion(idx) })
+          p.on("click",      function() { if (state.groupMode) toggleGroupedRegion(idx); else selectRegion(idx); })
            .on("mouseover",  function() { showTooltip(idx); })
            .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
         }
@@ -906,6 +1338,7 @@ hiFeatures.forEach(function(feat) {
 
       document.getElementById("map-status").textContent = state.regions.length + " counties loaded";
       renderCandidatePanel();
+      renderPollingPanel();
       renderScoreGrid();
       renderVoteStrip();
       simulateAndRender(true);
@@ -917,6 +1350,7 @@ hiFeatures.forEach(function(feat) {
   }
 
   function selectRegion(idx) {
+    if (state.groupMode) return;
     state.selectedId = (state.selectedId === idx) ? null : idx;
     renderMap();
     if (state.selectedId !== null) {
@@ -933,7 +1367,7 @@ hiFeatures.forEach(function(feat) {
     var lean = r.county.lean;
     var leanStr = lean >= 50 ? "R+" + (lean-50) : "D+" + (50-lean);
     document.getElementById("tt-title").textContent = r.county.name + " County";
-    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " &middot; Baseline: " + leanStr;
+    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " | Baseline: " + leanStr;
     var cands = currentCandidates();
     var countyVotes = r.countyVotes || 0;
     document.getElementById("tt-candidates").innerHTML = r.result
@@ -949,12 +1383,71 @@ hiFeatures.forEach(function(feat) {
     tt.hidden = false;
   }
 
+  function dominantDemographicLabel(demo) {
+    var entries = [
+      { key: "white", label: "White" },
+      { key: "asian", label: "Asian / Pacific Islander" },
+      { key: "hisp", label: "Hispanic" },
+      { key: "black", label: "Black" },
+      { key: "other", label: "Other" }
+    ];
+    entries.sort(function(a, b) { return (demo[b.key] || 0) - (demo[a.key] || 0); });
+    return entries[0].label;
+  }
+
+  function summarizeDemographicMix(demo) {
+    return [
+      "W " + (demo.white || 0) + "%",
+      "AAPI " + (demo.asian || 0) + "%",
+      "H " + (demo.hisp || 0) + "%",
+      "B " + (demo.black || 0) + "%"
+    ].join(" | ");
+  }
+
+  function regionKpi(label, value, meta) {
+    return '<article class="region-kpi">' +
+      '<p class="region-kpi__label">' + escapeHtml(label) + '</p>' +
+      '<p class="region-kpi__value">' + escapeHtml(value) + '</p>' +
+      '<p class="region-kpi__meta">' + escapeHtml(meta) + '</p>' +
+      '</article>';
+  }
+
   function renderRegionPanel(idx) {
     var r = state.regions[idx];
-    document.getElementById("region-title").textContent   = r.county.name + " County";
-    document.getElementById("region-summary").textContent = r.result
-      ? (function(){ var wId = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; })[0]; var wc = candById(wId); return wc ? wc.name+" leads with "+(r.result[wId]||0).toFixed(1)+"%" : ""; })()
-      : "No results yet.";
+    var summaryEl = document.getElementById("region-summary");
+    var locationEl = document.getElementById("region-location");
+    document.getElementById("region-title").textContent = r.county.name + " County";
+    locationEl.textContent = (r.county.region === "honolulu" ? "Honolulu County" : "Neighbor Islands") + " | " + Math.round(r.county.pop).toLocaleString() + " residents";
+    if (!r.result) {
+      summaryEl.innerHTML = '<p class="region-summary__lead">No simulated results yet.</p>';
+      renderBoostButtons();
+      return;
+    }
+    var sorted = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; });
+    var winnerId = sorted[0];
+    var runnerId = sorted[1];
+    var winner = candById(winnerId);
+    var runner = candById(runnerId);
+    var winnerPct = r.result[winnerId] || 0;
+    var runnerPct = r.result[runnerId] || 0;
+    var margin = (winnerPct - runnerPct).toFixed(1) + " pts";
+    summaryEl.innerHTML = [
+      '<div class="region-summary__grid">',
+      regionKpi("Baseline", (r.county.lean >= 50 ? "R+" + (r.county.lean - 50) : "D+" + (50 - r.county.lean)), "County baseline lean"),
+      regionKpi("Simulated", winner ? winner.name + " +" + margin : "--", Math.round(r.countyVotes || 0).toLocaleString() + " votes"),
+      regionKpi("Turnout", Math.round(((r.turnoutMult || 1) - 1) * 100) + "%", "Relative to county base"),
+      regionKpi("Profile", dominantDemographicLabel(r.county.demo), summarizeDemographicMix(r.county.demo)),
+      '</div>',
+      '<div class="region-tags">' +
+        ['Region: ' + (r.county.region === "honolulu" ? "Honolulu" : "Neighbor Islands"), 'Leader: ' + (winner ? winner.name : 'None')].map(function(tag) {
+          return '<span class="region-tag">' + escapeHtml(tag) + '</span>';
+        }).join("") +
+      '</div>',
+      '<p class="region-summary__lead">' +
+        escapeHtml(winner ? winner.name : "Nobody") + ' leads ' + escapeHtml(r.county.name) + ' County' +
+        (runner ? ' over ' + escapeHtml(runner.name) + ' by ' + margin + '.' : '.') +
+      '</p>'
+    ].join("");
     renderBoostButtons();
   }
 
@@ -1049,8 +1542,13 @@ if (state.selectedId !== null) renderRegionPanel(state.selectedId);
         var wCand = candById(wId);
         color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
       }
-      r.path.attr("fill", color).classed("selected", state.selectedId === i);
+      var grouped = isGrouped(i);
+      r.path
+        .attr("fill", color)
+        .classed("selected", state.selectedId === i || grouped)
+        .classed("grouped", grouped);
     });
+    renderGroupBox();
   }
 
   function renderScores() {

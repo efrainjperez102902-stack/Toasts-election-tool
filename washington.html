@@ -6,16 +6,16 @@
   <title>Evergreen State Simulator</title>
   <style>
 :root {
-  --bg: #ede8dc;
-  --bg-strong: #e0d9ca;
-  --panel: rgba(255, 252, 245, 0.88);
-  --panel-strong: rgba(255, 252, 245, 0.97);
-  --ink: #1a130a;
-  --muted: #6b5840;
-  --line: rgba(80, 50, 10, 0.13);
-  --shadow: 0 24px 50px rgba(80, 50, 10, 0.13);
-  --accent: #b06a10;
-  --tossup: #d8cfc0;
+  --bg: #dde5ef;
+  --bg-strong: #d0daea;
+  --panel: rgba(244, 248, 255, 0.88);
+  --panel-strong: rgba(244, 248, 255, 0.97);
+  --ink: #0c1829;
+  --muted: #3a5278;
+  --line: rgba(20, 50, 100, 0.13);
+  --shadow: 0 24px 50px rgba(20, 50, 100, 0.13);
+  --accent: #1c4f8a;
+  --tossup: #c8d4e4;
 }
 
 * { box-sizing: border-box; }
@@ -24,10 +24,10 @@ body {
   color: var(--ink);
   font-family: "Bahnschrift", "Trebuchet MS", sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(220,175,90,0.18), transparent 38%),
-    radial-gradient(circle at 85% 90%, rgba(180,130,50,0.12), transparent 36%),
-    repeating-linear-gradient(90deg, rgba(80,50,10,0.03) 0, rgba(80,50,10,0.03) 1px, transparent 1px, transparent 96px),
-    linear-gradient(180deg, #f0ebe0 0%, var(--bg) 40%, var(--bg-strong) 100%);
+    radial-gradient(circle at top left, rgba(60,120,200,0.18), transparent 38%),
+    radial-gradient(circle at 85% 90%, rgba(30,80,160,0.12), transparent 36%),
+    repeating-linear-gradient(90deg, rgba(20,50,100,0.03) 0, rgba(20,50,100,0.03) 1px, transparent 1px, transparent 96px),
+    linear-gradient(180deg, #e8eef8 0%, var(--bg) 40%, var(--bg-strong) 100%);
 }
 button, input, select { font: inherit; }
 
@@ -52,16 +52,16 @@ button, input, select { font: inherit; }
 
 /* ── buttons ── */
 .button { padding: 0.42rem 0.85rem; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-strong); color: var(--ink); cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: background 130ms, border-color 130ms; }
-.button:hover { background: rgba(255,252,245,0.95); border-color: rgba(80,50,10,0.22); }
+.button:hover { background: rgba(244,248,255,0.95); border-color: rgba(20,50,100,0.22); }
 .button--accent { background: var(--accent); color: #fff; border-color: transparent; }
-.button--accent:hover { background: #8e5208; }
+.button--accent:hover { background: #153c6b; }
 .button--ghost { background: transparent; border-color: var(--line); }
-.button--ghost:hover { background: rgba(255,252,245,0.6); }
+.button--ghost:hover { background: rgba(244,248,255,0.6); }
 
 /* ── mode tabs ── */
 .mode-tabs { display: flex; gap: 0.4rem; margin-top: 0.75rem; flex-wrap: wrap; }
-.mode-tab { padding: 0.38rem 1rem; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,252,245,0.4); color: var(--muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 130ms; }
-.mode-tab:hover { background: rgba(255,252,245,0.7); color: var(--ink); }
+.mode-tab { padding: 0.38rem 1rem; border-radius: 10px; border: 1px solid var(--line); background: rgba(244,248,255,0.4); color: var(--muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 130ms; }
+.mode-tab:hover { background: rgba(244,248,255,0.7); color: var(--ink); }
 .mode-tab--general.is-active  { background: var(--accent); color: #fff; border-color: transparent; }
 .mode-tab--rep.is-active      { background: #c0011a; color: #fff; border-color: transparent; }
 .mode-tab--dem.is-active      { background: #1037c2; color: #fff; border-color: transparent; }
@@ -72,12 +72,30 @@ button, input, select { font: inherit; }
 .panel__header h2 { margin: 0; font-size: 1.35rem; }
 .panel__note { margin: 0; max-width: 28ch; text-align: right; color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
 
-.map-stage { position: relative; height: clamp(440px, calc(100vh - 235px), 640px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(80,50,10,0.12); background: linear-gradient(180deg, rgba(240,228,200,0.9), rgba(228,215,185,0.9)); }
-.map-shell { height: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; }
-.map-shell svg { width: auto; max-width: 100%; max-height: calc(100% - 1rem); height: auto; display: block; shape-rendering: geometricPrecision; }
-.map-shell path { transition: fill 220ms ease; cursor: pointer; stroke: rgba(0,0,0,0.55); stroke-width: 1.4px; }
-.map-shell path:hover { opacity: 0.82; }
-.map-shell path.selected { stroke: var(--ink); stroke-width: 1.5px; }
+.map-stage { position: relative; height: clamp(520px, calc(100vh - 135px), 720px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(20,50,100,0.12); background: linear-gradient(180deg, rgba(210,225,245,0.9), rgba(198,215,238,0.9)); }
+.map-shell { height: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0.6rem 0; }
+.map-shell.is-draggable { cursor: grab; }
+.map-shell.is-dragging { cursor: grabbing; }
+.map-shell svg { width: 100%; height: 100%; display: block; shape-rendering: geometricPrecision; }
+.map-shell .county-active { transition: fill 220ms ease; cursor: pointer; stroke: rgba(0,0,0,0.5); stroke-width: 1.0px; }
+.map-shell .county-active:hover { opacity: 0.82; }
+.map-shell .county-active.selected { stroke: var(--ink); stroke-width: 1.8px; }
+.map-shell .county-active.grouped { stroke: #fff7e8; stroke-width: 2.8px; filter: drop-shadow(0 0 4px rgba(255,251,244,0.92)); }
+.map-shell .county-active.selected.grouped { stroke: #ffffff; stroke-width: 3.2px; }
+.map-shell .county-inactive { stroke: rgba(0,0,0,0.18); stroke-width: 0.4px; cursor: default; fill: #d8cfc0; }
+
+.map-zoom-controls { position: absolute; top: 0.75rem; left: 0.75rem; display: grid; gap: 0.4rem; z-index: 4; }
+.map-zoom-button { width: 2.2rem; min-width: 2.2rem; height: 2.2rem; padding: 0; border-radius: 999px; font-size: 1.1rem; line-height: 1; }
+.group-box { position: absolute; top: 0.75rem; right: 0.75rem; z-index: 4; width: min(250px, calc(100% - 1.5rem)); padding: 0.7rem 0.8rem; border-radius: 14px; border: 1px solid var(--line); background: rgba(244,248,255,0.94); box-shadow: 0 10px 24px rgba(20,50,100,0.12); }
+.group-box__top { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; margin-bottom: 0.3rem; }
+.group-box__title { margin: 0; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+.group-box__toggle.is-active { background: var(--accent); color: #fff; border-color: transparent; }
+.group-box__meta { margin: 0; color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
+.group-box__rows { display: grid; gap: 0.35rem; margin-top: 0.5rem; }
+.group-row { display: grid; grid-template-columns: auto 1fr auto; gap: 0.45rem; align-items: center; font-size: 0.8rem; }
+.group-row__swatch { width: 0.75rem; height: 0.75rem; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08); }
+.group-row__name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.group-row__value { font-variant-numeric: tabular-nums; }
 
 .map-footer { margin-top: 0.55rem; }
 .map-footnote { margin: 0; font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
@@ -92,7 +110,7 @@ button, input, select { font: inherit; }
 .vote-pie-wrap { width: 100%; display: grid; justify-items: center; gap: 0.55rem; margin: 0.6rem 0 0.4rem; }
 .vote-pie { position: relative; width: min(100%, 214px); aspect-ratio: 1; }
 .vote-pie svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.vote-pie__slice { stroke: rgba(255,252,245,0.88); stroke-width: 2.5; transition: transform 160ms ease, filter 160ms ease; transform-origin: 50% 50%; cursor: pointer; }
+.vote-pie__slice { stroke: rgba(244,248,255,0.88); stroke-width: 2.5; transition: transform 160ms ease, filter 160ms ease; transform-origin: 50% 50%; cursor: pointer; }
 .vote-pie__slice:hover { transform: scale(1.03); filter: saturate(1.08) brightness(1.02); }
 .vote-pie__readout { width: min(100%, 214px); display: grid; gap: 0.16rem; text-align: center; padding: 0.1rem 0 0; }
 .vote-pie__eyebrow { display: block; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
@@ -114,7 +132,7 @@ button, input, select { font: inherit; }
 .score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; } .score-card__top { display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; } .score-card__isolate { padding: 0.3rem 0.65rem; font-size: 0.74rem; white-space: nowrap; } .score-card__isolate.is-active { background: var(--accent); color: #fff; border-color: transparent; }
 
 /* ── map tooltip ── */
-.map-tooltip { position: fixed; background: var(--panel-strong); border: 1px solid var(--line); border-radius: 14px; padding: 0.65rem 0.85rem; min-width: 180px; pointer-events: none; box-shadow: 0 4px 16px rgba(80,50,10,0.12); z-index: 999; }
+.map-tooltip { position: fixed; background: var(--panel-strong); border: 1px solid var(--line); border-radius: 14px; padding: 0.65rem 0.85rem; min-width: 180px; pointer-events: none; box-shadow: 0 4px 16px rgba(20,50,100,0.12); z-index: 999; }
 .map-tooltip__title { margin: 0 0 0.1rem; font-weight: 700; font-size: 0.9rem; }
 .map-tooltip__meta { margin: 0 0 0.4rem; color: var(--muted); font-size: 0.78rem; }
 .map-tooltip__row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.8rem; margin-bottom: 0.15rem; }
@@ -131,24 +149,40 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 /* ── candidate panel ── */
 .candidate-panel { padding: 1.25rem; }
 .candidate-list { display: grid; gap: 0.75rem; margin-top: 0.75rem; }
-.candidate-card { padding: 0.75rem 0.9rem; border-radius: 14px; border: 1px solid rgba(80,50,10,0.1); background: rgba(255,252,245,0.55); }
+.candidate-card { padding: 0.75rem 0.9rem; border-radius: 14px; border: 1px solid rgba(20,50,100,0.1); background: rgba(244,248,255,0.55); }
 .candidate-card__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
 .candidate-palette-preview { display: flex; gap: 0.3rem; }
 .candidate-palette-preview span { display: inline-block; width: 1.1rem; height: 1.1rem; border-radius: 4px; border: 1px solid rgba(0,0,0,0.08); }
-.candidate-remove { background: none; border: 1px solid rgba(80,50,10,0.15); border-radius: 8px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0.15rem 0.45rem; color: var(--muted); transition: background 120ms, color 120ms; }
+.candidate-remove { background: none; border: 1px solid rgba(20,50,100,0.15); border-radius: 8px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0.15rem 0.45rem; color: var(--muted); transition: background 120ms, color 120ms; }
 .candidate-remove:hover { background: rgba(220,60,60,0.1); color: #c00; }
 .candidate-fields { display: grid; gap: 0.4rem; }
 .candidate-field { display: grid; gap: 0.18rem; font-size: 0.82rem; }
 .candidate-field span { color: var(--muted); font-size: 0.78rem; }
 .candidate-field__row { display: flex; justify-content: space-between; }
-.candidate-field input[type="text"] { padding: 0.28rem 0.45rem; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,252,245,0.7); font: inherit; font-size: 0.88rem; }
+.candidate-field input[type="text"] { padding: 0.28rem 0.45rem; border: 1px solid var(--line); border-radius: 8px; background: rgba(244,248,255,0.7); font: inherit; font-size: 0.88rem; }
 .candidate-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
 .candidate-actions .button { flex: 1; font-size: 0.82rem; }
-.cand-section { border: 1px solid rgba(80,50,10,0.1); border-radius: 10px; margin-top: 0.4rem; overflow: hidden; }
-.cand-section__head { padding: 0.35rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); cursor: pointer; user-select: none; letter-spacing: 0.04em; text-transform: uppercase; list-style: none; display: flex; align-items: center; gap: 0.35rem; background: rgba(80,50,10,0.04); }
+.cand-section { border: 1px solid rgba(20,50,100,0.1); border-radius: 10px; margin-top: 0.4rem; overflow: hidden; }
+.cand-section__head { padding: 0.35rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); cursor: pointer; user-select: none; letter-spacing: 0.04em; text-transform: uppercase; list-style: none; display: flex; align-items: center; gap: 0.35rem; background: rgba(20,50,100,0.04); }
 .cand-section__head::before { content: ">"; font-size: 0.6rem; transition: transform 140ms; }
 details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .cand-section__body { padding: 0.45rem 0.55rem; display: grid; gap: 0.35rem; }
+
+.poll-panel { padding: 1.25rem; }
+.poll-toolbar { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; align-items: end; margin: 0.75rem 0; }
+.poll-toolbar__actions { display: flex; gap: 0.5rem; align-items: end; flex-wrap: wrap; }
+.poll-point-control { display: grid; gap: 0.2rem; font-size: 0.8rem; color: var(--muted); }
+.poll-point-control input { width: 4.6rem; padding: 0.3rem 0.45rem; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-strong); }
+.poll-chart { border: 1px solid rgba(20,50,100,0.1); border-radius: 14px; padding: 0.65rem; background: rgba(244,248,255,0.5); }
+.poll-chart svg { width: 100%; height: auto; display: block; }
+.poll-editor { display: grid; gap: 0.7rem; margin-top: 0.8rem; }
+.poll-editor__card { border: 1px solid rgba(20,50,100,0.1); border-radius: 12px; padding: 0.65rem 0.75rem; background: rgba(244,248,255,0.46); }
+.poll-editor__head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.45rem; }
+.poll-editor__title { margin: 0; font-size: 0.88rem; font-weight: 700; }
+.poll-editor__inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 0.45rem; }
+.poll-input { display: grid; gap: 0.18rem; font-size: 0.76rem; color: var(--muted); }
+.poll-input input { width: 100%; padding: 0.28rem 0.4rem; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-strong); }
+.poll-empty { margin: 0; color: var(--muted); font-size: 0.86rem; }
 
 /* ── region panel ── */
 .region-panel { padding: 1.25rem; }
@@ -159,7 +193,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 /* ── close races ── */
 .close-races-panel { padding: 1.25rem; }
 .races-list { display: grid; gap: 0.45rem; margin-top: 0.6rem; }
-.race-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; padding: 0.4rem 0.6rem; border-radius: 10px; background: rgba(255,252,245,0.5); border: 1px solid rgba(80,50,10,0.07); }
+.race-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; padding: 0.4rem 0.6rem; border-radius: 10px; background: rgba(244,248,255,0.5); border: 1px solid rgba(20,50,100,0.07); }
 .race-item__name { flex: 1; font-weight: 600; }
 .race-item__margin { font-variant-numeric: tabular-nums; font-size: 0.8rem; color: var(--muted); }
 .race-item__swatch { width: 0.55rem; height: 0.55rem; border-radius: 50%; flex: 0 0 auto; }
@@ -185,10 +219,9 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <p class="eyebrow">Washington &middot; Gubernatorial / Statewide</p>
       <h1>Evergreen State Simulator</h1>
       <p class="hero__lede">
-        Run alternate-election scenarios across Washington&rsquo;s 39 counties.
-        King County alone casts nearly a third of all votes &mdash;
-        the Cascades divide a blue tech coast from a red agricultural east,
-        while Puget Sound suburbs and Clark County&rsquo;s Portland exurbs hold the swing keys.
+        Run alternate-election scenarios across all 39 Washington counties.
+        King County anchors the Democratic base, while the Puget suburbs,
+        Olympic Peninsula, and eastern interior create the statewide battlefield.
       </p>
       <div class="mode-tabs" role="tablist">
         <button id="tab-general"  class="mode-tab mode-tab--general is-active" role="tab">General Election</button>
@@ -202,11 +235,11 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <select id="preset-select">
           <option value="">-- choose preset --</option>
           <option value="baseline-2024">2024 Baseline</option>
-          <option value="blue-cascade">Blue Cascade</option>
-          <option value="red-rural-surge">Red Rural Surge</option>
-          <option value="latino-shift">Latino Shift</option>
-          <option value="tech-exodus">Tech Exodus</option>
-          <option value="suburban-drift">Suburban Drift</option>
+          <option value="blue-surge">Puget Blue Surge</option>
+          <option value="red-wave">Eastern Red Wave</option>
+          <option value="king-surge">Seattle Surge</option>
+          <option value="rural-revolt">Eastside Snapback</option>
+          <option value="competitive-wa">Suburban Drift</option>
         </select>
       </div>
       <div class="hero__buttons">
@@ -228,7 +261,19 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
       </div>
 
-                        <div class="map-stage">
+      <div class="map-stage">
+        <div class="map-zoom-controls" aria-label="Map zoom controls">
+          <button id="map-zoom-in" class="button button--ghost map-zoom-button" type="button">+</button>
+          <button id="map-zoom-out" class="button button--ghost map-zoom-button" type="button">-</button>
+        </div>
+        <div class="group-box" aria-live="polite">
+          <div class="group-box__top">
+            <p class="group-box__title">Group</p>
+            <button id="group-toggle" class="button button--ghost group-box__toggle" type="button">Group</button>
+          </div>
+          <p id="group-meta" class="group-box__meta">Grouping off.</p>
+          <div id="group-rows" class="group-box__rows"></div>
+        </div>
         <div class="map-shell" id="map-shell"></div>
       </div>
       <div class="vote-strip-wrap">
@@ -237,8 +282,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       </div>
 <div class="map-footer">
         <p class="map-footnote">
-          Baseline: 2024 Washington presidential results. County boundaries from US Census TIGER.
-          Click any county to apply local overrides.
+          Baseline: 2024 Washington presidential results. County boundaries from US Census TIGER.`r`n          Click any county to apply local overrides.
         </p>
       </div>
     </div>
@@ -270,7 +314,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <div class="slider-group">
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Statewide Swing <span style="font-size:0.72rem;color:var(--muted);">(+&thinsp;= D)</span></span>
+              <span class="slider-row__label">Statewide Swing <span style="font-size:0.72rem;color:var(--muted);">(+&thinsp;= R)</span></span>
               <span class="slider-row__val" id="swing-value">0.0</span>
             </div>
             <input type="range" id="swing" min="-14" max="14" step="0.5" value="0">
@@ -284,38 +328,31 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
-              <span class="slider-row__label">Seattle / King Co.</span>
-              <span class="slider-row__val" id="seattle-value">0.0</span>
+              <span class="slider-row__label">Seattle / King County</span>
+              <span class="slider-row__val" id="king-value">0.0</span>
             </div>
-            <input type="range" id="seattle" min="-10" max="10" step="0.5" value="0">
+            <input type="range" id="king" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
               <span class="slider-row__label">Puget Sound Suburbs</span>
-              <span class="slider-row__val" id="puget-value">0.0</span>
+              <span class="slider-row__val" id="suburbs-value">0.0</span>
             </div>
-            <input type="range" id="puget" min="-10" max="10" step="0.5" value="0">
+            <input type="range" id="suburbs" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
               <span class="slider-row__label">Eastern Washington</span>
-              <span class="slider-row__val" id="eastwa-value">0.0</span>
+              <span class="slider-row__val" id="eastside-value">0.0</span>
             </div>
-            <input type="range" id="eastwa" min="-10" max="10" step="0.5" value="0">
-          </div>
-          <div class="slider-row">
-            <div class="slider-row__top">
-              <span class="slider-row__label">Vancouver / Clark Co.</span>
-              <span class="slider-row__val" id="clark-value">0.0</span>
-            </div>
-            <input type="range" id="clark" min="-10" max="10" step="0.5" value="0">
+            <input type="range" id="eastside" min="-10" max="10" step="0.5" value="0">
           </div>
           <div class="slider-row">
             <div class="slider-row__top">
               <span class="slider-row__label">Volatility</span>
-              <span class="slider-row__val" id="volatility-value">3.5</span>
+              <span class="slider-row__val" id="volatility-value">1.0</span>
             </div>
-            <input type="range" id="volatility" min="0" max="12" step="0.5" value="3.5">
+            <input type="range" id="volatility" min="0" max="12" step="0.5" value="1.0">
           </div>
         </div>
       </div>
@@ -330,6 +367,24 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
           <button id="add-candidate" class="button button--accent">+ Add Candidate</button>
           <button id="reset-candidates" class="button button--ghost">Reset</button>
         </div>
+      </div>
+
+      <div class="poll-panel panel">
+        <p class="panel__eyebrow">Polling</p>
+        <h2 id="poll-panel-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.1rem;">Polling Timeline</h2>
+        <p id="poll-panel-note" style="margin:0;color:var(--muted);font-size:0.82rem;">Sketch a hypothetical polling trend for the active field.</p>
+        <div class="poll-toolbar">
+          <p class="panel__note" style="text-align:left;max-width:none;">This chart is hypothetical and separate from the county simulator.</p>
+          <div class="poll-toolbar__actions">
+            <label class="poll-point-control">
+              <span>Points</span>
+              <input id="poll-point-count" type="number" min="3" max="24" step="1" value="5">
+            </label>
+            <button id="reset-polls" class="button button--ghost" type="button">Reset timeline</button>
+          </div>
+        </div>
+        <div id="poll-chart" class="poll-chart"></div>
+        <div id="poll-editor" class="poll-editor"></div>
       </div>
 
       <!-- selected county -->
@@ -374,12 +429,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       rgbToHex(r*0.58, g*0.58, b*0.58)
     ];
   }
-  // 10-bucket shading: winner vote share → color intensity
   function candidateMapColor(color, winPct) {
     var c = hexToRgb(color), r = c[0], g = c[1], b = c[2];
-    var br = 228, bg = 215, bb = 185; // sandy map bg tint
+    var br = 228, bg = 215, bb = 185;
     var bucket = Math.min(9, Math.floor(winPct / 10));
-    // Chosen color = 60% margin (bucket 6). Below → blend toward bg. Above → darken.
     if (bucket >= 6) {
       var darkAmt = [0, 0.15, 0.30, 0.44][bucket - 6];
       return rgbToHex(r * (1 - darkAmt), g * (1 - darkAmt), b * (1 - darkAmt));
@@ -395,7 +448,6 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return function() { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
   }
 
-  // ── ideology helpers ──────────────────────────────────────────────────────
   function ideologyLabel(v) {
     if (v <= -85) return "Communist";
     if (v <= -65) return "Socialist";
@@ -410,58 +462,160 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return "Fascist";
   }
 
+  var POLL_STAGES = ["Launch", "Summer", "Debate", "Early Vote", "Final"];
+  var MAX_POLL_POINTS = 24;
+
+  function defaultPollSeriesForCandidate(candidateLike) {
+    var buzz = Number(candidateLike && candidateLike.buzz || 0);
+    var ideology = Number(candidateLike && candidateLike.ideology || 0);
+    var strength = Number(candidateLike && candidateLike.strength || 0);
+    if (candidateLike && candidateLike.anchor === "dem") return clonePollSeries([52,53,54,55,54]);
+    if (candidateLike && candidateLike.anchor === "rep") return clonePollSeries([44,43,42,41,42]);
+    var base = clamp(3 + strength * 0.28 + Math.abs(ideology) * 0.04, 3, 18);
+    return clonePollSeries([
+      base - 1,
+      base + clamp(buzz * 0.2, -2, 3),
+      base + 0.8 + clamp(buzz * 0.3, -2, 4),
+      base + 1.4 + clamp(buzz * 0.4, -2, 5),
+      base + 0.6 + clamp(buzz * 0.25, -2, 4)
+    ], 5);
+  }
+
+  function clonePollSeries(series, pointCount) {
+    var count = pointCount || POLL_STAGES.length;
+    return Array.from({ length: count }, function (_, index) {
+      var value = Number(series && series[index]);
+      return clamp(Number.isFinite(value) ? value : 0, 0, 100);
+    });
+  }
+
+  function resizePollSeries(series, pointCount) {
+    var source = clonePollSeries(series, series && series.length ? series.length : POLL_STAGES.length);
+    var nextCount = clamp(Number(pointCount || POLL_STAGES.length), 3, MAX_POLL_POINTS);
+    if (source.length === nextCount) return source.slice();
+    if (source.length <= 1) {
+      return Array.from({ length: nextCount }, function () { return clamp(Number(source[0] || 0), 0, 100); });
+    }
+    return Array.from({ length: nextCount }, function (_, index) {
+      var scaledIndex = (index / Math.max(1, nextCount - 1)) * (source.length - 1);
+      var leftIndex = Math.floor(scaledIndex);
+      var rightIndex = Math.min(source.length - 1, leftIndex + 1);
+      var t = scaledIndex - leftIndex;
+      var value = source[leftIndex] + (source[rightIndex] - source[leftIndex]) * t;
+      return clamp(value, 0, 100);
+    });
+  }
+
   // ── county data ───────────────────────────────────────────────────────────
-  // lean = R% of 2-party vote calibrated so simulation outputs ~40% R statewide
-  // demo = {white,black,hisp,asian,other} % of total pop
-  // age  = {y1829,y3044,y4564,y65p} % of 18+ voting-age pop
-  // pop  = 2020 Census population
+  // lean = R% of 2-party vote (2024 presidential)
+  var WA_FIPS = {
+    "Adams":"53001","Asotin":"53003","Benton":"53005","Chelan":"53007","Clallam":"53009","Clark":"53011","Columbia":"53013","Cowlitz":"53015","Douglas":"53017","Ferry":"53019","Franklin":"53021","Garfield":"53023","Grant":"53025","Grays Harbor":"53027","Island":"53029","Jefferson":"53031","King":"53033","Kitsap":"53035","Kittitas":"53037","Klickitat":"53039","Lewis":"53041","Lincoln":"53043","Mason":"53045","Okanogan":"53047","Pacific":"53049","Pend Oreille":"53051","Pierce":"53053","San Juan":"53055","Skagit":"53057","Skamania":"53059","Snohomish":"53061","Spokane":"53063","Stevens":"53065","Thurston":"53067","Wahkiakum":"53069","Walla Walla":"53071","Whatcom":"53073","Whitman":"53075","Yakima":"53077"
+  };
+
+  var WA_REGION_DEMO = {
+    king:       { white:57, black:7, hisp:10, asian:20, other:6 },
+    suburbs:    { white:69, black:5, hisp:10, asian:10, other:6 },
+    northsound: { white:75, black:2, hisp:8,  asian:8,  other:7 },
+    southwest:  { white:81, black:2, hisp:8,  asian:3,  other:6 },
+    olympic:    { white:82, black:2, hisp:7,  asian:3,  other:6 },
+    eastside:   { white:73, black:2, hisp:18, asian:3,  other:4 }
+  };
+
+  var WA_REGION_AGE = {
+    king:       { y1829:20, y3044:28, y4564:29, y65p:17 },
+    suburbs:    { y1829:17, y3044:25, y4564:31, y65p:20 },
+    northsound: { y1829:16, y3044:24, y4564:31, y65p:22 },
+    southwest:  { y1829:15, y3044:21, y4564:31, y65p:26 },
+    olympic:    { y1829:14, y3044:20, y4564:30, y65p:29 },
+    eastside:   { y1829:17, y3044:22, y4564:29, y65p:24 }
+  };
+
+  var WA_COUNTY_OVERRIDES = {
+    "Adams":        { demo:{ white:55, black:1, hisp:41, asian:1, other:2 }, age:{ y1829:18, y3044:24, y4564:27, y65p:19 } },
+    "Benton":       { demo:{ white:70, black:2, hisp:18, asian:6, other:4 }, age:{ y1829:20, y3044:24, y4564:28, y65p:20 } },
+    "Clark":        { demo:{ white:74, black:3, hisp:10, asian:5, other:8 }, age:{ y1829:17, y3044:24, y4564:31, y65p:21 } },
+    "Franklin":     { demo:{ white:42, black:2, hisp:51, asian:2, other:3 }, age:{ y1829:21, y3044:25, y4564:27, y65p:16 } },
+    "Grays Harbor": { demo:{ white:79, black:1, hisp:8,  asian:2, other:10 }, age:{ y1829:14, y3044:19, y4564:30, y65p:30 } },
+    "Jefferson":    { demo:{ white:83, black:1, hisp:5,  asian:2, other:9 }, age:{ y1829:12, y3044:18, y4564:29, y65p:34 } },
+    "King":         { demo:{ white:54, black:7, hisp:10, asian:22, other:7 }, age:{ y1829:20, y3044:29, y4564:29, y65p:16 } },
+    "Kitsap":       { demo:{ white:74, black:4, hisp:7,  asian:6, other:9 }, age:{ y1829:16, y3044:23, y4564:31, y65p:23 } },
+    "Pierce":       { demo:{ white:65, black:7, hisp:11, asian:8, other:9 }, age:{ y1829:18, y3044:24, y4564:30, y65p:20 } },
+    "Snohomish":    { demo:{ white:64, black:3, hisp:10, asian:14, other:9 }, age:{ y1829:17, y3044:26, y4564:31, y65p:18 } },
+    "Spokane":      { demo:{ white:81, black:2, hisp:6,  asian:3, other:8 }, age:{ y1829:17, y3044:22, y4564:30, y65p:23 } },
+    "Thurston":     { demo:{ white:72, black:4, hisp:8,  asian:6, other:10 }, age:{ y1829:18, y3044:24, y4564:30, y65p:21 } },
+    "Whatcom":      { demo:{ white:76, black:1, hisp:8,  asian:5, other:10 }, age:{ y1829:19, y3044:23, y4564:28, y65p:22 } },
+    "Whitman":      { demo:{ white:69, black:2, hisp:7,  asian:13, other:9 }, age:{ y1829:29, y3044:20, y4564:23, y65p:13 } },
+    "Yakima":       { demo:{ white:46, black:1, hisp:49, asian:1, other:3 }, age:{ y1829:20, y3044:24, y4564:27, y65p:17 } }
+  };
+
+  function waCounty(name, region, repVotes, demVotes) {
+    var total = repVotes + demVotes;
+    var lean = total ? (repVotes / total * 100) : 50;
+    var extra = WA_COUNTY_OVERRIDES[name] || {};
+    return {
+      fips: WA_FIPS[name],
+      name: name,
+      region: region,
+      lean: Number(lean.toFixed(2)),
+      pop: total,
+      demo: extra.demo || WA_REGION_DEMO[region],
+      age: extra.age || WA_REGION_AGE[region]
+    };
+  }
+
   var COUNTIES = [
-    { fips:"53001", name:"Adams",        region:"eastwa", lean:63, pop:19983,   demo:{white:31,black:1,hisp:58,asian:2,other:8},  age:{y1829:21,y3044:27,y4564:33,y65p:15} },
-    { fips:"53003", name:"Asotin",       region:"eastwa", lean:58, pop:22582,   demo:{white:87,black:1,hisp:8, asian:1,other:3},  age:{y1829:17,y3044:23,y4564:35,y65p:22} },
-    { fips:"53005", name:"Benton",       region:"eastwa", lean:56, pop:204390,  demo:{white:71,black:2,hisp:21,asian:3,other:3},  age:{y1829:19,y3044:25,y4564:34,y65p:18} },
-    { fips:"53007", name:"Chelan",       region:"eastwa", lean:54, pop:77200,   demo:{white:66,black:1,hisp:26,asian:3,other:4},  age:{y1829:18,y3044:24,y4564:34,y65p:21} },
-    { fips:"53009", name:"Clallam",      region:"coast",  lean:51, pop:77331,   demo:{white:82,black:1,hisp:8, asian:3,other:6},  age:{y1829:15,y3044:21,y4564:35,y65p:26} },
-    { fips:"53011", name:"Clark",        region:"clark",  lean:48, pop:503320,  demo:{white:76,black:3,hisp:11,asian:6,other:4},  age:{y1829:19,y3044:26,y4564:34,y65p:18} },
-    { fips:"53013", name:"Columbia",     region:"eastwa", lean:64, pop:4078,    demo:{white:86,black:1,hisp:10,asian:1,other:2},  age:{y1829:15,y3044:21,y4564:36,y65p:25} },
-    { fips:"53015", name:"Cowlitz",      region:"coast",  lean:54, pop:110593,  demo:{white:82,black:2,hisp:9, asian:3,other:4},  age:{y1829:18,y3044:24,y4564:35,y65p:20} },
-    { fips:"53017", name:"Douglas",      region:"eastwa", lean:61, pop:43429,   demo:{white:62,black:1,hisp:30,asian:2,other:5},  age:{y1829:20,y3044:25,y4564:34,y65p:18} },
-    { fips:"53019", name:"Ferry",        region:"eastwa", lean:64, pop:7551,    demo:{white:74,black:1,hisp:8, asian:1,other:16}, age:{y1829:16,y3044:21,y4564:36,y65p:24} },
-    { fips:"53021", name:"Franklin",     region:"eastwa", lean:51, pop:90660,   demo:{white:32,black:2,hisp:57,asian:3,other:6},  age:{y1829:23,y3044:28,y4564:31,y65p:13} },
-    { fips:"53023", name:"Garfield",     region:"eastwa", lean:63, pop:2225,    demo:{white:90,black:1,hisp:7, asian:1,other:1},  age:{y1829:14,y3044:20,y4564:35,y65p:28} },
-    { fips:"53025", name:"Grant",        region:"eastwa", lean:63, pop:97733,   demo:{white:54,black:2,hisp:37,asian:2,other:5},  age:{y1829:21,y3044:26,y4564:33,y65p:16} },
-    { fips:"53027", name:"Grays Harbor", region:"coast",  lean:53, pop:75061,   demo:{white:81,black:2,hisp:10,asian:2,other:5},  age:{y1829:17,y3044:23,y4564:35,y65p:22} },
-    { fips:"53029", name:"Island",       region:"puget",  lean:44, pop:85141,   demo:{white:82,black:3,hisp:6, asian:6,other:3},  age:{y1829:14,y3044:20,y4564:34,y65p:29} },
-    { fips:"53031", name:"Jefferson",    region:"coast",  lean:38, pop:32221,   demo:{white:88,black:1,hisp:5, asian:3,other:3},  age:{y1829:13,y3044:20,y4564:34,y65p:30} },
-    { fips:"53033", name:"King",         region:"king",   lean:33, pop:2269675, demo:{white:59,black:7,hisp:10,asian:20,other:4}, age:{y1829:18,y3044:31,y4564:33,y65p:14} },
-    { fips:"53035", name:"Kitsap",       region:"puget",  lean:44, pop:271473,  demo:{white:76,black:5,hisp:7, asian:8,other:4},  age:{y1829:17,y3044:25,y4564:35,y65p:19} },
-    { fips:"53037", name:"Kittitas",     region:"eastwa", lean:54, pop:47935,   demo:{white:78,black:2,hisp:13,asian:3,other:4},  age:{y1829:24,y3044:23,y4564:33,y65p:17} },
-    { fips:"53039", name:"Klickitat",    region:"eastwa", lean:55, pop:22425,   demo:{white:80,black:1,hisp:14,asian:2,other:3},  age:{y1829:17,y3044:23,y4564:36,y65p:22} },
-    { fips:"53041", name:"Lewis",        region:"coast",  lean:60, pop:80707,   demo:{white:86,black:1,hisp:8, asian:2,other:3},  age:{y1829:17,y3044:23,y4564:35,y65p:22} },
-    { fips:"53043", name:"Lincoln",      region:"eastwa", lean:70, pop:10570,   demo:{white:91,black:1,hisp:6, asian:1,other:1},  age:{y1829:15,y3044:22,y4564:37,y65p:24} },
-    { fips:"53045", name:"Mason",        region:"coast",  lean:50, pop:65726,   demo:{white:79,black:2,hisp:9, asian:3,other:7},  age:{y1829:16,y3044:23,y4564:36,y65p:22} },
-    { fips:"53047", name:"Okanogan",     region:"eastwa", lean:59, pop:42736,   demo:{white:67,black:1,hisp:22,asian:1,other:9},  age:{y1829:19,y3044:24,y4564:33,y65p:20} },
-    { fips:"53049", name:"Pacific",      region:"coast",  lean:52, pop:22471,   demo:{white:84,black:1,hisp:8, asian:2,other:5},  age:{y1829:15,y3044:21,y4564:35,y65p:26} },
-    { fips:"53051", name:"Pend Oreille", region:"eastwa", lean:62, pop:13892,   demo:{white:87,black:1,hisp:5, asian:1,other:6},  age:{y1829:16,y3044:21,y4564:36,y65p:24} },
-    { fips:"53053", name:"Pierce",       region:"puget",  lean:45, pop:921130,  demo:{white:60,black:11,hisp:12,asian:9,other:8}, age:{y1829:20,y3044:27,y4564:33,y65p:16} },
-    { fips:"53055", name:"San Juan",     region:"coast",  lean:34, pop:17582,   demo:{white:91,black:1,hisp:4, asian:2,other:2},  age:{y1829:11,y3044:18,y4564:34,y65p:35} },
-    { fips:"53057", name:"Skagit",       region:"puget",  lean:50, pop:129205,  demo:{white:75,black:2,hisp:16,asian:4,other:3},  age:{y1829:17,y3044:24,y4564:34,y65p:22} },
-    { fips:"53059", name:"Skamania",     region:"coast",  lean:51, pop:12083,   demo:{white:88,black:1,hisp:7, asian:2,other:2},  age:{y1829:16,y3044:23,y4564:38,y65p:21} },
-    { fips:"53061", name:"Snohomish",    region:"puget",  lean:45, pop:827957,  demo:{white:71,black:4,hisp:9, asian:12,other:4}, age:{y1829:18,y3044:27,y4564:34,y65p:17} },
-    { fips:"53063", name:"Spokane",      region:"eastwa", lean:53, pop:522798,  demo:{white:84,black:3,hisp:6, asian:4,other:3},  age:{y1829:19,y3044:25,y4564:33,y65p:20} },
-    { fips:"53065", name:"Stevens",      region:"eastwa", lean:64, pop:47179,   demo:{white:89,black:1,hisp:4, asian:1,other:5},  age:{y1829:16,y3044:22,y4564:36,y65p:24} },
-    { fips:"53067", name:"Thurston",     region:"puget",  lean:44, pop:290536,  demo:{white:74,black:4,hisp:10,asian:7,other:5},  age:{y1829:19,y3044:26,y4564:33,y65p:18} },
-    { fips:"53069", name:"Wahkiakum",    region:"coast",  lean:52, pop:4488,    demo:{white:88,black:1,hisp:7, asian:1,other:3},  age:{y1829:15,y3044:21,y4564:37,y65p:25} },
-    { fips:"53071", name:"Walla Walla",  region:"eastwa", lean:56, pop:60760,   demo:{white:71,black:2,hisp:22,asian:2,other:3},  age:{y1829:21,y3044:24,y4564:33,y65p:19} },
-    { fips:"53073", name:"Whatcom",      region:"puget",  lean:45, pop:229247,  demo:{white:76,black:2,hisp:9, asian:7,other:6},  age:{y1829:21,y3044:26,y4564:33,y65p:17} },
-    { fips:"53075", name:"Whitman",      region:"eastwa", lean:44, pop:50104,   demo:{white:80,black:2,hisp:6, asian:8,other:4},  age:{y1829:34,y3044:20,y4564:28,y65p:14} },
-    { fips:"53077", name:"Yakima",       region:"eastwa", lean:54, pop:250873,  demo:{white:43,black:2,hisp:48,asian:2,other:5},  age:{y1829:21,y3044:27,y4564:32,y65p:16} },
+    waCounty("Adams", "eastside", 3767, 1455),
+    waCounty("Asotin", "eastside", 7004, 4082),
+    waCounty("Benton", "eastside", 59555, 37662),
+    waCounty("Chelan", "eastside", 22363, 18397),
+    waCounty("Clallam", "olympic", 21632, 25440),
+    waCounty("Clark", "southwest", 123998, 143206),
+    waCounty("Columbia", "eastside", 1737, 661),
+    waCounty("Cowlitz", "southwest", 34580, 22825),
+    waCounty("Douglas", "eastside", 13095, 7410),
+    waCounty("Ferry", "eastside", 2667, 1315),
+    waCounty("Franklin", "eastside", 19086, 11884),
+    waCounty("Garfield", "eastside", 973, 330),
+    waCounty("Grant", "eastside", 24326, 10806),
+    waCounty("Grays Harbor", "olympic", 19432, 17161),
+    waCounty("Island", "northsound", 20967, 29595),
+    waCounty("Jefferson", "olympic", 6324, 17459),
+    waCounty("King", "king", 252193, 832606),
+    waCounty("Kitsap", "suburbs", 59080, 91731),
+    waCounty("Kittitas", "eastside", 14645, 10810),
+    waCounty("Klickitat", "southwest", 7178, 5917),
+    waCounty("Lewis", "southwest", 29322, 14433),
+    waCounty("Lincoln", "eastside", 5272, 1678),
+    waCounty("Mason", "olympic", 18127, 17215),
+    waCounty("Okanogan", "eastside", 11555, 8466),
+    waCounty("Pacific", "olympic", 7010, 6825),
+    waCounty("Pend Oreille", "eastside", 5826, 2461),
+    waCounty("Pierce", "suburbs", 188194, 235169),
+    waCounty("San Juan", "northsound", 2890, 9539),
+    waCounty("Skagit", "northsound", 30765, 36956),
+    waCounty("Skamania", "southwest", 3961, 3147),
+    waCounty("Snohomish", "suburbs", 161371, 240099),
+    waCounty("Spokane", "eastside", 145338, 131163),
+    waCounty("Stevens", "eastside", 19895, 7492),
+    waCounty("Thurston", "suburbs", 62282, 95663),
+    waCounty("Wahkiakum", "southwest", 1757, 1204),
+    waCounty("Walla Walla", "eastside", 15476, 13106),
+    waCounty("Whatcom", "northsound", 49213, 83295),
+    waCounty("Whitman", "eastside", 8699, 10480),
+    waCounty("Yakima", "eastside", 49368, 36706)
   ];
 
-  // General: ~39% of total pop (WA governor 2022 ~3.0M votes / 7.7M pop)
-  // WA uses top-two primary; estimates from partisan primary vote shares 2022:
-  //   R-aligned: ~1.125M → 1125000/7705281 ≈ 0.146
-  //   D-aligned: ~1.375M → 1375000/7705281 ≈ 0.179
-  var TURNOUT_RATE = { general: 0.39 };
+  // De-duplicate by fips
+  (function() {
+    var seen = {};
+    COUNTIES = COUNTIES.filter(function(c) {
+      if (seen[c.fips]) return false;
+      seen[c.fips] = true;
+      return true;
+    });
+  })();
+
+  var TURNOUT_RATE = { general: 1.0 };
   // Build county-level party vote pools from baseline general-election votes.
   // Primary sims split these county party pools instead of raw population turnout.
   COUNTIES.forEach(function(cty) {
@@ -471,101 +625,131 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     cty.repVotes = repVotes;
     cty.demVotes = Math.max(0, generalVotes - repVotes);
   });
-
-  // ── presets ───────────────────────────────────────────────────────────────
   var PRESETS = {
-    "baseline-2024":   { label:"2024 Baseline",    controls:{ swing:0,  turnout:0,  seattle:0,  puget:0, eastwa:0,  clark:0,  volatility:3.5 } },
-    "blue-cascade":    { label:"Blue Cascade",      controls:{ swing:5,  turnout:4,  seattle:6,  puget:4, eastwa:-2, clark:3,  volatility:3   } },
-    "red-rural-surge": { label:"Red Rural Surge",   controls:{ swing:-4, turnout:2,  seattle:-2, puget:-2,eastwa:8,  clark:-2, volatility:3   } },
-    "latino-shift":    { label:"Latino Shift",      controls:{ swing:4,  turnout:3,  seattle:3,  puget:2, eastwa:3,  clark:2,  volatility:4   } },
-    "tech-exodus":     { label:"Tech Exodus",       controls:{ swing:-3, turnout:-3, seattle:-6, puget:0, eastwa:-1, clark:0,  volatility:5   } },
-    "suburban-drift":  { label:"Suburban Drift",    controls:{ swing:3,  turnout:1,  seattle:2,  puget:5, eastwa:0,  clark:4,  volatility:4   } },
+    "baseline-2024": { label:"2024 Baseline", controls:{ swing:0, king:0, suburbs:0, eastside:0, volatility:1.0 } },
+    "blue-surge":    { label:"Puget Blue Surge", controls:{ swing:-3, king:-6, suburbs:-4, eastside:-1, volatility:1.0 } },
+    "red-wave":      { label:"Eastern Red Wave", controls:{ swing:4, king:1, suburbs:2, eastside:6, volatility:1.0 } },
+    "king-surge":    { label:"Seattle Surge", controls:{ swing:-2, king:-10, suburbs:-2, eastside:0, volatility:0.9 } },
+    "rural-revolt":  { label:"Eastside Snapback", controls:{ swing:3, king:0, suburbs:1, eastside:8, volatility:1.0 } },
+    "competitive-wa":{ label:"Suburban Drift", controls:{ swing:1.5, king:0, suburbs:5, eastside:1, volatility:1.2 } }
   };
 
   // ── candidate factory ─────────────────────────────────────────────────────
-  var candidateNextId = 10;
   function makeCandidate(o) {
-    var d = o.demo || {}, a = o.age || {}, rg = o.region || {};
     return {
-      id: o.id || ("cand-" + (candidateNextId++)),
-      name: o.name, ideology: o.ideology, strength: o.strength,
-      buzz: o.buzz || 0, turnout: o.turnout || 0,
-      anchor: o.anchor || "none", removable: o.removable !== false,
-      demo:   { white: d.white||0, black: d.black||0, hisp: d.hisp||0, asian: d.asian||0, other: d.other||0 },
-      age:    { y1829: a.y1829||0, y3044: a.y3044||0, y4564: a.y4564||0, y65p: a.y65p||0 },
-      region: { king: rg.king||0, puget: rg.puget||0, eastwa: rg.eastwa||0, clark: rg.clark||0, coast: rg.coast||0 },
-      palette: { strong: o.palette.strong }
+      id:       o.id || ("cand" + Math.random().toString(36).slice(2)),
+      name:     o.name     || "Candidate",
+      ideology: o.ideology || 0,
+      strength: o.strength || 50,
+      buzz:     o.buzz     || 0,
+      turnout:  o.turnout  || 0,
+      anchor:   o.anchor   || "none",
+      removable:o.removable !== false,
+      demo:     o.demo     || { white:0, black:0, hisp:0, asian:0, other:0 },
+      age:      o.age      || { y1829:0, y3044:0, y4564:0, y65p:0 },
+      region:   {
+        king:        o.region&&o.region.king||0,
+        suburbs:     o.region&&o.region.suburbs||0,
+        northsound:  o.region&&o.region.northsound||0,
+        olympic:     o.region&&o.region.olympic||0,
+        southwest:   o.region&&o.region.southwest||0,
+        eastside:    o.region&&o.region.eastside||0
+      },
+      palette:  { strong: o.palette&&o.palette.strong ? o.palette.strong : "#888" },
+      polls:    clonePollSeries(o.polls || defaultPollSeriesForCandidate(o))
     };
   }
 
   function makeDefaultGeneralCandidates() {
     return [
-      makeCandidate({ id:"gen-r", name:"Republican", ideology:55,  strength:100, buzz:0, turnout:0, anchor:"rep", removable:true,
-        demo:{white:6,black:-5,hisp:-3,asian:-4,other:-2}, age:{y1829:-5,y3044:-2,y4564:3,y65p:7},
-        region:{king:-4,puget:1,eastwa:5,clark:2,coast:0},
+      makeCandidate({ id:"gen-r", name:"Republican", ideology:55, strength:78, buzz:0, turnout:0, anchor:"rep", removable:true,
+        demo:{white:0,black:0,hisp:0,asian:0,other:0}, age:{y1829:0,y3044:0,y4564:0,y65p:0},
+        region:{king:0,suburbs:0,northsound:0,olympic:0,southwest:0,eastside:0},
         palette:{strong:"#c0011a"} }),
-      makeCandidate({ id:"gen-d", name:"Democrat",   ideology:-55, strength:100, buzz:0, turnout:0, anchor:"dem", removable:true,
-        demo:{white:-3,black:10,hisp:6,asian:7,other:3}, age:{y1829:8,y3044:5,y4564:-2,y65p:-5},
-        region:{king:5,puget:2,eastwa:-4,clark:-1,coast:1},
+      makeCandidate({ id:"gen-d", name:"Democrat", ideology:-63, strength:82, buzz:0, turnout:0, anchor:"dem", removable:true,
+        demo:{white:0,black:0,hisp:0,asian:0,other:0}, age:{y1829:0,y3044:0,y4564:0,y65p:0},
+        region:{king:0,suburbs:0,northsound:0,olympic:0,southwest:0,eastside:0},
         palette:{strong:"#1037c2"} }),
     ];
   }
   function makeDefaultRepPrimaryCandidates() {
     return [
-      makeCandidate({ id:"rp1", name:"MAGA Challenger",   ideology:74, strength:64, buzz:0, turnout:0,
-        demo:{white:8,black:-4,hisp:-3,asian:-3,other:-2}, age:{y1829:-3,y3044:-1,y4564:4,y65p:9},
-        region:{king:-6,puget:-2,eastwa:8,clark:-1,coast:1}, removable:true, palette:{strong:"#8b0010"} }),
-      makeCandidate({ id:"rp2", name:"Moderate Republican", ideology:48, strength:60, buzz:0, turnout:0,
-        demo:{white:5,black:-2,hisp:-1,asian:-1,other:-1}, age:{y1829:-2,y3044:1,y4564:3,y65p:5},
-        region:{king:-2,puget:4,eastwa:2,clark:4,coast:2}, removable:true, palette:{strong:"#c0011a"} }),
+      makeCandidate({ id:"rp1", name:"Establishment R", ideology:55, strength:72, buzz:2, turnout:3,
+        demo:{white:5,black:-2,hisp:1,asian:-1,other:-1}, age:{y1829:-3,y3044:-1,y4564:3,y65p:5},
+        region:{king:2,suburbs:3,northsound:2,olympic:1,southwest:1,eastside:2}, removable:true, palette:{strong:"#c0011a"} }),
+      makeCandidate({ id:"rp2", name:"MAGA Challenger", ideology:76, strength:58, buzz:2, turnout:2,
+        demo:{white:8,black:-3,hisp:-2,asian:-2,other:-1}, age:{y1829:-2,y3044:0,y4564:3,y65p:6},
+        region:{king:-2,suburbs:2,northsound:1,olympic:2,southwest:4,eastside:5}, removable:true, palette:{strong:"#8b0000"} }),
     ];
   }
   function makeDefaultDemPrimaryCandidates() {
     return [
-      makeCandidate({ id:"dp1", name:"Progressive",      ideology:-70, strength:72, buzz:0, turnout:0,
-        demo:{white:-2,black:10,hisp:6,asian:7,other:4}, age:{y1829:12,y3044:6,y4564:-3,y65p:-7},
-        region:{king:9,puget:3,eastwa:-5,clark:-1,coast:2}, removable:true, palette:{strong:"#0a1fa0"} }),
-      makeCandidate({ id:"dp2", name:"Centrist Democrat", ideology:-45, strength:58, buzz:0, turnout:0,
-        demo:{white:3,black:6,hisp:4,asian:4,other:2}, age:{y1829:4,y3044:5,y4564:-1,y65p:-2},
-        region:{king:-2,puget:3,eastwa:1,clark:4,coast:2}, removable:true, palette:{strong:"#1037c2"} }),
+      makeCandidate({ id:"dp1", name:"Moderate Democrat", ideology:-46, strength:65, buzz:2, turnout:2,
+        demo:{white:3,black:6,hisp:5,asian:4,other:2}, age:{y1829:3,y3044:4,y4564:-1,y65p:-2},
+        region:{king:5,suburbs:4,northsound:2,olympic:1,southwest:1,eastside:0}, removable:true, palette:{strong:"#1037c2"} }),
+      makeCandidate({ id:"dp2", name:"Progressive", ideology:-76, strength:62, buzz:4, turnout:4,
+        demo:{white:-2,black:12,hisp:8,asian:7,other:4}, age:{y1829:14,y3044:6,y4564:-4,y65p:-8},
+        region:{king:12,suburbs:-2,northsound:-1,olympic:-2,southwest:-2,eastside:-3}, removable:true, palette:{strong:"#0a1fa0"} }),
     ];
   }
 
   // ── mode meta ─────────────────────────────────────────────────────────────
   var MODE_META = {
-    general:    { title:"General Election Roster",      note:"Edit nominees or add independents.",              addLabel:"+ Add Independent", panelEyebrow:"Candidates" },
-    repPrimary: { title:"Republican Primary Field",     note:"Top-two primary &mdash; simulating the Republican lane.", addLabel:"+ Add R Candidate",  panelEyebrow:"R Primary" },
-    demPrimary: { title:"Democratic Primary Field",     note:"Top-two primary &mdash; simulating the Democratic lane.", addLabel:"+ Add D Candidate",  panelEyebrow:"D Primary" },
+    general:    { title:"General Election Roster",     note:"Edit major-party nominees or add independents.", addLabel:"+ Add Independent", panelEyebrow:"Candidates" },
+    repPrimary: { title:"Republican Primary Field",    note:"Closed primary &mdash; registered Republicans only.", addLabel:"+ Add R Candidate",  panelEyebrow:"R Primary" },
+    demPrimary: { title:"Democratic Primary Field",    note:"Closed primary &mdash; registered Democrats only.",  addLabel:"+ Add D Candidate",  panelEyebrow:"D Primary" },
   };
 
   // ── state ─────────────────────────────────────────────────────────────────
-  var CTRL_KEYS = ["swing","turnout","seattle","puget","eastwa","clark","volatility"];
-
   var state = window.state = {
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
     nextCandId: { general: 3, repPrimary: 3, demPrimary: 3 },
-    controls: { swing:0, turnout:0, seattle:0, puget:0, eastwa:0, clark:0, volatility:3.5 },
-    regions: [], seed: 42, selectedId: null, pieOrder: "votes", isolatedCandidateId: null
+    pollPointCount: { general: 5, repPrimary: 5, demPrimary: 5 },
+    controls: { swing:0, turnout:0, king:0, suburbs:0, eastside:0, volatility:1.0 },
+    regions: [], seed: 42, selectedId: null, pieOrder: "votes", isolatedCandidateId: null,
+    groupMode: false, groupedIds: [], suppressClickUntil: 0,
+    mapSvg: null, mapLayer: null, mapZoomBehavior: null, zoomInteracted: false
   };
 
   function currentCandidates() { return state.candidates[state.mode]; }
   function candById(id) { return currentCandidates().find(function(c){ return c.id === id; }) || null; }
+  function currentPollPointCount() { return state.pollPointCount[state.mode] || POLL_STAGES.length; }
+  function pollStageLabels(pointCount) {
+    if (pointCount === POLL_STAGES.length) return POLL_STAGES.slice();
+    return Array.from({ length: pointCount }, function (_, index) {
+      if (index === 0) return "Launch";
+      if (index === pointCount - 1) return "Final";
+      return "Point " + (index + 1);
+    });
+  }
+  function pollingSeriesForCandidate(candidate) {
+    var expectedCount = currentPollPointCount();
+    if (!candidate.polls || candidate.polls.length !== expectedCount) {
+      candidate.polls = resizePollSeries(candidate.polls || defaultPollSeriesForCandidate(candidate), expectedCount);
+    }
+    return candidate.polls;
+  }
+  function syncCurrentCandidatePollLengths() {
+    var count = currentPollPointCount();
+    currentCandidates().forEach(function (candidate) {
+      candidate.polls = resizePollSeries(candidate.polls || defaultPollSeriesForCandidate(candidate), count);
+    });
+  }
 
   var EXTRA_PALETTES = [
     { strong:"#228b22" }, { strong:"#c26000" }, { strong:"#8b006e" },
     { strong:"#0066b3" }, { strong:"#8b7000" }
   ];
 
-  // ── init ──────────────────────────────────────────────────────────────────
+  var SLIDER_KEYS = ["swing","turnout","king","suburbs","eastside","volatility"];
+// ── init ──────────────────────────────────────────────────────────────────
   window.addEventListener("DOMContentLoaded", function () {
-    // mode tabs
     document.getElementById("tab-general").addEventListener("click", function() { switchMode("general"); });
     document.getElementById("tab-rep").addEventListener("click",     function() { switchMode("repPrimary"); });
     document.getElementById("tab-dem").addEventListener("click",     function() { switchMode("demPrimary"); });
 
-    // sliders
-    CTRL_KEYS.forEach(function(k) {
+    SLIDER_KEYS.forEach(function(k) {
       var el = document.getElementById(k);
       if (!el) return;
       el.addEventListener("input", function() {
@@ -575,7 +759,6 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       });
     });
 
-    // preset
     document.getElementById("apply-preset").addEventListener("click", function() {
       var key = document.getElementById("preset-select").value;
       if (!PRESETS[key]) return;
@@ -589,30 +772,35 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     });
     document.getElementById("reroll-button").addEventListener("click", function() { simulateAndRender(true); });
     document.getElementById("reset-button").addEventListener("click", function() {
-      state.controls = { swing:0, turnout:0, seattle:0, puget:0, eastwa:0, clark:0, volatility:3.5 };
-      CTRL_KEYS.forEach(function(k) {
+      state.controls = { swing:0, turnout:0, king:0, suburbs:0, eastside:0, volatility:1.0 };
+      SLIDER_KEYS.forEach(function(k) {
         var el = document.getElementById(k); if (el) el.value = state.controls[k];
         var ve = document.getElementById(k + "-value"); if (ve) ve.textContent = Number(state.controls[k]).toFixed(1);
       });
+      state.groupMode = false;
+      state.groupedIds = [];
       state.regions.forEach(function(r) { r.override = zeroOverride(); });
       simulateAndRender(true);
     });
 
-    // candidates
     document.getElementById("candidate-list").addEventListener("click",  handleCandListClick);
     document.getElementById("candidate-list").addEventListener("input",  handleCandListInput);
     document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
     document.getElementById("candidate-standings").addEventListener("click", handleStandingClick);
     document.getElementById("add-candidate").addEventListener("click",   addCandidate);
 document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
+    document.getElementById("group-toggle").addEventListener("click", toggleGroupMode);
+    document.getElementById("map-zoom-in").addEventListener("click", function() { zoomMapBy(1.2); });
+    document.getElementById("map-zoom-out").addEventListener("click", function() { zoomMapBy(1 / 1.2); });
+    document.getElementById("poll-point-count").addEventListener("input", function() { setCurrentPollPointCount(Number(this.value)); });
+    document.getElementById("reset-polls").addEventListener("click", resetCurrentModePolling);
+    document.getElementById("poll-editor").addEventListener("input", handlePollEditorInput);
     document.getElementById("pie-sort-ideology").addEventListener("click", function() { setPieOrder("ideology"); });
     document.getElementById("pie-sort-votes").addEventListener("click", function() { setPieOrder("votes"); });
 syncPieOrderButtons();
+renderPollingPanel();
+loadMap();
 
-    // load map
-    loadMap();
-
-    // Tooltip follows mouse
     document.addEventListener("mousemove", function(ev) {
       var tt = document.getElementById("map-tooltip");
       if (tt.hidden) return;
@@ -627,15 +815,17 @@ syncPieOrderButtons();
   function switchMode(mode) {
     state.mode = mode;
     ["general","rep","dem"].forEach(function(m) {
-      var tabId = "tab-" + m;
-      var tabEl = document.getElementById(tabId);
+      var tabEl = document.getElementById("tab-" + m);
       if (!tabEl) return;
       tabEl.classList.toggle("is-active", (m === "general" ? "general" : m + "Primary") === mode);
     });
     state.selectedId = null;
     state.isolatedCandidateId = null;
+    state.groupMode = false;
+    state.groupedIds = [];
     document.getElementById("region-panel").classList.add("is-hidden");
     renderCandidatePanel();
+    renderPollingPanel();
     renderScoreGrid();
     renderVoteStrip();
     renderBoostButtons();
@@ -672,7 +862,7 @@ function syncPieOrderButtons() {
     state.nextCandId[state.mode]++;
     state.candidates[state.mode].push(nc);
     state.regions.forEach(function(r) { r.override[nc.id] = 0; });
-    renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    renderCandidatePanel(); renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -683,7 +873,7 @@ function syncPieOrderButtons() {
     state.nextCandId = { general:3, repPrimary:3, demPrimary:3 };
     state.isolatedCandidateId = null;
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
-    renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    renderCandidatePanel(); renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -696,7 +886,7 @@ function syncPieOrderButtons() {
     if (cands.length <= 1) return;
     state.candidates[state.mode] = cands.filter(function(c){ return c.id !== id; });
     state.regions.forEach(function(r) { delete r.override[id]; if (r.result) delete r.result[id]; });
-    renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    renderCandidatePanel(); renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -729,7 +919,7 @@ function syncPieOrderButtons() {
       c.name = el.value || "Unnamed";
       var card = el.closest(".candidate-card");
       if (card) { var nameEl = card.querySelector(".cand-name-display"); if (nameEl) nameEl.textContent = c.name; }
-      renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+      renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
       if (state.regions.length) simulateAndRender(false);
       return;
     }
@@ -737,11 +927,11 @@ function syncPieOrderButtons() {
       c.palette[palSlot] = el.value;
       var card2 = document.querySelector('.candidate-card[data-id="' + c.id + '"]');
       if (card2) {
-        var shades = candidateShades(c.palette.strong);
-        var preview = card2.querySelector(".candidate-palette-preview");
-        if (preview) preview.innerHTML = shades.map(function(s){ return '<span style="background:'+s+'"></span>'; }).join("");
+        var shades2 = candidateShades(c.palette.strong);
+        var preview2 = card2.querySelector(".candidate-palette-preview");
+      if (preview2) preview2.innerHTML = shades2.map(function(s){ return '<span style="background:'+s+'"></span>'; }).join("");
       }
-      renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+      renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
       if (state.regions.length) simulateAndRender(false);
       return;
     }
@@ -750,7 +940,7 @@ function syncPieOrderButtons() {
     else if (ageKey)    c.age[ageKey]       = Number(el.value);
     else if (regionKey) c.region[regionKey] = Number(el.value);
     if (el.type === "range") { var _row = el.previousElementSibling; if (_row) { var _vs = _row.querySelector("span:last-child"); if (_vs) _vs.textContent = (Number(el.value) >= 0 ? "+" : "") + Number(el.value); } }
-    renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
+    renderPollingPanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
 
@@ -791,40 +981,40 @@ function syncPieOrderButtons() {
         ? (c.anchor === "rep" ? "Major party - Right" : c.anchor === "dem" ? "Major party - Left" : "Independent - "+ideologyLabel(c.ideology))
         : ideologyLabel(c.ideology);
       var demoSec = detailSection("demo", c.id, "Demographic Support",
-        gfld("White",           "data-demo","white", c.demo.white, c.id) +
-        gfld("Black",           "data-demo","black", c.demo.black, c.id) +
-        gfld("Hispanic",        "data-demo","hisp",  c.demo.hisp,  c.id) +
+        gfld("White",          "data-demo","white", c.demo.white, c.id) +
+        gfld("Black",          "data-demo","black", c.demo.black, c.id) +
+        gfld("Hispanic",       "data-demo","hisp",  c.demo.hisp,  c.id) +
         gfld("Asian / Pac. Is.","data-demo","asian", c.demo.asian, c.id) +
-        gfld("Other",           "data-demo","other", c.demo.other, c.id));
+        gfld("Other",          "data-demo","other", c.demo.other, c.id));
       var ageSec = detailSection("age", c.id, "Age Group Support",
-        gfld("18–29","data-age","y1829",c.age.y1829,c.id) +
-        gfld("30–44","data-age","y3044",c.age.y3044,c.id) +
-        gfld("45–64","data-age","y4564",c.age.y4564,c.id) +
-        gfld("65+",  "data-age","y65p", c.age.y65p, c.id));
+        gfld("18\u201329","data-age","y1829",c.age.y1829,c.id) +
+        gfld("30\u201344","data-age","y3044",c.age.y3044,c.id) +
+        gfld("45\u201364","data-age","y4564",c.age.y4564,c.id) +
+        gfld("65+",       "data-age","y65p", c.age.y65p, c.id));
       var regSec = detailSection("reg", c.id, "Regional Strength",
-        gfld("Seattle / King Co.",    "data-region","king",   c.region.king,   c.id) +
-        gfld("Puget Sound Suburbs",   "data-region","puget",  c.region.puget,  c.id) +
-        gfld("Eastern Washington",    "data-region","eastwa", c.region.eastwa, c.id) +
-        gfld("Vancouver / Clark Co.", "data-region","clark",  c.region.clark,  c.id) +
-        gfld("Coast & Southwest",     "data-region","coast",  c.region.coast,  c.id));
+        gfld("Seattle / King",  "data-region","king",        c.region.king,        c.id) +
+        gfld("Puget Suburbs",   "data-region","suburbs",     c.region.suburbs,     c.id) +
+        gfld("North Sound",     "data-region","northsound",  c.region.northsound,  c.id) +
+        gfld("Olympic Peninsula","data-region","olympic",    c.region.olympic,     c.id) +
+        gfld("Southwest",       "data-region","southwest",   c.region.southwest,   c.id) +
+        gfld("Eastern Washington","data-region","eastside",   c.region.eastside,    c.id));
       return [
         '<article class="candidate-card" data-id="'+escapeHtml(c.id)+'">',
         '<div class="candidate-card__top"><div>',
-        '<div class="candidate-palette-preview">'+shades.map(function(s){ return '<span style="background:'+s+'"></span>'; }).join("")+'</div>',
-        '<p class="cand-name-display" style="margin:0.25rem 0 0;font-weight:700;font-size:0.9rem;">'+escapeHtml(c.name)+'</p>',
-        '<p style="margin:0;font-size:0.75rem;color:var(--muted);">'+escapeHtml(candMeta)+'</p>',
+        '<div class="candidate-palette-preview">',
+        shades.map(function(s){ return '<span style="background:'+s+'"></span>'; }).join(""),
+        '</div>',
+        '<strong class="cand-name-display" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</strong>',
+        '<div style="color:var(--muted);font-size:0.78rem;">'+escapeHtml(candMeta)+'</div>',
         '</div>',removeBtn,'</div>',
         '<div class="candidate-fields">',
         tfld("Name","name",c.name,c.id),
         rfld("Ideology","ideology",c.ideology,-100,100,1,ideologyLabel(c.ideology),c.id),
-        rfld("Strength","strength",c.strength,5,100,1,c.strength+"%",c.id),
-        rfld("Buzz","buzz",c.buzz,-20,20,1,signedStr(c.buzz,0),c.id),
-        rfld("Turnout pull","turnout",c.turnout,-12,12,1,signedStr(c.turnout,0),c.id),
+        rfld("Base Strength","strength",c.strength,0,100,1,c.strength,c.id),
+        rfld("Buzz","buzz",c.buzz,-10,10,1,signedStr(c.buzz,0),c.id),
+        rfld("Turnout Effect","turnout",c.turnout,-10,10,1,signedStr(c.turnout,0),c.id),
+        '<input type="color" data-id="'+escapeHtml(c.id)+'" data-palette="strong" value="'+c.palette.strong+'" title="Candidate color" style="width:2rem;height:1.5rem;border:none;cursor:pointer;padding:0;">',
         demoSec, ageSec, regSec,
-        '<label class="candidate-field" style="flex-direction:row;align-items:center;justify-content:space-between;gap:0.5rem;margin-top:0.2rem;">',
-        '<span style="color:var(--muted);font-size:0.78rem;">Color</span>',
-        '<input type="color" data-id="'+escapeHtml(c.id)+'" data-palette="strong" value="'+c.palette.strong+'" style="width:3rem;height:1.8rem;border-radius:6px;border:1px solid var(--line);cursor:pointer;padding:1px;">',
-        '</label>',
         '</div></article>'
       ].join("");
     }).join("");
@@ -834,11 +1024,7 @@ function syncPieOrderButtons() {
     });
   }
 
-  // ── dynamic UI ────────────────────────────────────────────────────────────
-  function renderScoreGrid() {
-    document.getElementById("candidate-standings").innerHTML =
-      '<p style="color:var(--muted);font-size:0.88rem;margin:0;">Run the simulation to see standings.</p>';
-  }
+  function renderScoreGrid() { renderVoteStrip(); }
 
   function candidateStandingMarkup(c, pct, countyWins, rawVotes) {
     var shades = candidateShades(c.palette.strong);
@@ -862,6 +1048,7 @@ function syncPieOrderButtons() {
       '</article>'
     ].join("");
   }
+
   function renderVoteStrip() {
     var w = (100 / currentCandidates().length).toFixed(1);
     document.getElementById("vote-strip-labels").innerHTML = currentCandidates().map(function(c) {
@@ -871,6 +1058,7 @@ function syncPieOrderButtons() {
       return '<div class="vote-strip__seg" id="seg-'+escapeHtml(c.id)+'" style="background:'+c.palette.strong+';width:'+w+'%;"></div>';
     }).join("");
   }
+
   function renderBoostButtons() {
     var container = document.getElementById("region-actions");
     container.innerHTML = currentCandidates().map(function(c) {
@@ -885,6 +1073,100 @@ function syncPieOrderButtons() {
     if (rr) rr.addEventListener("click", clearSelectedOverride);
   }
 
+  function setCurrentPollPointCount(nextCount) {
+    var normalized = clamp(Math.round(Number(nextCount || currentPollPointCount())), 3, MAX_POLL_POINTS);
+    state.pollPointCount[state.mode] = normalized;
+    syncCurrentCandidatePollLengths();
+    renderPollingPanel();
+  }
+
+  function resetCurrentModePolling() {
+    var pointCount = currentPollPointCount();
+    currentCandidates().forEach(function (candidate) {
+      candidate.polls = resizePollSeries(defaultPollSeriesForCandidate(candidate), pointCount);
+    });
+    renderPollingPanel();
+  }
+
+  function handlePollEditorInput(ev) {
+    var input = ev.target;
+    var candidateId = input.getAttribute("data-poll-id");
+    var pollIndex = Number(input.getAttribute("data-poll-index"));
+    var candidate = candById(candidateId);
+    if (!candidate || !Number.isFinite(pollIndex)) return;
+    pollingSeriesForCandidate(candidate)[pollIndex] = clamp(Number(input.value || 0), 0, 100);
+    var chart = document.getElementById("poll-chart");
+    if (chart) chart.innerHTML = renderPollingChart(currentCandidates(), pollStageLabels(currentPollPointCount()));
+  }
+
+  function renderPollingPanel() {
+    var title = document.getElementById("poll-panel-title");
+    var note = document.getElementById("poll-panel-note");
+    var pointInput = document.getElementById("poll-point-count");
+    var chart = document.getElementById("poll-chart");
+    var editor = document.getElementById("poll-editor");
+    if (!title || !note || !pointInput || !chart || !editor) return;
+
+    title.textContent = MODE_META[state.mode].title.replace("Roster", "").replace("Field", "") + " Polling Timeline";
+    note.textContent = state.mode === "general"
+      ? "Edit a hypothetical polling trend for every ticket in the general-election field."
+      : "Edit a hypothetical polling trend for the active primary field.";
+    pointInput.value = String(currentPollPointCount());
+
+    var candidates = currentCandidates();
+    if (!candidates.length) {
+      chart.innerHTML = '<p class="poll-empty">Add candidates to sketch a polling timeline.</p>';
+      editor.innerHTML = "";
+      return;
+    }
+
+    var labels = pollStageLabels(currentPollPointCount());
+    chart.innerHTML = renderPollingChart(candidates, labels);
+    editor.innerHTML = renderPollingEditor(candidates, labels);
+  }
+
+  function renderPollingChart(candidates, labels) {
+    var width = 640, height = 220, padX = 42, padY = 20, innerW = width - padX * 2, innerH = height - padY * 2;
+    var maxX = Math.max(1, labels.length - 1);
+    var yFor = function(v) { return padY + innerH - (clamp(Number(v || 0), 0, 100) / 100) * innerH; };
+    var xFor = function(i) { return padX + (i / maxX) * innerW; };
+    return [
+      '<svg viewBox="0 0 '+width+' '+height+'" aria-label="Polling timeline chart">',
+      '<line x1="'+padX+'" y1="'+padY+'" x2="'+padX+'" y2="'+(padY+innerH)+'" stroke="rgba(20,50,100,0.22)" />',
+      '<line x1="'+padX+'" y1="'+(padY+innerH)+'" x2="'+(padX+innerW)+'" y2="'+(padY+innerH)+'" stroke="rgba(20,50,100,0.22)" />',
+      [0,25,50,75,100].map(function(tick) {
+        var y = yFor(tick);
+        return '<g><line x1="'+padX+'" y1="'+y+'" x2="'+(padX+innerW)+'" y2="'+y+'" stroke="rgba(20,50,100,0.08)" />' +
+          '<text x="'+(padX-8)+'" y="'+(y+4)+'" text-anchor="end" fill="var(--muted)" font-size="10">'+tick+'</text></g>';
+      }).join(""),
+      labels.map(function(label, index) {
+        return '<text x="'+xFor(index)+'" y="'+(height-6)+'" text-anchor="middle" fill="var(--muted)" font-size="10">'+escapeHtml(label)+'</text>';
+      }).join(""),
+      candidates.map(function(candidate) {
+        var series = pollingSeriesForCandidate(candidate);
+        var d = series.map(function(value, index) { return (index === 0 ? "M" : "L") + xFor(index).toFixed(2) + " " + yFor(value).toFixed(2); }).join(" ");
+        return '<g><path d="'+d+'" fill="none" stroke="'+candidate.palette.strong+'" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />' +
+          series.map(function(value, index) {
+            return '<circle cx="'+xFor(index).toFixed(2)+'" cy="'+yFor(value).toFixed(2)+'" r="3.5" fill="'+candidate.palette.strong+'" />';
+          }).join("") + '</g>';
+      }).join(""),
+      '</svg>'
+    ].join("");
+  }
+
+  function renderPollingEditor(candidates, labels) {
+    return candidates.map(function(candidate) {
+      var series = pollingSeriesForCandidate(candidate);
+      return '<div class="poll-editor__card">' +
+        '<div class="poll-editor__head"><p class="poll-editor__title" style="color:'+candidate.palette.strong+';">'+escapeHtml(candidate.name)+'</p></div>' +
+        '<div class="poll-editor__inputs">' +
+        labels.map(function(label, index) {
+          return '<label class="poll-input"><span>'+escapeHtml(label)+'</span>' +
+            '<input type="number" min="0" max="100" step="0.1" data-poll-id="'+escapeHtml(candidate.id)+'" data-poll-index="'+index+'" value="'+Number(series[index] || 0).toFixed(1)+'"></label>';
+        }).join("") +
+        '</div></div>';
+    }).join("");
+  }
   // ── pie chart ─────────────────────────────────────────────────────────────
   function polarToCartesian(cx, cy, r, angle) {
     return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
@@ -965,7 +1247,7 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
       var geo = { type:"FeatureCollection", features: waFeatures };
 
       var mapEl = document.getElementById("map-shell");
-var W = mapEl.clientWidth || 760, H = mapEl.clientHeight || 560;
+      var W = mapEl.clientWidth || 760, H = mapEl.clientHeight || 560;
       var proj = d3.geoAlbers().fitExtent([[10, 10], [W - 10, H - 10]], geo);
       var path = d3.geoPath().projection(proj);
       var svg  = d3.select(mapEl).append("svg")
@@ -973,33 +1255,70 @@ var W = mapEl.clientWidth || 760, H = mapEl.clientHeight || 560;
         .attr("width","100%")
         .attr("height","100%")
         .attr("preserveAspectRatio","xMidYMid meet");
-waFeatures.forEach(function(feat) {
+      var layer = svg.append("g");
+      state.mapSvg = svg;
+      state.mapLayer = layer;
+      state.mapZoomBehavior = d3.zoom().scaleExtent([1, 8]).on("start", function() {
+        document.getElementById("map-shell").classList.add("is-dragging");
+        state.zoomInteracted = false;
+      }).on("zoom", function(event) {
+        layer.attr("transform", event.transform);
+        if (event.sourceEvent && ["wheel","mousemove","touchmove","pointermove"].indexOf(event.sourceEvent.type) !== -1) {
+          state.zoomInteracted = true;
+        }
+      }).on("end", function() {
+        document.getElementById("map-shell").classList.remove("is-dragging");
+        if (state.zoomInteracted) {
+          state.suppressClickUntil = Date.now() + 180;
+        }
+        state.zoomInteracted = false;
+      });
+      svg.call(state.mapZoomBehavior).on("dblclick.zoom", null);
+      document.getElementById("map-shell").classList.add("is-draggable");
+      waFeatures.forEach(function(feat) {
         var fips   = String(feat.id).padStart(5,"0");
         var county = COUNTIES.find(function(c){ return c.fips === fips; });
-        if (!county) return;
-        var p = svg.append("path").attr("d", path(feat))
-          .attr("fill", "#d8cfc0").attr("data-fips", fips);
-        var idx = state.regions.length;
-        state.regions.push({ county: county, path: p, result: null, override: zeroOverride(), turnoutMult: 1 });
-        p.on("click",      function() { selectRegion(idx) })
-         .on("mouseover", function() { showTooltip(idx); })
-         .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
+        var p = layer.append("path")
+          .attr("d", path(feat))
+          .attr("fill", "#d8cfc0")
+          .attr("data-fips", fips)
+          .attr("class", county ? "county-active" : "county-inactive");
+
+        if (county) {
+          var idx = state.regions.length;
+          state.regions.push({ county: county, path: p, result: null, override: zeroOverride(), turnoutMult: 1 });
+          p.on("click", function(event) {
+              event.stopPropagation();
+              if (Date.now() < state.suppressClickUntil) return;
+              if (state.groupMode) { toggleGroupedCounty(idx); return; }
+              selectRegion(idx);
+            })
+           .on("mouseover", function() { showTooltip(idx); })
+           .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
+        }
       });
 
-      document.getElementById("map-status").textContent = state.regions.length + " counties loaded";
+      document.getElementById("map-status").textContent = state.regions.length + " Washington counties loaded";
       renderCandidatePanel();
+      renderPollingPanel();
       renderScoreGrid();
       renderVoteStrip();
+      renderGroupBox();
       simulateAndRender(true);
 
     }).catch(function(err) {
-      document.getElementById("map-status").textContent = "Map load failed";
+      document.getElementById("map-status").textContent = "Washington map load failed";
       console.error(err);
     });
   }
 
-  // ── region interaction ────────────────────────────────────────────────────
+  function zoomMapBy(factor) {
+    if (!state.mapSvg || !state.mapZoomBehavior) return;
+    state.mapSvg.transition().duration(180).call(state.mapZoomBehavior.scaleBy, factor);
+  }
+
   function selectRegion(idx) {
+    if (Date.now() < state.suppressClickUntil) return;
     state.selectedId = (state.selectedId === idx) ? null : idx;
     renderMap();
     if (state.selectedId !== null) {
@@ -1010,13 +1329,66 @@ waFeatures.forEach(function(feat) {
     }
   }
 
+  function toggleGroupMode() {
+    state.groupMode = !state.groupMode;
+    state.selectedId = null;
+    if (!state.groupMode) state.groupedIds = [];
+    document.getElementById("region-panel").classList.add("is-hidden");
+    renderMap();
+    renderGroupBox();
+  }
+
+  function toggleGroupedCounty(idx) {
+    var pos = state.groupedIds.indexOf(idx);
+    if (pos === -1) state.groupedIds.push(idx);
+    else state.groupedIds.splice(pos, 1);
+    renderMap();
+    renderGroupBox();
+  }
+
+  function renderGroupBox() {
+    var toggle = document.getElementById("group-toggle");
+    var meta = document.getElementById("group-meta");
+    var rows = document.getElementById("group-rows");
+    if (!toggle || !meta || !rows) return;
+    toggle.classList.toggle("is-active", state.groupMode);
+    toggle.textContent = state.groupMode ? "On" : "Group";
+    if (!state.groupMode) {
+      meta.textContent = "Grouping off.";
+      rows.innerHTML = "";
+      return;
+    }
+    if (!state.groupedIds.length) {
+      meta.textContent = "Click counties to group. Toggle again to clear all.";
+      rows.innerHTML = "";
+      return;
+    }
+    var totalVotes = 0;
+    var totals = {};
+    currentCandidates().forEach(function(c) { totals[c.id] = 0; });
+    state.groupedIds.forEach(function(idx) {
+      var r = state.regions[idx];
+      if (!r || !r.result) return;
+      var countyVotes = Number(r.countyVotes || 0);
+      totalVotes += countyVotes;
+      currentCandidates().forEach(function(c) {
+        totals[c.id] += Math.round((Number(r.result[c.id] || 0) / 100) * countyVotes);
+      });
+    });
+    meta.textContent = state.groupedIds.length + " " + (state.groupedIds.length === 1 ? "county" : "counties") + " selected | " + totalVotes.toLocaleString() + " votes";
+    rows.innerHTML = currentCandidates().map(function(c) {
+      var votes = totals[c.id] || 0;
+      var pct = totalVotes ? (votes / totalVotes) * 100 : 0;
+      return '<div class="group-row"><span class="group-row__swatch" style="background:'+c.palette.strong+';"></span><span class="group-row__name">'+escapeHtml(c.name)+'</span><span class="group-row__value">'+pct.toFixed(1)+'%</span></div>';
+    }).join("");
+  }
   function showTooltip(idx) {
     var r   = state.regions[idx];
     var tt  = document.getElementById("map-tooltip");
     var lean = r.county.lean;
-    var leanStr = lean >= 50 ? "R+" + (lean-50) : "D+" + (50-lean);
+    var leanStr = lean >= 50 ? "R+" + (lean-50).toFixed(1) : "D+" + (50-lean).toFixed(1);
     document.getElementById("tt-title").textContent = r.county.name + " County";
-    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " &middot; Baseline: " + leanStr;
+    document.getElementById("tt-meta").textContent  = "Vote base: " + r.county.pop.toLocaleString() + " | Baseline: " + leanStr;
     var cands = currentCandidates();
     var countyVotes = r.countyVotes || 0;
     document.getElementById("tt-candidates").innerHTML = r.result
@@ -1069,14 +1441,14 @@ waFeatures.forEach(function(feat) {
       var reg  = r.county.region;
 
       var regSwing = c.swing;
-      if (reg === "king")   regSwing += c.seattle;
-      if (reg === "puget")  regSwing += c.puget;
-      if (reg === "eastwa") regSwing += c.eastwa;
-      if (reg === "clark")  regSwing += c.clark;
-      // coast gets statewide swing only
+      if (reg === "king")        regSwing += c.king;
+      if (reg === "suburbs")     regSwing += c.suburbs;
+      if (reg === "northsound")  regSwing += c.suburbs * 0.45;
+      if (reg === "olympic")     regSwing += c.suburbs * 0.1;
+      if (reg === "southwest")   regSwing += c.suburbs * 0.25;
+      if (reg === "eastside")    regSwing += c.eastside;
 
-      // county ideological position: positive = right, negative = left
-      var countyPos = (lean - 50) * 2 - regSwing * 2.5;
+      var countyPos = (lean - 50) * 1.5 + regSwing * 2.5;
 
       function noise() { return (rand() * 2 - 1) * c.volatility; }
 
@@ -1100,14 +1472,8 @@ waFeatures.forEach(function(feat) {
       cands.forEach(function(cd){ result[cd.id] = raw[cd.id] / total * 100; });
       r.result = result;
 
-            var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
-      var turnoutBase = 1 + turnoutPull / 150 + c.turnout / 22;
-      if (state.mode === "general") {
-        r.turnoutMult = Math.max(0.45, Math.min(1.85, turnoutBase));
-      } else {
-        r.turnoutMult = Math.max(0.25, Math.min(1.45, turnoutBase));
-      }
-
+      var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
+      r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
       // Vote pool by mode:
       // general -> total county baseline votes
       // rep primary -> county Republican baseline votes
@@ -1144,8 +1510,11 @@ if (state.selectedId !== null) renderRegionPanel(state.selectedId);
         var wCand = candById(wId);
         color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
       }
-      r.path.attr("fill", color).classed("selected", state.selectedId === i);
+      r.path.attr("fill", color)
+        .classed("selected", state.selectedId === i)
+        .classed("grouped", state.groupedIds.indexOf(i) !== -1);
     });
+    renderGroupBox();
   }
 
   // ── render scores ─────────────────────────────────────────────────────────
@@ -1174,12 +1543,10 @@ if (state.selectedId !== null) renderRegionPanel(state.selectedId);
 syncPieOrderButtons();
     updatePie(pieShares, shares[0] || null);
 
-    // Candidate standings cards
     document.getElementById("candidate-standings").innerHTML = shares.map(function(e) {
       return candidateStandingMarkup(e.c, e.pct, wins[e.c.id], rawVotes[e.c.id]);
     }).join("");
 
-    // Vote strip: 1st on far left, 2nd on far right, smaller parties in the middle
     var stripOrder = [];
     if (shares.length > 0) stripOrder.push(shares[0]);
     for (var i = 2; i < shares.length; i++) stripOrder.push(shares[i]);
@@ -1187,12 +1554,11 @@ syncPieOrderButtons();
     document.getElementById("vote-strip").innerHTML = stripOrder.map(function(e) {
       return '<div class="vote-strip__seg" style="background:'+e.c.palette.strong+';width:'+e.pct.toFixed(1)+'%;"></div>';
     }).join("");
-    // Labels: 1st on left, 2nd on right only
+
     document.getElementById("vote-strip-labels").innerHTML =
       (shares[0] ? '<span style="color:'+shares[0].c.palette.strong+';font-weight:700;">'+escapeHtml(shares[0].c.name.split(" ")[0])+' '+shares[0].pct.toFixed(1)+'%</span>' : '') +
       (shares[1] ? '<span style="color:'+shares[1].c.palette.strong+';font-weight:700;">'+shares[1].pct.toFixed(1)+'% '+escapeHtml(shares[1].c.name.split(" ")[0])+'</span>' : '');
 
-    // Winner headline & subline
     var wc = shares[0] ? shares[0].c : null;
     var headline = document.getElementById("winner-headline");
     var subline  = document.getElementById("winner-subline");
@@ -1216,6 +1582,7 @@ syncPieOrderButtons();
       var keys = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; });
       return { name: r.county.name, margin: r.result[keys[0]]-(r.result[keys[1]]||0), winnerId: keys[0] };
     }).sort(function(a,b){ return a.margin-b.margin; }).slice(0,6);
+
     document.getElementById("close-races").innerHTML = items.map(function(item) {
       var wc = candById(item.winnerId); if (!wc) return "";
       return '<div class="race-item">' +
@@ -1235,6 +1602,7 @@ syncPieOrderButtons();
 <script src="map-export.js"></script>
 </body>
 </html>
+
 
 
 

@@ -117,7 +117,7 @@ button, input, select { font: inherit; }
 .score-card__swatch { width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 1px solid rgba(0,0,0,0.08); }
 .score-card__label { margin: 0; color: var(--muted); font-size: 0.82rem; }
 .score-card__value { margin: 0.2rem 0 0; font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
-.score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; }
+.score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; } .score-card__top { display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; } .score-card__isolate { padding: 0.3rem 0.65rem; font-size: 0.74rem; white-space: nowrap; } .score-card__isolate.is-active { background: var(--accent); color: #fff; border-color: transparent; }
 
 /* ── map tooltip ── */
 .map-tooltip { position: fixed; background: var(--panel-strong); border: 1px solid var(--line); border-radius: 14px; padding: 0.65rem 0.85rem; min-width: 180px; pointer-events: none; box-shadow: 0 4px 16px rgba(20,50,100,0.12); z-index: 999; }
@@ -152,7 +152,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 .candidate-actions .button { flex: 1; font-size: 0.82rem; }
 .cand-section { border: 1px solid rgba(20,50,100,0.1); border-radius: 10px; margin-top: 0.4rem; overflow: hidden; }
 .cand-section__head { padding: 0.35rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); cursor: pointer; user-select: none; letter-spacing: 0.04em; text-transform: uppercase; list-style: none; display: flex; align-items: center; gap: 0.35rem; background: rgba(20,50,100,0.04); }
-.cand-section__head::before { content: "▶"; font-size: 0.6rem; transition: transform 140ms; }
+.cand-section__head::before { content: ">"; font-size: 0.6rem; transition: transform 140ms; }
 details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .cand-section__body { padding: 0.45rem 0.55rem; display: grid; gap: 0.35rem; }
 
@@ -177,6 +177,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 label.candidate-field { pointer-events: none; }
 label.candidate-field input[type=range],
 label.candidate-field input[type=text] { pointer-events: all; }
+label.candidate-field input[type=color] { pointer-events: all; }
 label.candidate-demo-field { pointer-events: none; }
 label.candidate-demo-field input[type=range] { pointer-events: all; }
 </style>
@@ -237,16 +238,14 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
       </div>
 
-      <div class="map-stage">
+                        <div class="map-stage">
         <div class="map-shell" id="map-shell"></div>
       </div>
-
       <div class="vote-strip-wrap">
         <div class="vote-strip-label" id="vote-strip-labels"></div>
         <div class="vote-strip" id="vote-strip"></div>
       </div>
-
-      <div class="map-footer">
+<div class="map-footer">
         <p class="map-footnote">
           Baseline: official 2024 Vermont presidential results by municipality, with
           municipality population and ACS demographic profiles layered into the model.
@@ -368,7 +367,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <!-- selected municipality -->
       <div class="region-panel panel is-hidden" id="region-panel">
         <p class="panel__eyebrow">Selected Municipality</p>
-        <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">—</h2>
+        <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">&mdash;</h2>
         <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a municipality on the map.</p>
         <div class="region-actions" id="region-actions"></div>
       </div>
@@ -458,7 +457,20 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     });
   })();
 
-  var TURNOUT_RATE = { general: 0.67, repPrimary: 0.15, demPrimary: 0.22 };
+  var TURNOUT_RATE = { general: 0.67 };
+  // Build county-level party vote pools from baseline general-election votes.
+  // Primary sims split these county party pools instead of raw population turnout.
+  COUNTIES.forEach(function(cty) {
+    var generalVotes = (cty.votes && cty.votes.total) ? Math.round(cty.votes.total) : Math.max(0, Math.round(cty.pop * TURNOUT_RATE.general));
+    var repVotes = (cty.votes && cty.votes.rep !== undefined)
+      ? Math.round(cty.votes.rep)
+      : Math.round(generalVotes * (cty.lean / 100));
+    cty.generalVotes = generalVotes;
+    cty.repVotes = repVotes;
+    cty.demVotes = (cty.votes && cty.votes.dem !== undefined)
+      ? Math.round(cty.votes.dem)
+      : Math.max(0, generalVotes - repVotes);
+  });
   var REGION_META = [
     { key:"burlington",  label:"Chittenden Metro" },
     { key:"champlain",   label:"Champlain Valley" },
@@ -597,17 +609,17 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   // ── mode meta ─────────────────────────────────────────────────────────────
   var MODE_META = {
     general:    { title:"General Election Roster",     note:"Edit major-party nominees or add independents.", addLabel:"+ Add Independent", panelEyebrow:"Candidates" },
-    repPrimary: { title:"Republican Primary Field",    note:"Closed primary — registered Republicans only.", addLabel:"+ Add R Candidate",  panelEyebrow:"R Primary" },
-    demPrimary: { title:"Democratic Primary Field",    note:"Closed primary — registered Democrats only.",  addLabel:"+ Add D Candidate",  panelEyebrow:"D Primary" },
+    repPrimary: { title:"Republican Primary Field",    note:"Closed primary &mdash; registered Republicans only.", addLabel:"+ Add R Candidate",  panelEyebrow:"R Primary" },
+    demPrimary: { title:"Democratic Primary Field",    note:"Closed primary &mdash; registered Democrats only.",  addLabel:"+ Add D Candidate",  panelEyebrow:"D Primary" },
   };
 
   // ── state ─────────────────────────────────────────────────────────────────
-  var state = {
+  var state = window.state = {
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
     nextCandId: { general: 3, repPrimary: 3, demPrimary: 3 },
     controls: { swing:0, turnout:0, burlington:0, champlain:0, central:0, northeast:0, uppervalley:0, south:0, rutland:0, volatility:3.5 },
-    regions: [], seed: 42, selectedId: null, pieOrder: "votes", mapView: "municipalities", countyToggle: null
+    regions: [], seed: 42, selectedId: null, pieOrder: "votes", isolatedCandidateId: null, mapView: "municipalities", countyToggle: null
   };
 
   function currentCandidates() { return state.candidates[state.mode]; }
@@ -619,8 +631,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   ];
 
   var SLIDER_KEYS = ["swing","turnout","burlington","champlain","central","northeast","uppervalley","south","rutland","volatility"];
-
-  // ── init ──────────────────────────────────────────────────────────────────
+// ── init ──────────────────────────────────────────────────────────────────
   window.addEventListener("DOMContentLoaded", function () {
     document.getElementById("tab-general").addEventListener("click", function() { switchMode("general"); });
     document.getElementById("tab-rep").addEventListener("click",     function() { switchMode("repPrimary"); });
@@ -661,11 +672,12 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     document.getElementById("candidate-list").addEventListener("click",  handleCandListClick);
     document.getElementById("candidate-list").addEventListener("input",  handleCandListInput);
     document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
+    document.getElementById("candidate-standings").addEventListener("click", handleStandingClick);
     document.getElementById("add-candidate").addEventListener("click",   addCandidate);
 document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
     document.getElementById("pie-sort-ideology").addEventListener("click", function() { setPieOrder("ideology"); });
     document.getElementById("pie-sort-votes").addEventListener("click", function() { setPieOrder("votes"); });
-    syncPieOrderButtons();
+syncPieOrderButtons();
     document.getElementById("view-municipalities").addEventListener("click", function() { setMapView("municipalities"); });
     document.getElementById("view-counties").addEventListener("click", function() { setMapView("counties"); });
 
@@ -690,6 +702,7 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
       tabEl.classList.toggle("is-active", (m === "general" ? "general" : m + "Primary") === mode);
     });
     state.selectedId = null;
+    state.isolatedCandidateId = null;
     document.getElementById("region-panel").classList.add("is-hidden");
     renderCandidatePanel();
     renderScoreGrid();
@@ -727,8 +740,11 @@ function syncPieOrderButtons() {
     syncPieOrderButtons();
     if (state.regions.length) renderScores();
   }
-
-  function zeroOverride() { var o={}; currentCandidates().forEach(function(c){ o[c.id]=0; }); return o; }
+  function zeroOverride() {
+    var o = {};
+    currentCandidates().forEach(function(c){ o[c.id] = 0; });
+    return o;
+  }
 
   // ── candidate management ──────────────────────────────────────────────────
   function addCandidate() {
@@ -759,11 +775,27 @@ function syncPieOrderButtons() {
     if (!btn) return;
     var id = btn.getAttribute("data-id");
     var cands = state.candidates[state.mode];
+    if (state.isolatedCandidateId === id) state.isolatedCandidateId = null;
     if (cands.length <= 1) return;
     state.candidates[state.mode] = cands.filter(function(c){ return c.id !== id; });
     state.regions.forEach(function(r) { delete r.override[id]; if (r.result) delete r.result[id]; });
     renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
+  }
+
+  
+  function handleStandingClick(ev) {
+    var btn = ev.target.closest(".score-card__isolate");
+    if (!btn) return;
+    var id = btn.getAttribute("data-id");
+    if (!id) return;
+    state.isolatedCandidateId = state.isolatedCandidateId === id ? null : id;
+    if (state.regions.length) {
+      renderScores();
+      renderMap();
+      return;
+    }
+    renderScoreGrid();
   }
 
   function handleCandListInput(ev) {
@@ -839,7 +871,7 @@ function syncPieOrderButtons() {
       var shades = candidateShades(c.palette.strong);
       var removeBtn = c.removable ? '<button class="candidate-remove" data-id="'+escapeHtml(c.id)+'" type="button" title="Remove">&times;</button>' : "";
       var candMeta = state.mode === "general"
-        ? (c.anchor === "rep" ? "Major party · Right" : c.anchor === "dem" ? "Major party · Left" : "Independent · "+ideologyLabel(c.ideology))
+        ? (c.anchor === "rep" ? "Major party - Right" : c.anchor === "dem" ? "Major party - Left" : "Independent - "+ideologyLabel(c.ideology))
         : ideologyLabel(c.ideology);
       var demoSec = detailSection("demo", c.id, "Demographic Support",
         gfld("White",          "data-demo","white", c.demo.white, c.id) +
@@ -891,14 +923,20 @@ function syncPieOrderButtons() {
   function candidateStandingMarkup(c, pct, countyWins, rawVotes) {
     var shades = candidateShades(c.palette.strong);
     var votesStr = rawVotes > 0 ? " | ~" + Math.round(rawVotes / 1000).toLocaleString() + "K votes" : "";
+    var isolateActive = state.isolatedCandidateId === c.id;
     return [
       '<article class="score-card--candidate">',
+      '<div class="score-card__top">',
+      '<div>',
       '<div class="score-card__swatches">',
       '<span class="score-card__swatch" style="background:'+shades[0]+';"></span>',
       '<span class="score-card__swatch" style="background:'+shades[1]+';"></span>',
       '<span class="score-card__swatch" style="background:'+c.palette.strong+';"></span>',
       '</div>',
       '<p class="score-card__label">'+escapeHtml(ideologyLabel(c.ideology))+'</p>',
+      '</div>',
+      '<button class="button button--ghost score-card__isolate'+(isolateActive ? ' is-active' : '')+'" data-id="'+escapeHtml(c.id)+'" type="button">Isolate</button>',
+      '</div>',
       '<p class="score-card__value" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</p>',
       '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' municipalities</p>',
       '</article>'
@@ -969,7 +1007,7 @@ function orderedPieShares(shares) {
         ' data-pie-color="'+e.c.palette.strong+'" tabindex="0"></path>';
       angle += sweep;
     });
-    var top = shares[0] || { c:{name:"—",palette:{strong:"#888"}}, pct:0 };
+    var top = shares[0] || { c:{name:"&mdash;",palette:{strong:"#888"}}, pct:0 };
     var defName=top.c.name.split(" ")[0], defShare=top.pct.toFixed(1)+"%", defDetail=top.c.name;
     el.innerHTML = '<div class="vote-pie-wrap"><div class="vote-pie" id="vote-pie"' +
       ' data-default-name="'+escapeHtml(defName)+'" data-default-share="'+escapeHtml(defShare)+'"' +
@@ -1011,6 +1049,7 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
 
     state.regions = [];
     state.selectedId = null;
+    state.isolatedCandidateId = null;
     mapEl.innerHTML = "";
 
     var municipalLayerEl = document.createElement("div");
@@ -1105,7 +1144,7 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
     var lean = r.county.lean;
     var leanStr = lean >= 50 ? "R+" + (lean-50) : "D+" + (50-lean);
     document.getElementById("tt-title").textContent = r.county.name;
-    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " · " + r.county.county + " County · Baseline: " + leanStr;
+    document.getElementById("tt-meta").textContent  = "Pop: " + r.county.pop.toLocaleString() + " &middot; " + r.county.county + " County &middot; Baseline: " + leanStr;
     var cands = currentCandidates();
     var countyVotes = r.countyVotes || 0;
     document.getElementById("tt-candidates").innerHTML = r.result
@@ -1117,7 +1156,7 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
             '<span style="font-variant-numeric:tabular-nums;">'+pct+'% &nbsp;<span style="color:var(--muted);font-size:0.75rem;">('+votes+')</span></span>' +
             '</div>';
         }).join("")
-      : "<em>—</em>";
+      : "<em>&mdash;</em>";
     tt.hidden = false;
   }
 
@@ -1185,16 +1224,16 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
 
       var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
       r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
-      var turnoutBase = state.mode === "general"
-        ? ((r.county.votes && r.county.votes.total) || Math.round(r.county.pop * TURNOUT_RATE.general))
-        : Math.round(r.county.pop * TURNOUT_RATE[state.mode]);
-      r.countyVotes = Math.round(turnoutBase * r.turnoutMult);
+      var turnoutBase = r.county.generalVotes || 0;
+      if (state.mode === "repPrimary") turnoutBase = r.county.repVotes || 0;
+      if (state.mode === "demPrimary") turnoutBase = r.county.demVotes || 0;
+      r.countyVotes = Math.max(0, Math.round(turnoutBase * r.turnoutMult));
     });
 
     renderMap();
     renderScores();
     renderCloseRaces();
-    if (state.selectedId !== null) renderRegionPanel(state.selectedId);
+if (state.selectedId !== null) renderRegionPanel(state.selectedId);
   }
 
   // ── render map ────────────────────────────────────────────────────────────
@@ -1204,12 +1243,19 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
     return best;
   }
   function renderMap() {
+    var isolated = candById(state.isolatedCandidateId);
     state.regions.forEach(function(r, i) {
       if (!r.result) return;
-      var wId   = winnerOf(r.result);
-      var wPct  = r.result[wId] || 0;
-      var wCand = candById(wId);
-      var color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
+      var color;
+      if (isolated) {
+        var isolatedPct = Math.max(0, Math.min(100, Number(r.result[isolated.id] || 0)));
+        color = isolatedPct > 0.05 ? candidateMapColor(isolated.palette.strong, isolatedPct) : "#d8cfc0";
+      } else {
+        var wId   = winnerOf(r.result);
+        var wPct  = r.result[wId] || 0;
+        var wCand = candById(wId);
+        color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
+      }
       r.path.style("fill", color).attr("fill", color).classed("selected", state.mapView !== "counties" && state.selectedId === i);
     });
     if (state.countyToggle) state.countyToggle.render();
@@ -1225,8 +1271,8 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
       if (!r.result) return;
       var w = winnerOf(r.result);
       if (w && wins[w] !== undefined) wins[w]++;
-      var countyVotes = r.countyVotes || ((r.county.votes && r.county.votes.total) || 0);
-      var weight = countyVotes || Math.round(r.county.pop * (r.turnoutMult || 1));
+      var countyVotes = r.countyVotes || 0;
+      var weight = Math.max(1, countyVotes);
       cands.forEach(function(c){
         votes[c.id] += (r.result[c.id]||0) * weight;
         rawVotes[c.id] += Math.round((r.result[c.id]||0) / 100 * countyVotes);
@@ -1300,3 +1346,6 @@ syncPieOrderButtons();
 <script src="map-export.js"></script>
 </body>
 </html>
+
+
+

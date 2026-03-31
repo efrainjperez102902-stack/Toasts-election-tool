@@ -670,7 +670,7 @@ input[type="range"]:focus,
 .score-card__label,
 .score-card__meta {
   margin: 0;
-}
+} .score-card__top { display:flex; justify-content:space-between; align-items:start; gap:0.75rem; } .score-card__isolate { padding:0.3rem 0.65rem; font-size:0.74rem; white-space:nowrap; } .score-card__isolate.is-active { background: var(--accent); color:#fff; border-color:transparent; }
 
 .score-card__label {
   color: var(--muted);
@@ -686,7 +686,7 @@ input[type="range"]:focus,
 .score-card__meta {
   color: var(--muted);
   font-size: 0.9rem;
-}
+} .score-card__top { display:flex; justify-content:space-between; align-items:start; gap:0.75rem; } .score-card__isolate { padding:0.3rem 0.65rem; font-size:0.74rem; white-space:nowrap; } .score-card__isolate.is-active { background: var(--accent); color:#fff; border-color:transparent; }
 
 .slider-list {
   display: grid;
@@ -1010,7 +1010,7 @@ input[type="range"]:focus,
 
 .cand-section { border: 1px solid rgba(80,50,10,0.1); border-radius: 10px; margin-top: 0.4rem; overflow: hidden; }
 .cand-section__head { padding: 0.35rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); cursor: pointer; user-select: none; letter-spacing: 0.04em; text-transform: uppercase; list-style: none; display: flex; align-items: center; gap: 0.35rem; background: rgba(80,50,10,0.04); }
-.cand-section__head::before { content: "▶"; font-size: 0.6rem; transition: transform 140ms; }
+.cand-section__head::before { content: ">"; font-size: 0.6rem; transition: transform 140ms; }
 details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .cand-section__body { padding: 0.45rem 0.55rem; display: grid; gap: 0.35rem; }
 
@@ -1310,6 +1310,7 @@ label.slider-field input[type=range] { pointer-events: all; }
 label.candidate-field { pointer-events: none; }
 label.candidate-field input[type=range],
 label.candidate-field input[type=text] { pointer-events: all; }
+label.candidate-field input[type=color] { pointer-events: all; }
 label.candidate-demo-field { pointer-events: none; }
 label.candidate-demo-field input[type=range] { pointer-events: all; }
 </style>
@@ -1841,12 +1842,13 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     { key: "littledixie", label: "Little Dixie" }
   ];
 
-  var state = {
+  var state = window.state = {
     mode: "general",
     svgRoot: null,
     svgSource: "inline oklahoma.svg bundle",
     regions: [],
     selectedRegionId: null,
+    isolatedCandidateId: null,
 runSeed: 20260311,
     pieOrder: "votes",
     primaryTurnout: 58,
@@ -2014,6 +2016,7 @@ elements.voteStrip = document.getElementById("vote-strip");
     });
 
     elements.candidateList.addEventListener("click", handleCandidateListClick);
+    elements.candidateStandings.addEventListener("click", handleStandingClick);
     elements.candidateList.addEventListener("change", handleCandidateListChange);
     elements.candidateList.addEventListener("input", handleCandidateListInput);
     elements.pollEditor.addEventListener("input", handlePollEditorInput);
@@ -2460,6 +2463,7 @@ elements.voteStrip = document.getElementById("vote-strip");
       state.primaryTurnout = PRIMARY_TURNOUT_DEFAULTS[mode];
     }
     state.selectedRegionId = null;
+    state.isolatedCandidateId = null;
     renderModeTabs();
     setControlDisplays();
     renderCandidatePanel();
@@ -2578,6 +2582,7 @@ elements.voteStrip = document.getElementById("vote-strip");
       state.modeConfigs.demPrimary.nextId = 5;
     }
     syncCurrentCandidatePollLengths();
+    state.isolatedCandidateId = null;
     renderCandidatePanel();
     renderPollingPanel();
     simulateAndRender(false);
@@ -2602,6 +2607,9 @@ elements.voteStrip = document.getElementById("vote-strip");
     }
     var candidateId = card.getAttribute("data-candidate-id");
     var config = currentModeConfig();
+    if (state.isolatedCandidateId === candidateId) {
+      state.isolatedCandidateId = null;
+    }
     if (config.candidates.length <= 1) {
       return;
     }
@@ -2611,6 +2619,21 @@ elements.voteStrip = document.getElementById("vote-strip");
     renderCandidatePanel();
     renderPollingPanel();
     simulateAndRender(false);
+  }
+
+  
+  function handleStandingClick(event) {
+    var isolateButton = event.target.closest(".score-card__isolate");
+    if (!isolateButton) {
+      return;
+    }
+    var candidateId = isolateButton.getAttribute("data-id");
+    if (!candidateId) {
+      return;
+    }
+    state.isolatedCandidateId = state.isolatedCandidateId === candidateId ? null : candidateId;
+    renderScoreboard();
+    renderMap();
   }
 
   function applyCandidateListChange(event) {
@@ -2981,13 +3004,13 @@ elements.voteStrip = document.getElementById("vote-strip");
 
   function renderCandidateCard(candidate) {
     var meta = state.mode === "general"
-      ? (candidate.anchor === "dem" ? "Major-party nominee Â· Left coalition" :
-        candidate.anchor === "rep" ? "Major-party nominee Â· Right coalition" :
-        "Additional ticket Â· Pulls from the nearest ideological bloc")
-      : "Custom primary candidate Â· " + ideologyLabel(candidate.ideology);
+      ? (candidate.anchor === "dem" ? "Major-party nominee Â&middot; Left coalition" :
+        candidate.anchor === "rep" ? "Major-party nominee Â&middot; Right coalition" :
+        "Additional ticket Â&middot; Pulls from the nearest ideological bloc")
+      : "Custom primary candidate Â&middot; " + ideologyLabel(candidate.ideology);
 
     var removeButton = candidate.removable
-      ? '<button class="candidate-remove" type="button" title="Remove candidate">Ã—</button>'
+      ? '<button class="candidate-remove" type="button" title="Remove candidate">Ã&mdash;</button>'
       : "";
 
     return [
@@ -3135,6 +3158,7 @@ elements.voteStrip = document.getElementById("vote-strip");
     state.runSeed = 20260311;
     state.events = [];
     state.selectedRegionId = null;
+    state.isolatedCandidateId = null;
     state.regions.forEach(function (region) {
       region.modifier = makeDefaultModifier();
     });
@@ -3183,7 +3207,7 @@ elements.voteStrip = document.getElementById("vote-strip");
 
     window.setTimeout(function () {
       if (!state.svgRoot) {
-        elements.mapStatus.textContent = "If the bundled SVG stays blocked, click â€œImport SVG manuallyâ€ and choose oklahoma.svg.";
+        elements.mapStatus.textContent = 'If the bundled SVG stays blocked, click "Import SVG manually" and choose oklahoma.svg.';
       }
     }, 1800);
   }
@@ -3206,6 +3230,7 @@ elements.voteStrip = document.getElementById("vote-strip");
     state.svgRoot = localSvgRoot;
     state.regions = [];
     state.selectedRegionId = null;
+    state.isolatedCandidateId = null;
     state.runSeed = 20260311;
 
     elements.mapShell.innerHTML = "";
@@ -4031,8 +4056,17 @@ elements.voteStrip = document.getElementById("vote-strip");
     }
 
     var result = state.results && state.results.byId ? state.results.byId[region.id] : null;
+    var isolatedCandidate = candidateById(state.isolatedCandidateId);
     var candidate = result ? candidateById(result.winnerId) : null;
-    var fill = result ? candidateColorForShare(candidate, result.winnerShare) : "rgba(215, 206, 195, 0.78)";
+    var isolateEntry = isolatedCandidate && result && Array.isArray(result.results)
+      ? result.results.find(function (entry) { return entry.id === isolatedCandidate.id; })
+      : null;
+    var isolateShare = result && result.totalVotes && isolateEntry ? isolateEntry.votes / result.totalVotes : 0;
+    var fill = result
+      ? (isolatedCandidate
+        ? (isolateShare > 0.0005 ? candidateColorForShare(isolatedCandidate, isolateShare) : "rgba(215, 206, 195, 0.78)")
+        : candidateColorForShare(candidate, result.winnerShare))
+      : "rgba(215, 206, 195, 0.78)";
     var stroke = "#000000";
     var isSelected = state.selectedRegionId === region.id;
     var isHovered = Boolean(region.svgNode.__hovering);
@@ -4074,6 +4108,11 @@ function syncPieOrderButtons() {
     state.pieOrder = order;
     syncPieOrderButtons();
     renderScoreboard();
+  }
+  function zeroOverride() {
+    var o = {};
+    currentCandidates().forEach(function(c){ o[c.id] = 0; });
+    return o;
   }
 
   function orderedVotePieEntries(order) {
@@ -4194,6 +4233,7 @@ syncPieOrderButtons();
       '<svg class="vote-pie__svg" viewBox="0 0 ' + size + " " + size + '" aria-label="Statewide vote share pie chart">',
       order.map(function (entry) {
         var candidate = entry.candidate;
+    var isolateActive = state.isolatedCandidateId === candidate.id;
         var sweep = Math.max(entry.share, 0) * Math.PI * 2;
         var endAngle = startAngle + sweep;
         var label = candidate.name + ": " + formatPercent(entry.share);
@@ -4298,15 +4338,21 @@ shareNode.textContent = share || pie.getAttribute("data-default-share") || "";
 
   function candidateStandingMarkup(entry) {
     var candidate = entry.candidate;
+    var isolateActive = state.isolatedCandidateId === candidate.id;
 
     return [
       '<article class="score-card score-card--candidate">',
+      '<div class="score-card__top">',
+      '<div>',
       '<div class="score-card__swatches">',
       '<span class="score-card__swatch" style="background:' + escapeHtml(candidate.palette.soft) + ';"></span>',
       '<span class="score-card__swatch" style="background:' + escapeHtml(candidate.palette.mid) + ';"></span>',
       '<span class="score-card__swatch" style="background:' + escapeHtml(candidate.palette.strong) + ';"></span>',
       "</div>",
       '<p class="score-card__label">' + escapeHtml(ideologyLabel(candidate.ideology)) + "</p>",
+      "</div>",
+      '<button class="button button--ghost score-card__isolate' + (isolateActive ? ' is-active' : '') + '" data-id="' + escapeHtml(candidate.id) + '" type="button">Isolate</button>',
+      "</div>",
       '<p class="score-card__value">' + escapeHtml(candidate.name) + "</p>",
       '<p class="score-card__meta">' + formatPercent(entry.share) + " statewide | " +
         formatNumber(entry.votes) + " votes | " + String(entry.regionsWon) + " counties</p>",
@@ -4817,3 +4863,4 @@ shareNode.textContent = share || pie.getAttribute("data-default-share") || "";
 <script src="map-export.js"></script>
 </body>
 </html>
+

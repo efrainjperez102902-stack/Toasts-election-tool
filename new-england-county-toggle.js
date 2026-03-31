@@ -147,6 +147,48 @@
       });
     }
 
+    function readPathFill(entry) {
+      if (!entry || !entry.path) return "#d8cfc0";
+      var node = typeof entry.path.node === "function" ? entry.path.node() : null;
+      if (!node) return "#d8cfc0";
+      return node.getAttribute("fill") ||
+        (window.getComputedStyle ? window.getComputedStyle(node).fill : "") ||
+        "#d8cfc0";
+    }
+
+    function getCountyRows() {
+      if (!buildCountyLayer()) return [];
+      var aggregates = aggregateCountyResults();
+      var candidates = options.currentCandidates();
+
+      return countyEntries.map(function (entry) {
+        var aggregate = aggregates[entry.key] || null;
+        var results = aggregate
+          ? candidates.map(function (candidate) {
+              var pct = Number(aggregate.pct[candidate.id] || 0);
+              var votes = Number(aggregate.raw[candidate.id] || 0);
+              return {
+                id: candidate.id,
+                name: candidate.name,
+                color: candidate.palette && candidate.palette.strong ? candidate.palette.strong : "",
+                pct: isFinite(pct) ? pct : 0,
+                votes: isFinite(votes) ? votes : 0
+              };
+            }).sort(function (a, b) {
+              return b.pct - a.pct;
+            })
+          : [];
+
+        return {
+          kind: "county",
+          name: entry.name,
+          fill: readPathFill(entry),
+          totalVotes: aggregate ? Math.round(aggregate.votes || 0) : 0,
+          results: results
+        };
+      });
+    }
+
     function hideTooltip() {
       var tt = document.getElementById("map-tooltip");
       if (tt) tt.hidden = true;
@@ -206,7 +248,8 @@
       render: render,
       setView: setView,
       refreshLabels: refreshLabels,
-      hideTooltip: hideTooltip
+      hideTooltip: hideTooltip,
+      getCountyRows: getCountyRows
     };
   }
 

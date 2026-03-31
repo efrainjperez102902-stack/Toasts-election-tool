@@ -337,7 +337,7 @@ select:focus, input[type="range"]:focus, .button:focus {
 .score-card--mvc .score-card__value { color: var(--mvc); }
 .score-card--pip .score-card__value { color: var(--pip); }
 .score-card--pd  .score-card__value { color: var(--pd);  }
-.score-card__sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+.score-card__sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; } .score-card__top { display:flex; justify-content:space-between; align-items:start; gap:0.75rem; } .score-card__isolate { padding:0.3rem 0.65rem; font-size:0.74rem; white-space:nowrap; } .score-card__isolate.is-active { background: var(--accent); color:#fff; border-color:transparent; }
 
 .winner-banner {
   margin-top: 0.75rem;
@@ -497,7 +497,7 @@ input[type="range"] {
   gap: 0.35rem;
   background: rgba(104,77,49,0.05);
 }
-.party-section__head::before { content: "▶"; font-size: 0.6rem; transition: transform 140ms; }
+.party-section__head::before { content: ">"; font-size: 0.6rem; transition: transform 140ms; }
 details[open] > .party-section__head::before { transform: rotate(90deg); }
 .party-section__body { padding: 0.45rem 0.55rem; display: grid; gap: 0.35rem; }
 .party-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
@@ -575,21 +575,10 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
       </div>
 
-      <div class="map-stage">
+                  <div class="map-stage">
         <div class="map-shell" id="map-shell"></div>
-        <div class="map-tooltip" id="map-tooltip" hidden>
-          <p class="map-tooltip__title" id="tt-title"></p>
-          <p class="map-tooltip__meta" id="tt-meta"></p>
-          <div id="tt-candidates"></div>
-        </div>
       </div>
-
-      <div class="vote-strip-wrap">
-        <div class="vote-strip-label" id="vote-strip-labels" style="justify-content:flex-start;gap:0.8rem;flex-wrap:wrap;"></div>
-        <div class="vote-strip" id="vote-strip"></div>
-      </div>
-
-      <div class="map-footer">
+<div class="map-footer">
         <p class="map-footnote">
           Baseline municipal party brands are anchored to Puerto Rico's recent multi-party map,
           and municipality population weights are modeled from Wikipedia's municipalities table.
@@ -725,7 +714,7 @@ details[open] > .party-section__head::before { transform: rotate(90deg); }
       <!-- selected region -->
       <div class="region-panel panel is-hidden" id="region-panel">
         <p class="panel__eyebrow">Selected Municipality</p>
-        <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">—</h2>
+        <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">&mdash;</h2>
         <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a municipality on the map.</p>
         <div class="races-list" id="region-breakdown" style="margin-bottom:0.75rem;"></div>
         <div class="region-actions" id="region-actions"></div>
@@ -752,6 +741,11 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
 
   // ── default parties ───────────────────────────────────────────────────────
   var ORIG_KEYS = ["ppd","pnp","mvc","pip","pd"];
+  function zeroOverride() {
+    var o = {};
+    state.parties.forEach(function (p) { o[p.key] = 0; });
+    return o;
+  }
 
   function makeDefaultParties() {
     return [
@@ -859,31 +853,25 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
   };
 
   // ── state ─────────────────────────────────────────────────────────────────
-  var state = {
+  var state = window.state = {
     parties: makeDefaultParties(),
     nextPartyId: 6,
     regions: [],
     selectedId: null,
+    isolatedPartyKey: null,
     seed: Date.now(),
     controls: {
       statewideSwing: 0, turnoutPulse: 0, metroMomentum: 0, mountainSwing: 0, westernSwing: 0, volatility: 3,
       ppdTrend: 0, pnpTrend: 0, mvcTrend: 0, pipTrend: 0, pdTrend: 0
     }
   };
-
-  // ── seeded random ─────────────────────────────────────────────────────────
+// ── seeded random ─────────────────────────────────────────────────────────
   function seededRand(seed) {
     var s = seed;
     return function () {
       s = (s * 1664525 + 1013904223) & 0xffffffff;
       return (s >>> 0) / 0xffffffff;
     };
-  }
-
-  function zeroOverride() {
-    var o = {};
-    state.parties.forEach(function (p) { o[p.key] = 0; });
-    return o;
   }
 
   // ── util ──────────────────────────────────────────────────────────────────
@@ -917,7 +905,7 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     renderTrendSliders();
     renderBoostButtons();
     bindControls();
-    buildMap();
+buildMap();
   });
 
   function bindControls() {
@@ -941,7 +929,19 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     document.getElementById("add-party").addEventListener("click", addParty);
     document.getElementById("reset-parties").addEventListener("click", resetParties);
     document.getElementById("party-list").addEventListener("click", handlePartyListClick);
+    document.getElementById("score-grid").addEventListener("click", handleScoreGridClick);
     document.getElementById("party-list").addEventListener("input", handlePartyListInput);
+}
+
+  function handleScoreGridClick(event) {
+    var isolateButton = event.target.closest(".score-card__isolate");
+    if (!isolateButton) return;
+    var key = isolateButton.getAttribute("data-key");
+    if (!key) return;
+    state.isolatedPartyKey = state.isolatedPartyKey === key ? null : key;
+    renderScoreGrid();
+    renderScores();
+    renderMap();
   }
 
   function bindTrendSliders() {
@@ -987,10 +987,12 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
   function resetParties() {
     state.parties = makeDefaultParties();
     state.nextPartyId = 6;
+    state.isolatedPartyKey = null;
     Object.keys(state.controls).forEach(function (k) { if (k.endsWith("Trend")) delete state.controls[k]; });
     state.controls.ppdTrend = 0; state.controls.pnpTrend = 0;
     state.controls.mvcTrend = 0; state.controls.pipTrend = 0; state.controls.pdTrend = 0;
     state.regions.forEach(function (r) { r.override = zeroOverride(); });
+    state.isolatedPartyKey = null;
     onPartiesChanged();
   }
 
@@ -998,6 +1000,7 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     var btn = event.target.closest(".party-remove");
     if (!btn) return;
     var key = btn.getAttribute("data-key");
+    if (state.isolatedPartyKey === key) state.isolatedPartyKey = null;
     var party = state.parties.find(function (p) { return p.key === key; });
     if (!party || !party.removable) return;
     if (state.parties.length <= 2) return;
@@ -1076,8 +1079,13 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
       var shades = partyShades(p.color);
       return [
         '<div class="score-card" style="background:linear-gradient(135deg,' + shades[0] + ',rgba(255,255,255,0.7));border-color:' + shades[1] + ';">',
+        '<div class="score-card__top">',
+        '<div>',
         '<p class="score-card__label" style="color:' + p.color + ';">' + escapeHtml(p.label) + '</p>',
-        '<p class="score-card__value" id="' + escapeHtml(p.key) + '-count" style="color:' + p.color + ';">—</p>',
+        '<p class="score-card__value" id="' + escapeHtml(p.key) + '-count" style="color:' + p.color + ';">&mdash;</p>',
+        '</div>',
+        '<button class="button button--ghost score-card__isolate' + (isolateActive ? ' is-active' : '') + '" data-key="' + escapeHtml(p.key) + '" type="button">Isolate</button>',
+        '</div>',
         '<p class="score-card__sub">' + escapeHtml(p.name.split(" ").slice(0,2).join(" ")) + '</p>',
         '</div>'
       ].join("");
@@ -1142,6 +1150,8 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
       var valEl = document.getElementById(k + "-value"); if (valEl) valEl.textContent = Number(def).toFixed(1);
     });
     state.regions.forEach(function (r) { r.override = zeroOverride(); });
+    state.isolatedPartyKey = null;
+    renderScoreGrid();
     simulateAndRender(true);
   }
 
@@ -1158,6 +1168,8 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     var svg = d3.select(shell)
       .append("svg")
       .attr("viewBox", "0 0 " + W + " " + H)
+      .attr("width", "100%")
+      .attr("height", "100%")
       .attr("aria-label", "Puerto Rico municipality map");
 
     var muniByName = {};
@@ -1182,15 +1194,15 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     state.regions = regions;
 
     var g = svg.append("g");
-    regions.forEach(function (r, i) {
-      r.path = g.append("path")
+regions.forEach(function (r, i) {
+      r.path = svg.append("path")
         .datum(r.feature)
         .attr("d", pathGen)
         .attr("data-idx", i)
         .on("mouseenter", function (event) { showTooltip(event, r); })
         .on("mousemove",  function (event) { moveTooltip(event); })
         .on("mouseleave", hideTooltip)
-        .on("click",      function () { selectRegion(i); });
+        .on("click",      function () { selectRegion(i) });
     });
 
     document.getElementById("map-status").textContent = "78 municipalities loaded.";
@@ -1234,7 +1246,8 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     renderMap();
     renderScores();
     renderCloseRaces();
-    if (state.selectedId !== null) renderRegionPanel(state.selectedId);
+
+if (state.selectedId !== null) renderRegionPanel(state.selectedId);
   }
 
   // ── render map ────────────────────────────────────────────────────────────
@@ -1254,13 +1267,31 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     return shades[3];
   }
 
+  function partyColorForShare(partyKey, share) {
+    var party = state.parties.find(function (p) { return p.key === partyKey; });
+    if (!party) return "#d7cec3";
+    var shades = partyShades(party.color);
+    var pct = clamp(Number(share || 0), 0, 100);
+    if (pct >= 80) return shades[3];
+    if (pct >= 60) return shades[2];
+    if (pct >= 40) return shades[1];
+    if (pct > 0.05) return shades[0];
+    return "#d7cec3";
+  }
+
   function renderMap() {
     state.regions.forEach(function (r, i) {
       if (!r.result) return;
-      var keys = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; });
-      var w = keys[0], runnerUp = keys[1];
-      var margin = r.result[w] - (r.result[runnerUp] || 0);
-      r.path.attr("fill", partyColor(w, margin)).classed("selected", state.selectedId === i);
+      var fill = "#d7cec3";
+      if (state.isolatedPartyKey) {
+        fill = partyColorForShare(state.isolatedPartyKey, r.result[state.isolatedPartyKey] || 0);
+      } else {
+        var keys = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; });
+        var w = keys[0], runnerUp = keys[1];
+        var margin = r.result[w] - (r.result[runnerUp] || 0);
+        fill = partyColor(w, margin);
+      }
+      r.path.attr("fill", fill).classed("selected", state.selectedId === i);
     });
   }
 
@@ -1282,8 +1313,8 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
     var size = 208, cx = 104, cy = 104, r = 82;
     var angle = -Math.PI / 2;
     var winner = partyShares[0];
-    var defName   = winner ? winner.party.label : "—";
-    var defShare  = winner ? winner.pct.toFixed(1) + "%" : "—";
+    var defName   = winner ? winner.party.label : "&mdash;";
+    var defShare  = winner ? winner.pct.toFixed(1) + "%" : "&mdash;";
     var defDetail = winner ? winner.party.name.split(" ").slice(0, 3).join(" ") : "Hover a slice";
 
     var slices = partyShares.map(function(e) {
@@ -1491,3 +1522,4 @@ if (!window.PR_REVAMP_ACTIVE) (function () {
 <script src="map-export.js"></script>
 </body>
 </html>
+

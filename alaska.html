@@ -109,7 +109,7 @@ button, input, select { font: inherit; }
 .score-card__swatch { width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 1px solid rgba(0,0,0,0.08); }
 .score-card__label { margin: 0; color: var(--muted); font-size: 0.82rem; }
 .score-card__value { margin: 0.2rem 0 0; font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
-.score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; }
+.score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; } .score-card__top { display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; } .score-card__isolate { padding: 0.3rem 0.65rem; font-size: 0.74rem; white-space: nowrap; } .score-card__isolate.is-active { background: var(--accent); color: #fff; border-color: transparent; }
 
 /* ── vote pie ── */
 .vote-pie-wrap { width: 100%; display: grid; justify-items: center; gap: 0.55rem; margin: 0.75rem 0 0.25rem; }
@@ -152,7 +152,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 .candidate-actions .button { flex: 1; font-size: 0.82rem; }
 .cand-section { border: 1px solid rgba(20,50,90,0.1); border-radius: 10px; margin-top: 0.4rem; overflow: hidden; }
 .cand-section__head { padding: 0.35rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); cursor: pointer; user-select: none; letter-spacing: 0.04em; text-transform: uppercase; list-style: none; display: flex; align-items: center; gap: 0.35rem; background: rgba(20,50,90,0.04); }
-.cand-section__head::before { content: "▶"; font-size: 0.6rem; transition: transform 140ms; }
+.cand-section__head::before { content: ">"; font-size: 0.6rem; transition: transform 140ms; }
 details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .cand-section__body { padding: 0.45rem 0.55rem; display: grid; gap: 0.35rem; }
 
@@ -177,6 +177,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 label.candidate-field { pointer-events: none; }
 label.candidate-field input[type=range],
 label.candidate-field input[type=text] { pointer-events: all; }
+label.candidate-field input[type=color] { pointer-events: all; }
 label.candidate-demo-field { pointer-events: none; }
 label.candidate-demo-field input[type=range] { pointer-events: all; }
 </style>
@@ -231,21 +232,14 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <p id="map-status" class="panel__note">Loading map&hellip;</p>
       </div>
 
-      <div class="map-stage">
+                        <div class="map-stage">
         <div class="map-shell" id="map-shell"></div>
-        <div class="map-tooltip" id="map-tooltip" hidden>
-          <p class="map-tooltip__title" id="tt-title"></p>
-          <p class="map-tooltip__meta" id="tt-meta"></p>
-          <div id="tt-candidates"></div>
-        </div>
       </div>
-
       <div class="vote-strip-wrap">
         <div class="vote-strip-label" id="vote-strip-labels"></div>
         <div class="vote-strip" id="vote-strip"></div>
       </div>
-
-      <div class="map-footer">
+<div class="map-footer">
         <p class="map-footnote">
           Baseline: 2022 Alaska Gubernatorial. Boroughs and census areas loaded from US Census TIGER boundaries.
           Click any area to apply local overrides.
@@ -345,7 +339,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <!-- selected region -->
       <div class="region-panel panel is-hidden" id="region-panel">
         <p class="panel__eyebrow">Selected Area</p>
-        <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">—</h2>
+        <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">&mdash;</h2>
         <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a borough on the map.</p>
         <div class="region-actions" id="region-actions"></div>
       </div>
@@ -526,18 +520,18 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     },
     topFour: {
       title: "Top-Four Primary Field",
-      note: "Alaska's nonpartisan blanket primary — all candidates compete on one ballot.",
+      note: "Alaska's nonpartisan blanket primary &mdash; all candidates compete on one ballot.",
       addLabel: "+ Add Candidate",
       panelEyebrow: "Primary Field"
     }
   };
 
-  var state = {
+  var state = window.state = {
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), topFour: makeDefaultTopFourCandidates() },
     nextCandId: { general: 3, topFour: 5 },
     regions: [],    // [{ borough, feature, path, override:{[candId]:pts}, result:{[candId]:pct} }]
-    selectedId: null, pieOrder: "votes",
+    selectedId: null, pieOrder: "votes", isolatedCandidateId: null,
     seed: Date.now(),
     controls: { swing:0, turnout:0, anchorage:0, suburban:0, rural:0, southeast:0, volatility:4 }
   };
@@ -564,8 +558,11 @@ function syncPieOrderButtons() {
     syncPieOrderButtons();
     if (state.regions.length) renderScores();
   }
-
-  function zeroOverride() { var o={}; currentCandidates().forEach(function(c){ o[c.id]=0; }); return o; }
+  function zeroOverride() {
+    var o = {};
+    currentCandidates().forEach(function(c){ o[c.id] = 0; });
+    return o;
+  }
 
   // ── init ──────────────────────────────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", function() {
@@ -599,16 +596,18 @@ function syncPieOrderButtons() {
 document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
     document.getElementById("pie-sort-ideology").addEventListener("click", function() { setPieOrder("ideology"); });
     document.getElementById("pie-sort-votes").addEventListener("click", function() { setPieOrder("votes"); });
-    syncPieOrderButtons();
+syncPieOrderButtons();
     document.getElementById("candidate-list").addEventListener("click", handleCandListClick);
     document.getElementById("candidate-list").addEventListener("input", handleCandListInput);
     document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
+    document.getElementById("candidate-standings").addEventListener("click", handleStandingClick);
   }
 
   function switchMode(mode) {
     if (state.mode === mode) return;
     state.mode = mode;
     state.selectedId = null;
+    state.isolatedCandidateId = null;
     document.getElementById("tab-general").classList.toggle("is-active", mode === "general");
     document.getElementById("tab-topfour").classList.toggle("is-active", mode === "topFour");
     document.getElementById("tab-general").setAttribute("aria-selected", mode === "general" ? "true" : "false");
@@ -674,6 +673,7 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
     state.candidates.general = makeDefaultGeneralCandidates();
     state.candidates.topFour = makeDefaultTopFourCandidates();
     state.nextCandId = { general: 3, topFour: 5 };
+    state.isolatedCandidateId = null;
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
     renderCandidatePanel();
     renderScoreGrid();
@@ -687,6 +687,7 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
     if (!btn) return;
     var id = btn.getAttribute("data-id");
     var cands = state.candidates[state.mode];
+    if (state.isolatedCandidateId === id) state.isolatedCandidateId = null;
     if (cands.length <= 1) return;
     state.candidates[state.mode] = cands.filter(function(c){ return c.id !== id; });
     state.regions.forEach(function(r) { delete r.override[id]; if (r.result) delete r.result[id]; });
@@ -695,6 +696,21 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
     renderVoteStrip();
     renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
+  }
+
+  
+  function handleStandingClick(ev) {
+    var btn = ev.target.closest(".score-card__isolate");
+    if (!btn) return;
+    var id = btn.getAttribute("data-id");
+    if (!id) return;
+    state.isolatedCandidateId = state.isolatedCandidateId === id ? null : id;
+    if (state.regions.length) {
+      renderScores();
+      renderMap();
+      return;
+    }
+    renderScoreGrid();
   }
 
   function handleCandListInput(ev) {
@@ -709,7 +725,7 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
     var c = candById(id);
     if (!c) return;
     if (field === "name") {
-      // Don't re-render the panel on every keystroke — just update state and patch the display inline
+      // Don't re-render the panel on every keystroke &mdash; just update state and patch the display inline
       c.name = el.value || "Unnamed";
       var card = el.closest(".candidate-card");
       if (card) {
@@ -724,7 +740,7 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
     }
     if (palSlot) {
       c.palette[palSlot] = el.value;
-      // Patch palette preview inline — don't destroy the active color picker
+      // Patch palette preview inline &mdash; don't destroy the active color picker
       var card = document.querySelector('.candidate-card[data-id="' + c.id + '"]');
       if (card) {
         var shades = candidateShades(c.palette.strong);
@@ -769,8 +785,8 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
         ? '<button class="candidate-remove" data-id="' + escapeHtml(c.id) + '" type="button" title="Remove">&times;</button>'
         : "";
       var candMeta = state.mode === "general"
-        ? (c.anchor === "rep" ? "Major party · Right" : c.anchor === "dem" ? "Major party · Left" : "Independent · " + ideologyLabel(c.ideology))
-        : "Primary · " + ideologyLabel(c.ideology);
+        ? (c.anchor === "rep" ? "Major party - Right" : c.anchor === "dem" ? "Major party - Left" : "Independent - " + ideologyLabel(c.ideology))
+        : "Primary - " + ideologyLabel(c.ideology);
       var demoSection = detailSection("demo", c.id, "Demographic Support",
         gfld("White",          "data-demo", "white", c.demo.white, c.id) +
         gfld("Black",          "data-demo", "black", c.demo.black, c.id) +
@@ -836,7 +852,7 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
     return '<label class="candidate-palette-field"><span>'+escapeHtml(label)+'</span>' +
       '<input type="color" data-id="'+escapeHtml(id)+'" data-palette="'+slot+'" value="'+val+'"></label>';
   }
-  // Generic slider for demo/age/region — uses a custom data attribute instead of data-field
+  // Generic slider for demo/age/region &mdash; uses a custom data attribute instead of data-field
   function gfld(label, attr, key, val, id) {
     return '<label class="candidate-field"><span class="candidate-field__row"><span>'+escapeHtml(label)+'</span><span>'+signedStr(val,0)+'</span></span>' +
       '<input type="range" data-id="'+escapeHtml(id)+'" '+attr+'="'+escapeHtml(key)+'" min="-20" max="20" step="1" value="'+val+'"></label>';
@@ -850,14 +866,20 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
   // ── dynamic UI render ─────────────────────────────────────────────────────
   function candidateStandingMarkup(c, pct, boroughWins) {
     var shades = candidateShades(c.palette.strong);
+    var isolateActive = state.isolatedCandidateId === c.id;
     return [
       '<article class="score-card--candidate">',
+      '<div class="score-card__top">',
+      '<div>',
       '<div class="score-card__swatches">',
       '<span class="score-card__swatch" style="background:'+shades[0]+';"></span>',
       '<span class="score-card__swatch" style="background:'+shades[1]+';"></span>',
       '<span class="score-card__swatch" style="background:'+c.palette.strong+';"></span>',
       '</div>',
       '<p class="score-card__label">'+escapeHtml(ideologyLabel(c.ideology))+'</p>',
+      '</div>',
+      '<button class="button button--ghost score-card__isolate'+(isolateActive ? ' is-active' : '')+'" data-id="'+escapeHtml(c.id)+'" type="button">Isolate</button>',
+      '</div>',
       '<p class="score-card__value" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</p>',
       '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide | '+boroughWins+' borough'+(boroughWins===1?'':'s')+'</p>',
       '</article>'
@@ -923,8 +945,8 @@ function orderedPieShares(shares) {
   function updatePie(shares, defaultEntry) {
     var size=208, cx=104, cy=104, r=82, angle=-Math.PI/2;
     var winner = defaultEntry || shares[0];
-    var defName  = winner ? winner.c.name.split(" ")[0] : "—";
-    var defShare = winner ? winner.pct.toFixed(1)+"%" : "—";
+    var defName  = winner ? winner.c.name.split(" ")[0] : "&mdash;";
+    var defShare = winner ? winner.pct.toFixed(1)+"%" : "&mdash;";
     var defDetail= winner ? winner.c.name : "Hover a slice";
     var slices = shares.map(function(e) {
       var sw=(e.pct/100)*Math.PI*2, end=angle+sw;
@@ -993,11 +1015,13 @@ function orderedPieShares(shares) {
 
     var svg = d3.select(shell)
       .append("svg")
-      .attr("viewBox","0 0 "+W+" "+H)
+      .attr("viewBox", "0 0 "+W+" "+H)
+      .attr("width", "100%")
+      .attr("height", "100%")
       .attr("aria-label","Alaska borough and census area map");
 
     var g = svg.append("g");
-    var matched = 0, total = geo.features.length;
+var matched = 0, total = geo.features.length;
 
     var regions = geo.features.map(function(feature) {
       var fips = String(feature.id).padStart(5,"0");
@@ -1009,14 +1033,14 @@ function orderedPieShares(shares) {
     state.regions = regions;
 
     regions.forEach(function(r, i) {
-      r.path = g.append("path")
+      r.path = svg.append("path")
         .datum(r.feature)
         .attr("d", pathGen)
         .attr("data-idx", i)
         .on("mouseenter", function(ev) { showTooltip(ev, r); })
         .on("mousemove",  function(ev) { moveTooltip(ev); })
         .on("mouseleave", hideTooltip)
-        .on("click",      function() { selectRegion(i); });
+        .on("click",      function() { selectRegion(i) });
     });
 
     document.getElementById("map-status").textContent = matched + " of " + total + " areas mapped.";
@@ -1085,7 +1109,7 @@ function orderedPieShares(shares) {
     renderMap();
     renderScores();
     renderCloseRaces();
-    if (state.selectedId !== null) renderRegionPanel(state.selectedId);
+if (state.selectedId !== null) renderRegionPanel(state.selectedId);
   }
 
   // ── render map ────────────────────────────────────────────────────────────
@@ -1098,11 +1122,18 @@ function orderedPieShares(shares) {
   function renderMap() {
     state.regions.forEach(function(r, i) {
       if (!r.result) return;
-      var keys = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; });
-      var wId = keys[0];
-      var winPct = r.result[wId] || 0;
-      var wCand = candById(wId);
-      var color = wCand ? candidateMapColor(wCand.palette.strong, winPct) : "#c8d4e0";
+      var color = "#c8d4e0";
+      if (state.isolatedCandidateId) {
+        var isoCand = candById(state.isolatedCandidateId);
+        var isoPct = Number(r.result[state.isolatedCandidateId] || 0);
+        color = isoCand ? candidateMapColor(isoCand.palette.strong, isoPct) : "#c8d4e0";
+      } else {
+        var keys = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; });
+        var wId = keys[0];
+        var winPct = r.result[wId] || 0;
+        var wCand = candById(wId);
+        color = wCand ? candidateMapColor(wCand.palette.strong, winPct) : "#c8d4e0";
+      }
       r.path.attr("fill", color).classed("selected", state.selectedId === i);
     });
   }
@@ -1234,7 +1265,7 @@ function orderedPieShares(shares) {
 
   function showTooltip(ev, r) {
     ttTitle.textContent = r.borough.name;
-    ttMeta.textContent  = "Region: " + r.borough.region + " · Baseline lean: " +
+    ttMeta.textContent  = "Region: " + r.borough.region + " &middot; Baseline lean: " +
       (r.borough.lean > 50 ? "R +" + (r.borough.lean - 50) : "D +" + (50 - r.borough.lean));
     var res = r.result || {};
     var sorted = currentCandidates().slice().sort(function(a,b){ return (res[b.id]||0)-(res[a.id]||0); });
@@ -1266,3 +1297,5 @@ function orderedPieShares(shares) {
 <script src="map-export.js"></script>
 </body>
 </html>
+
+

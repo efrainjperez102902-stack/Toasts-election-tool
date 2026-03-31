@@ -78,7 +78,7 @@ button, input, select { font: inherit; }
 .map-shell .county-active { transition: fill 220ms ease; cursor: pointer; stroke: #111; stroke-width: 0.9px; vector-effect: non-scaling-stroke; }
 .map-shell .county-active:hover { opacity: 0.82; }
 .map-shell .county-active.selected { stroke: var(--ink); stroke-width: 1.8px; }
-.map-shell .county-inactive { stroke: rgba(0,0,0,0.18); stroke-width: 0.4px; cursor: default; fill: #d8cfc0; vector-effect: non-scaling-stroke; }
+.map-shell .county-inactive { stroke: rgba(0,0,0,0.18); stroke-width: 0.4px; cursor: default; fill: #d8cfc0; }
 
 .map-footer { margin-top: 0.55rem; }
 .map-footnote { margin: 0; font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
@@ -112,7 +112,7 @@ button, input, select { font: inherit; }
 .score-card__swatch { width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 1px solid rgba(0,0,0,0.08); }
 .score-card__label { margin: 0; color: var(--muted); font-size: 0.82rem; }
 .score-card__value { margin: 0.2rem 0 0; font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
-.score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; }
+.score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; } .score-card__top { display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; } .score-card__isolate { padding: 0.3rem 0.65rem; font-size: 0.74rem; white-space: nowrap; } .score-card__isolate.is-active { background: var(--accent); color: #fff; border-color: transparent; }
 
 /* ── map tooltip ── */
 .map-tooltip { position: fixed; background: #fff; border: 1px solid rgba(90,55,20,0.16); border-radius: 14px; padding: 0.65rem 0.85rem; min-width: 210px; pointer-events: none; box-shadow: 0 8px 24px rgba(60,40,20,0.14); z-index: 999; }
@@ -147,7 +147,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 .candidate-actions .button { flex: 1; font-size: 0.82rem; }
 .cand-section { border: 1px solid rgba(20,50,100,0.1); border-radius: 10px; margin-top: 0.4rem; overflow: hidden; }
 .cand-section__head { padding: 0.35rem 0.55rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); cursor: pointer; user-select: none; letter-spacing: 0.04em; text-transform: uppercase; list-style: none; display: flex; align-items: center; gap: 0.35rem; background: rgba(20,50,100,0.04); }
-.cand-section__head::before { content: "▶"; font-size: 0.6rem; transition: transform 140ms; }
+.cand-section__head::before { content: ">"; font-size: 0.6rem; transition: transform 140ms; }
 details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .cand-section__body { padding: 0.45rem 0.55rem; display: grid; gap: 0.35rem; }
 
@@ -172,6 +172,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 label.candidate-field { pointer-events: none; }
 label.candidate-field input[type=range],
 label.candidate-field input[type=text] { pointer-events: all; }
+label.candidate-field input[type=color] { pointer-events: all; }
 label.candidate-demo-field { pointer-events: none; }
 label.candidate-demo-field input[type=range] { pointer-events: all; }
 </style>
@@ -228,7 +229,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <p id="map-status" class="panel__note">Booting high-detail county map&hellip;</p>
       </div>
 
-      <div class="map-stage">
+                        <div class="map-stage">
         <div class="map-shell" id="map-shell"></div>
       </div>
 
@@ -236,8 +237,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <div class="vote-strip-label" id="vote-strip-labels"></div>
         <div class="vote-strip" id="vote-strip"></div>
       </div>
-
-      <div class="map-footer">
+<div class="map-footer">
         <p class="map-footnote">
           Baseline is calibrated from the county-level 2024 South Carolina presidential table.
           County boundaries use bundled county geometry rendered from the local US county atlas.
@@ -351,7 +351,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <!-- selected county -->
       <div class="region-panel panel is-hidden" id="region-panel">
         <p class="panel__eyebrow">Selected County</p>
-        <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">—</h2>
+        <h2 id="region-title" style="font-family:'Rockwell','Cambria',serif;margin:0 0 0.2rem;">&mdash;</h2>
         <p id="region-summary" style="margin:0 0 0.75rem;color:var(--muted);font-size:0.88rem;">Click a county on the map.</p>
         <div class="region-actions" id="region-actions"></div>
       </div>
@@ -554,7 +554,16 @@ York|nova|88239|59600|58.80|39.72
     return cty(idx, parts[0], parts[1], Number(parts[2]), Number(parts[3]), Number(parts[4]), Number(parts[5]), parts[6] || "");
   });
 
-  var TURNOUT_RATE = { general:1.0, repPrimary:0.19, demPrimary:0.23 };
+  var TURNOUT_RATE = { general: 0.30 };
+  // Build county-level party vote pools from baseline general-election votes.
+  // Primary sims split these county party pools instead of raw population turnout.
+  COUNTIES.forEach(function(cty) {
+    var generalVotes = Math.max(0, Math.round(cty.pop * TURNOUT_RATE.general));
+    var repVotes = Math.round(generalVotes * (cty.lean / 100));
+    cty.generalVotes = generalVotes;
+    cty.repVotes = repVotes;
+    cty.demVotes = Math.max(0, generalVotes - repVotes);
+  });
 
   var PRESETS = {
     "baseline-2024":  { label:"2024 Baseline",           controls:{ swing:0,   nova:0,   hampton:0,   richmond:0,   swva:0,   valley:0,   central:0,   volatility:3.0 } },
@@ -632,12 +641,12 @@ York|nova|88239|59600|58.80|39.72
   };
 
   // ── state ─────────────────────────────────────────────────────────────────
-  var state = {
+  var state = window.state = {
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
     nextCandId: { general: 3, repPrimary: 3, demPrimary: 3 },
     controls: { swing:0, turnout:0, nova:0, hampton:0, richmond:0, swva:0, valley:0, central:0, volatility:3.0 },
-    regions: [], seed: 42, selectedId: null, pieOrder: "votes"
+    regions: [], seed: 42, selectedId: null, pieOrder: "votes", isolatedCandidateId: null
   };
 
   function currentCandidates() { return state.candidates[state.mode]; }
@@ -649,7 +658,7 @@ York|nova|88239|59600|58.80|39.72
   ];
 
   var SLIDER_KEYS = ["swing","turnout","nova","hampton","richmond","swva","valley","central","volatility"];
-  var REGION_LABELS = {
+var REGION_LABELS = {
     nova: "Upstate Core",
     hampton: "Foothills / Western Upstate",
     richmond: "Midlands / Columbia",
@@ -699,13 +708,13 @@ York|nova|88239|59600|58.80|39.72
     document.getElementById("candidate-list").addEventListener("click",  handleCandListClick);
     document.getElementById("candidate-list").addEventListener("input",  handleCandListInput);
     document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
+    document.getElementById("candidate-standings").addEventListener("click", handleStandingClick);
     document.getElementById("add-candidate").addEventListener("click",   addCandidate);
 document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
     document.getElementById("pie-sort-ideology").addEventListener("click", function() { setPieOrder("ideology"); });
     document.getElementById("pie-sort-votes").addEventListener("click", function() { setPieOrder("votes"); });
-    syncPieOrderButtons();
-
-    loadMap();
+syncPieOrderButtons();
+loadMap();
 
     document.addEventListener("mousemove", function(ev) {
       var tt = document.getElementById("map-tooltip");
@@ -726,6 +735,7 @@ document.getElementById("reset-candidates").addEventListener("click", resetCandi
       tabEl.classList.toggle("is-active", (m === "general" ? "general" : m + "Primary") === mode);
     });
     state.selectedId = null;
+    state.isolatedCandidateId = null;
     document.getElementById("region-panel").classList.add("is-hidden");
     renderCandidatePanel();
     renderScoreGrid();
@@ -748,8 +758,11 @@ function syncPieOrderButtons() {
     syncPieOrderButtons();
     if (state.regions.length) renderScores();
   }
-
-  function zeroOverride() { var o={}; currentCandidates().forEach(function(c){ o[c.id]=0; }); return o; }
+  function zeroOverride() {
+    var o = {};
+    currentCandidates().forEach(function(c){ o[c.id] = 0; });
+    return o;
+  }
 
   // ── candidate management ──────────────────────────────────────────────────
   function addCandidate() {
@@ -770,6 +783,7 @@ function syncPieOrderButtons() {
     state.candidates.repPrimary = makeDefaultRepPrimaryCandidates();
     state.candidates.demPrimary = makeDefaultDemPrimaryCandidates();
     state.nextCandId = { general:3, repPrimary:3, demPrimary:3 };
+    state.isolatedCandidateId = null;
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
     renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
@@ -780,11 +794,27 @@ function syncPieOrderButtons() {
     if (!btn) return;
     var id = btn.getAttribute("data-id");
     var cands = state.candidates[state.mode];
+    if (state.isolatedCandidateId === id) state.isolatedCandidateId = null;
     if (cands.length <= 1) return;
     state.candidates[state.mode] = cands.filter(function(c){ return c.id !== id; });
     state.regions.forEach(function(r) { delete r.override[id]; if (r.result) delete r.result[id]; });
     renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
+  }
+
+  
+  function handleStandingClick(ev) {
+    var btn = ev.target.closest(".score-card__isolate");
+    if (!btn) return;
+    var id = btn.getAttribute("data-id");
+    if (!id) return;
+    state.isolatedCandidateId = state.isolatedCandidateId === id ? null : id;
+    if (state.regions.length) {
+      renderScores();
+      renderMap();
+      return;
+    }
+    renderScoreGrid();
   }
 
   function handleCandListInput(ev) {
@@ -860,7 +890,7 @@ function syncPieOrderButtons() {
       var shades = candidateShades(c.palette.strong);
       var removeBtn = c.removable ? '<button class="candidate-remove" data-id="'+escapeHtml(c.id)+'" type="button" title="Remove">&times;</button>' : "";
       var candMeta = state.mode === "general"
-        ? (c.anchor === "rep" ? "Major party · Right" : c.anchor === "dem" ? "Major party · Left" : "Independent · "+ideologyLabel(c.ideology))
+        ? (c.anchor === "rep" ? "Major party - Right" : c.anchor === "dem" ? "Major party - Left" : "Independent - "+ideologyLabel(c.ideology))
         : ideologyLabel(c.ideology);
       var demoSec = detailSection("demo", c.id, "Demographic Support",
         gfld("White",          "data-demo","white", c.demo.white, c.id) +
@@ -911,14 +941,20 @@ function syncPieOrderButtons() {
   function candidateStandingMarkup(c, pct, countyWins, rawVotes) {
     var shades = candidateShades(c.palette.strong);
     var votesStr = rawVotes > 0 ? " | ~" + Math.round(rawVotes / 1000).toLocaleString() + "K votes" : "";
+    var isolateActive = state.isolatedCandidateId === c.id;
     return [
       '<article class="score-card--candidate">',
+      '<div class="score-card__top">',
+      '<div>',
       '<div class="score-card__swatches">',
       '<span class="score-card__swatch" style="background:'+shades[0]+';"></span>',
       '<span class="score-card__swatch" style="background:'+shades[1]+';"></span>',
       '<span class="score-card__swatch" style="background:'+c.palette.strong+';"></span>',
       '</div>',
       '<p class="score-card__label">'+escapeHtml(ideologyLabel(c.ideology))+'</p>',
+      '</div>',
+      '<button class="button button--ghost score-card__isolate'+(isolateActive ? ' is-active' : '')+'" data-id="'+escapeHtml(c.id)+'" type="button">Isolate</button>',
+      '</div>',
       '<p class="score-card__value" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</p>',
       '<p class="score-card__meta">'+pct.toFixed(1)+'% statewide'+votesStr+' | '+countyWins+' counties</p>',
       '</article>'
@@ -989,7 +1025,7 @@ function orderedPieShares(shares) {
         ' data-pie-color="'+e.c.palette.strong+'" tabindex="0"></path>';
       angle += sweep;
     });
-    var top = shares[0] || { c:{name:"—",palette:{strong:"#888"}}, pct:0 };
+    var top = shares[0] || { c:{name:"&mdash;",palette:{strong:"#888"}}, pct:0 };
     var defName=top.c.name.split(" ")[0], defShare=top.pct.toFixed(1)+"%", defDetail=top.c.name;
     el.innerHTML = '<div class="vote-pie-wrap"><div class="vote-pie" id="vote-pie"' +
       ' data-default-name="'+escapeHtml(defName)+'" data-default-share="'+escapeHtml(defShare)+'"' +
@@ -1043,9 +1079,9 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
       svg = d3.select(mapEl).append("svg")
         .attr("viewBox", "0 0 " + W + " " + H)
         .attr("width", "100%")
-        .attr("preserveAspectRatio", "xMidYMid meet");
-
-      scFeatures.forEach(function(feat) {
+        .attr("height", "100%")
+                .attr("preserveAspectRatio", "xMidYMid meet");
+scFeatures.forEach(function(feat) {
         var fips = String(feat.id).padStart(5, "0");
         var county = countyByKey[normalizeCountyKey(feat.properties && feat.properties.name)];
         var p = svg.append("path")
@@ -1057,7 +1093,7 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
         if (county) {
           var idx = state.regions.length;
           state.regions.push({ county: county, path: p, result: null, override: zeroOverride(), turnoutMult: 1 });
-          p.on("click",      function() { selectRegion(idx); })
+          p.on("click",      function() { selectRegion(idx) })
            .on("mouseover",  function() { showTooltip(idx); })
            .on("mouseleave", function() { document.getElementById("map-tooltip").hidden = true; });
         }
@@ -1104,7 +1140,7 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
             '<span style="font-variant-numeric:tabular-nums;">'+pct+'% &nbsp;<span style="color:var(--muted);font-size:0.75rem;">('+votes+')</span></span>' +
             '</div>';
         }).join("")
-      : "<em>—</em>";
+      : "<em>&mdash;</em>";
     tt.hidden = false;
   }
 
@@ -1176,13 +1212,20 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
 
       var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
       r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
-      r.countyVotes = Math.round(r.county.pop * TURNOUT_RATE[state.mode] * r.turnoutMult);
+      // Vote pool by mode:
+      // general -> total county baseline votes
+      // rep primary -> county Republican baseline votes
+      // dem primary -> county Democratic baseline votes
+      var basePool = r.county.generalVotes || 0;
+      if (state.mode === "repPrimary") basePool = r.county.repVotes || 0;
+      if (state.mode === "demPrimary") basePool = r.county.demVotes || 0;
+      r.countyVotes = Math.max(0, Math.round(basePool * r.turnoutMult));
     });
 
     renderMap();
     renderScores();
     renderCloseRaces();
-    if (state.selectedId !== null) renderRegionPanel(state.selectedId);
+if (state.selectedId !== null) renderRegionPanel(state.selectedId);
   }
 
   // ── render map ────────────────────────────────────────────────────────────
@@ -1192,12 +1235,19 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
     return best;
   }
   function renderMap() {
+    var isolated = candById(state.isolatedCandidateId);
     state.regions.forEach(function(r, i) {
       if (!r.result) return;
-      var wId   = winnerOf(r.result);
-      var wPct  = r.result[wId] || 0;
-      var wCand = candById(wId);
-      var color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
+      var color = "#d8cfc0";
+      if (isolated) {
+        var isolatedPct = Math.max(0, Math.min(100, Number(r.result[isolated.id] || 0)));
+        color = isolatedPct > 0.05 ? candidateMapColor(isolated.palette.strong, isolatedPct) : "#d8cfc0";
+      } else {
+        var wId   = winnerOf(r.result);
+        var wPct  = r.result[wId] || 0;
+        var wCand = candById(wId);
+        color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
+      }
       r.path.attr("fill", color).classed("selected", state.selectedId === i);
     });
   }
@@ -1212,7 +1262,7 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
       if (!r.result) return;
       var w = winnerOf(r.result);
       if (w && wins[w] !== undefined) wins[w]++;
-      var weight = r.county.pop * (r.turnoutMult || 1);
+      var weight = Math.max(1, r.countyVotes || 0);
       var countyVotes = r.countyVotes || 0;
       cands.forEach(function(c){
         votes[c.id] += (r.result[c.id]||0) * weight;
@@ -1286,3 +1336,6 @@ syncPieOrderButtons();
 <script src="map-export.js"></script>
 </body>
 </html>
+
+
+

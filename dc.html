@@ -78,7 +78,7 @@ button, input, select { font: inherit; }
 .map-shell .county-active { transition: fill 220ms ease; cursor: pointer; stroke: #111; stroke-width: 0.9px; vector-effect: non-scaling-stroke; }
 .map-shell .county-active:hover { opacity: 0.82; }
 .map-shell .county-active.selected { stroke: var(--ink); stroke-width: 1.8px; }
-.map-shell .county-inactive { stroke: rgba(0,0,0,0.18); stroke-width: 0.4px; cursor: default; fill: #d8cfc0; vector-effect: non-scaling-stroke; }
+.map-shell .county-inactive { stroke: rgba(0,0,0,0.18); stroke-width: 0.4px; cursor: default; fill: #d8cfc0; }
 
 .map-footer { margin-top: 0.55rem; }
 .map-footnote { margin: 0; font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
@@ -109,7 +109,7 @@ button, input, select { font: inherit; }
 .score-card__swatch { width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 1px solid rgba(0,0,0,0.08); }
 .score-card__label { margin: 0; color: var(--muted); font-size: 0.82rem; }
 .score-card__value { margin: 0.2rem 0 0; font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
-.score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; }
+.score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; } .score-card__top { display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; } .score-card__isolate { padding: 0.3rem 0.65rem; font-size: 0.74rem; white-space: nowrap; } .score-card__isolate.is-active { background: var(--accent); color: #fff; border-color: transparent; }
 
 /* -- map tooltip -- */
 .map-tooltip { position: fixed; background: #fff; border: 1px solid rgba(90,55,20,0.16); border-radius: 14px; padding: 0.65rem 0.85rem; min-width: 210px; pointer-events: none; box-shadow: 0 8px 24px rgba(60,40,20,0.14); z-index: 999; }
@@ -169,6 +169,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 label.candidate-field { pointer-events: none; }
 label.candidate-field input[type=range],
 label.candidate-field input[type=text] { pointer-events: all; }
+label.candidate-field input[type=color] { pointer-events: all; }
 label.candidate-demo-field { pointer-events: none; }
 label.candidate-demo-field input[type=range] { pointer-events: all; }
 </style>
@@ -225,16 +226,14 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <p id="map-status" class="panel__note">Booting official DC ward map&hellip;</p>
       </div>
 
-      <div class="map-stage">
+                        <div class="map-stage">
         <div class="map-shell" id="map-shell"></div>
       </div>
-
       <div class="vote-strip-wrap">
         <div class="vote-strip-label" id="vote-strip-labels"></div>
         <div class="vote-strip" id="vote-strip"></div>
       </div>
-
-      <div class="map-footer">
+<div class="map-footer">
         <p class="map-footnote">
           Baseline is calibrated from the ward-level 2024 DC presidential table.
           Ward boundaries use bundled 2022 DCGIS ward geometry.
@@ -493,7 +492,16 @@ Ward 8|central|1944|26936|6.56|90.90
     return cty(idx, parts[0], parts[1], Number(parts[2]), Number(parts[3]), Number(parts[4]), Number(parts[5]), parts[6] || "");
   });
 
-  var TURNOUT_RATE = { general:1.0, repPrimary:0.16, demPrimary:0.24 };
+  var TURNOUT_RATE = { general: 0.30 };
+  // Build county-level party vote pools from baseline general-election votes.
+  // Primary sims split these county party pools instead of raw population turnout.
+  COUNTIES.forEach(function(cty) {
+    var generalVotes = Math.max(0, Math.round(cty.pop * TURNOUT_RATE.general));
+    var repVotes = Math.round(generalVotes * (cty.lean / 100));
+    cty.generalVotes = generalVotes;
+    cty.repVotes = repVotes;
+    cty.demVotes = Math.max(0, generalVotes - repVotes);
+  });
 
   var PRESETS = {
     "baseline-2024":  { label:"2024 Baseline",         controls:{ swing:0,   nova:0,   hampton:0,   richmond:0,   swva:0,   valley:0,   central:0,   volatility:2.0 } },
@@ -571,16 +579,22 @@ Ward 8|central|1944|26936|6.56|90.90
   };
 
   // -- state -----------------------------------------------------------------
-  var state = {
+  var state = window.state = {
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
     nextCandId: { general: 3, repPrimary: 3, demPrimary: 3 },
     controls: { swing:0, turnout:0, nova:0, hampton:0, richmond:0, swva:0, valley:0, central:0, volatility:2.0 },
-    regions: [], seed: 42, selectedId: null
+    regions: [], seed: 42, selectedId: null, isolatedCandidateId: null
   };
 
   function currentCandidates() { return state.candidates[state.mode]; }
   function candById(id) { return currentCandidates().find(function(c){ return c.id === id; }) || null; }
+
+  function zeroOverride() {
+    var o = {};
+    currentCandidates().forEach(function(c){ o[c.id] = 0; });
+    return o;
+  }
 
   var EXTRA_PALETTES = [
     { strong:"#228b22" }, { strong:"#c26000" }, { strong:"#8b006e" },
@@ -588,7 +602,7 @@ Ward 8|central|1944|26936|6.56|90.90
   ];
 
   var SLIDER_KEYS = ["swing","turnout","nova","hampton","richmond","swva","valley","central","volatility"];
-  var REGION_LABELS = {
+var REGION_LABELS = {
     nova: "Downtown / Northwest Core",
     hampton: "Upper Northwest",
     richmond: "North-Central / Upper Northeast",
@@ -639,6 +653,7 @@ Ward 8|central|1944|26936|6.56|90.90
     document.getElementById("candidate-list").addEventListener("click",  handleCandListClick);
     document.getElementById("candidate-list").addEventListener("input",  handleCandListInput);
     document.getElementById("candidate-list").addEventListener("change", function(ev) { if (ev.target && ev.target.type === "range") { renderCandidatePanel(); } });
+    document.getElementById("candidate-standings").addEventListener("click", handleStandingClick);
     document.getElementById("add-candidate").addEventListener("click",   addCandidate);
     document.getElementById("reset-candidates").addEventListener("click", resetCandidates);
 
@@ -663,6 +678,7 @@ Ward 8|central|1944|26936|6.56|90.90
       tabEl.classList.toggle("is-active", (m === "general" ? "general" : m + "Primary") === mode);
     });
     state.selectedId = null;
+    state.isolatedCandidateId = null;
     document.getElementById("region-panel").classList.add("is-hidden");
     renderCandidatePanel();
     renderScoreGrid();
@@ -670,8 +686,6 @@ Ward 8|central|1944|26936|6.56|90.90
     renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
   }
-
-  function zeroOverride() { var o={}; currentCandidates().forEach(function(c){ o[c.id]=0; }); return o; }
 
   // -- candidate management --------------------------------------------------
   function addCandidate() {
@@ -692,6 +706,7 @@ Ward 8|central|1944|26936|6.56|90.90
     state.candidates.repPrimary = makeDefaultRepPrimaryCandidates();
     state.candidates.demPrimary = makeDefaultDemPrimaryCandidates();
     state.nextCandId = { general:3, repPrimary:3, demPrimary:3 };
+    state.isolatedCandidateId = null;
     state.regions.forEach(function(r) { r.override = zeroOverride(); });
     renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
@@ -702,11 +717,26 @@ Ward 8|central|1944|26936|6.56|90.90
     if (!btn) return;
     var id = btn.getAttribute("data-id");
     var cands = state.candidates[state.mode];
+    if (state.isolatedCandidateId === id) state.isolatedCandidateId = null;
     if (cands.length <= 1) return;
     state.candidates[state.mode] = cands.filter(function(c){ return c.id !== id; });
     state.regions.forEach(function(r) { delete r.override[id]; if (r.result) delete r.result[id]; });
     renderCandidatePanel(); renderScoreGrid(); renderVoteStrip(); renderBoostButtons();
     if (state.regions.length) simulateAndRender(false);
+  }
+
+  function handleStandingClick(ev) {
+    var btn = ev.target.closest(".score-card__isolate");
+    if (!btn) return;
+    var id = btn.getAttribute("data-id");
+    if (!id) return;
+    state.isolatedCandidateId = state.isolatedCandidateId === id ? null : id;
+    if (state.regions.length) {
+      renderScores();
+      renderMap();
+      return;
+    }
+    renderScoreGrid();
   }
 
   function handleCandListInput(ev) {
@@ -833,14 +863,20 @@ Ward 8|central|1944|26936|6.56|90.90
   function candidateStandingMarkup(c, pct, countyWins, rawVotes) {
     var shades = candidateShades(c.palette.strong);
     var votesStr = rawVotes > 0 ? " | ~" + Math.round(rawVotes / 1000).toLocaleString() + "K votes" : "";
+    var isolateActive = state.isolatedCandidateId === c.id;
     return [
       '<article class="score-card--candidate">',
+      '<div class="score-card__top">',
+      '<div>',
       '<div class="score-card__swatches">',
       '<span class="score-card__swatch" style="background:'+shades[0]+';"></span>',
       '<span class="score-card__swatch" style="background:'+shades[1]+';"></span>',
       '<span class="score-card__swatch" style="background:'+c.palette.strong+';"></span>',
       '</div>',
       '<p class="score-card__label">'+escapeHtml(ideologyLabel(c.ideology))+'</p>',
+      '</div>',
+      '<button class="button button--ghost score-card__isolate'+(isolateActive ? ' is-active' : '')+'" data-id="'+escapeHtml(c.id)+'" type="button">Isolate</button>',
+      '</div>',
       '<p class="score-card__value" style="color:'+c.palette.strong+';">'+escapeHtml(c.name)+'</p>',
       '<p class="score-card__meta">'+pct.toFixed(1)+'% citywide'+votesStr+' | '+countyWins+' wards</p>',
       '</article>'
@@ -1073,13 +1109,20 @@ Ward 8|central|1944|26936|6.56|90.90
 
       var turnoutPull = cands.reduce(function(s,cd){ return s + (raw[cd.id]/total)*(cd.turnout||0); }, 0);
       r.turnoutMult = Math.max(0.5, 1 + turnoutPull / 150 + c.turnout / 22);
-      r.countyVotes = Math.round(r.county.pop * TURNOUT_RATE[state.mode] * r.turnoutMult);
+      // Vote pool by mode:
+      // general -> total county baseline votes
+      // rep primary -> county Republican baseline votes
+      // dem primary -> county Democratic baseline votes
+      var basePool = r.county.generalVotes || 0;
+      if (state.mode === "repPrimary") basePool = r.county.repVotes || 0;
+      if (state.mode === "demPrimary") basePool = r.county.demVotes || 0;
+      r.countyVotes = Math.max(0, Math.round(basePool * r.turnoutMult));
     });
 
     renderMap();
     renderScores();
     renderCloseRaces();
-    if (state.selectedId !== null) renderRegionPanel(state.selectedId);
+if (state.selectedId !== null) renderRegionPanel(state.selectedId);
   }
 
   // -- render map ------------------------------------------------------------
@@ -1089,12 +1132,19 @@ Ward 8|central|1944|26936|6.56|90.90
     return best;
   }
   function renderMap() {
+    var isolated = candById(state.isolatedCandidateId);
     state.regions.forEach(function(r, i) {
       if (!r.result) return;
-      var wId   = winnerOf(r.result);
-      var wPct  = r.result[wId] || 0;
-      var wCand = candById(wId);
-      var color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
+      var color = "#d8cfc0";
+      if (isolated) {
+        var isolatedPct = Math.max(0, Math.min(100, Number(r.result[isolated.id] || 0)));
+        color = isolatedPct > 0.05 ? candidateMapColor(isolated.palette.strong, isolatedPct) : "#d8cfc0";
+      } else {
+        var wId   = winnerOf(r.result);
+        var wPct  = r.result[wId] || 0;
+        var wCand = candById(wId);
+        color = wCand ? candidateMapColor(wCand.palette.strong, wPct) : "#d8cfc0";
+      }
       r.path.style("fill", color).classed("selected", state.selectedId === i);
     });
   }
@@ -1109,7 +1159,7 @@ Ward 8|central|1944|26936|6.56|90.90
       if (!r.result) return;
       var w = winnerOf(r.result);
       if (w && wins[w] !== undefined) wins[w]++;
-      var weight = r.county.pop * (r.turnoutMult || 1);
+      var weight = Math.max(1, r.countyVotes || 0);
       var countyVotes = r.countyVotes || 0;
       cands.forEach(function(c){
         votes[c.id] += (r.result[c.id]||0) * weight;
@@ -1181,3 +1231,4 @@ Ward 8|central|1944|26936|6.56|90.90
 <script src="map-export.js"></script>
 </body>
 </html>
+

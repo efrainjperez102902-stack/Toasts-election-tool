@@ -142,10 +142,84 @@
       font-size: 1.3rem;
     }
 
+    .map-header__copy {
+      display: grid;
+      gap: 0.18rem;
+    }
+
     .map-hint {
       margin: 0;
       color: var(--muted);
       font-size: 0.9rem;
+    }
+
+    .map-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      appearance: none;
+      border: 1px solid rgba(60, 40, 20, 0.14);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.92rem;
+      cursor: pointer;
+      transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+    }
+
+    .button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: rgba(31, 82, 234, 0.28);
+      box-shadow: 0 8px 18px rgba(35, 26, 20, 0.08);
+    }
+
+    .button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .button--ghost {
+      background: rgba(255, 255, 255, 0.78);
+    }
+
+    .button--active {
+      background: linear-gradient(135deg, rgba(31, 82, 234, 0.16), rgba(255, 255, 255, 0.95));
+      border-color: rgba(31, 82, 234, 0.34);
+      color: var(--dem-4);
+    }
+
+    .selection-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .selection-strip[hidden] {
+      display: none;
+    }
+
+    .selection-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.36rem 0.68rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 82, 234, 0.14);
+      background: rgba(66, 112, 248, 0.1);
+      color: var(--dem-4);
+      font-size: 0.82rem;
+      font-weight: 700;
     }
 
     #us-map {
@@ -181,6 +255,11 @@
 
     .state-path.has-sim {
       cursor: pointer;
+    }
+
+    .state-path.is-selected {
+      stroke-width: 1.8px;
+      filter: brightness(1.04) saturate(1.06);
     }
 
     .state-path.state-path--blue.has-sim:hover {
@@ -305,6 +384,12 @@
       border-color: rgba(66,112,248,0.4);
     }
 
+    .state-card.ready.selected {
+      background: linear-gradient(135deg, rgba(31,82,234,0.16), rgba(255,255,255,0.96));
+      border-color: rgba(31,82,234,0.42);
+      box-shadow: 0 10px 24px rgba(31, 82, 234, 0.14);
+    }
+
     .state-card.coming {
       opacity: 0.55;
       cursor: not-allowed;
@@ -326,13 +411,24 @@
       color: var(--dem-4);
     }
 
+    .state-card.ready.selected .state-card__badge {
+      background: rgba(31, 82, 234, 0.18);
+      color: var(--dem-4);
+    }
+
     .state-card.coming .state-card__badge {
       background: rgba(0,0,0,0.06);
       color: var(--muted);
     }
 
+    .greenland-inset.is-selected path {
+      stroke-width: 2;
+      filter: brightness(1.04) saturate(1.06);
+    }
+
     @media (max-width: 700px) {
       .map-header { flex-direction: column; align-items: flex-start; }
+      .map-controls { width: 100%; }
       .states-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
     }
   </style>
@@ -347,10 +443,15 @@
 
     <div class="map-panel">
       <div class="map-header">
-        <h2>Select a State</h2>
-        <p class="map-hint">Highlighted states have a simulator ready to go.</p>
+        <div class="map-header__copy">
+          <h2>Select a State</h2>
+          <p class="map-hint" id="map-hint">Highlighted states have a simulator ready to go.</p>
+        </div>
+        <div class="map-controls">
+        </div>
       </div>
 
+      <div id="multi-selection" class="selection-strip" hidden></div>
       <div id="us-map"></div>
 
     </div>
@@ -431,7 +532,8 @@
         "44": "rhode-island.html", // Rhode Island
         "15": "hawaii.html",       // Hawaii
         "50": "vermont.html",      // Vermont
-        "33": "new-hampshire.html" // New Hampshire
+        "33": "new-hampshire.html", // New Hampshire
+        "greenland": "greenland.html" // Greenland
       };
 
       var RED_STATES = {
@@ -468,11 +570,57 @@
         "56": true  // Wyoming
       };
 
+      var GREENLAND_KEY = "greenland";
+      var multiState = {
+        enabled: false,
+        selected: new Set()
+      };
+
       function stateColorClass(fips) {
         if (fips === "72") {
           return "yellow";
         }
         return RED_STATES[fips] ? "red" : "blue";
+      }
+
+      function getSimulatorUrl(key) {
+        return SIMULATORS[key] || null;
+      }
+
+      function getEntityName(key) {
+        if (key === GREENLAND_KEY) return "Greenland";
+        var match = ALL_STATES.find(function (state) { return state.fips === key; });
+        return match ? match.name : key;
+      }
+
+      function multiStateHint() {
+        return "Highlighted states have a simulator ready to go.";
+      }
+
+      function selectionStatusText(key) {
+        var sim = getSimulatorUrl(key);
+        if (!sim) return "Coming soon";
+        return "Click to open simulator";
+      }
+
+      function openEntity(key) {
+        var sim = getSimulatorUrl(key);
+        if (!sim) return;
+        window.location.href = sim;
+      }
+
+      function syncMultiStateUI() {
+        var hint = document.getElementById("map-hint");
+        hint.textContent = multiStateHint();
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
       }
 
       // ── all 50 states + DC ────────────────────────────────────────────────
@@ -553,6 +701,7 @@
         .attr("class", function (d) {
           return "state-path state-path--" + stateColorClass(d.id) + (SIMULATORS[d.id] ? " has-sim" : "");
         })
+        .attr("data-key", function (d) { return d.id; })
         .attr("d", path)
         .attr("aria-label", function (d) { return d.properties.name; })
         .on("mouseenter", onStateEnter)
@@ -600,6 +749,7 @@
           .attr("class", function (d) {
             return "state-path state-path--" + stateColorClass(d.id) + (SIMULATORS[d.id] ? " has-sim" : "");
           })
+          .attr("data-key", function (d) { return d.id; })
           .attr("d", prPath)
           .on("mouseenter", onStateEnter)
           .on("mousemove",  onStateMove)
@@ -621,6 +771,8 @@
         var greenlandPath = d3.geoPath().projection(greenlandProjection);
 
         greenlandGroup = svg.append("g")
+          .attr("class", "greenland-inset")
+          .attr("data-key", GREENLAND_KEY)
           .attr("transform", "translate(" + greenlandX + "," + greenlandY + ")")
           .attr("pointer-events", "all");
 
@@ -649,9 +801,9 @@
 
       function onStateEnter(event, d) {
         var name = d.properties.name;
-        var sim  = SIMULATORS[d.id];
+        var sim  = getSimulatorUrl(d.id);
         ttName.textContent   = name;
-        ttStatus.textContent = sim ? "Click to open simulator" : "Coming soon";
+        ttStatus.textContent = selectionStatusText(d.id);
         ttStatus.className   = "tt-status" + (sim ? " ready" : "");
         tooltip.classList.add("visible");
         moveTooltip(event);
@@ -676,8 +828,7 @@
       }
 
       function onStateClick(event, d) {
-        var sim = SIMULATORS[d.id];
-        if (sim) window.location.href = sim;
+        openEntity(d.id);
       }
 
       if (greenlandGroup) {
@@ -685,7 +836,7 @@
           .style("cursor", "pointer")
           .on("mouseenter", function (event) {
             ttName.textContent = "Greenland";
-            ttStatus.textContent = "Click to open simulator";
+            ttStatus.textContent = selectionStatusText(GREENLAND_KEY);
             ttStatus.className = "tt-status ready";
             tooltip.classList.add("visible");
             moveTooltip(event);
@@ -697,7 +848,7 @@
             tooltip.classList.remove("visible");
           })
           .on("click", function () {
-            window.location.href = "greenland.html";
+            openEntity(GREENLAND_KEY);
           });
       }
 
@@ -705,9 +856,10 @@
       var grid = document.getElementById("states-grid");
 
       ALL_STATES.forEach(function (s) {
-        var sim   = SIMULATORS[s.fips];
+        var sim   = getSimulatorUrl(s.fips);
         var el    = document.createElement(sim ? "a" : "div");
         el.className = "state-card " + (sim ? "ready" : "coming");
+        el.setAttribute("data-key", s.fips);
 
         var nameEl = document.createElement("span");
         nameEl.className = "state-card__name";
@@ -722,6 +874,11 @@
 
         if (sim) {
           el.href = sim;
+          el.addEventListener("click", function (event) {
+            if (!multiState.enabled) return;
+            event.preventDefault();
+            toggleSelectedKey(s.fips);
+          });
         }
 
         grid.appendChild(el);
@@ -729,11 +886,19 @@
 
       var greenlandCard = document.createElement("a");
       greenlandCard.className = "state-card ready";
+      greenlandCard.setAttribute("data-key", GREENLAND_KEY);
       greenlandCard.href = "greenland.html";
       greenlandCard.innerHTML =
         '<span class="state-card__name">Greenland</span>' +
         '<span class="state-card__badge">Ready</span>';
+      greenlandCard.addEventListener("click", function (event) {
+        if (!multiState.enabled) return;
+        event.preventDefault();
+        toggleSelectedKey(GREENLAND_KEY);
+      });
       grid.appendChild(greenlandCard);
+
+      syncMultiStateUI();
 
     }());
   </script>

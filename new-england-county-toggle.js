@@ -59,16 +59,20 @@
           .attr("fill", "#d8cfc0")
           .attr("class", "county-active")
           .attr("data-county-name", name)
+          .on("click", function () {
+            if (typeof options.onCountyClick === "function") options.onCountyClick(name, entry);
+          })
           .on("mouseover", function () { showCountyTooltip(name); })
           .on("mousemove", function () { showCountyTooltip(name); })
           .on("mouseleave", hideTooltip);
 
-        return {
+        var entry = {
           name: name,
           key: normalizeCountyName(name),
           feature: feature,
           path: pathEl
         };
+        return entry;
       });
 
       built = true;
@@ -143,7 +147,13 @@
           var winner = options.candById(winnerId);
           if (winner) color = options.candidateMapColor(winner.palette.strong, winnerPct);
         }
-        entry.path.attr("fill", color).classed("selected", false);
+        var grouped = typeof options.groupedCountyNames === "function"
+          ? options.groupedCountyNames().indexOf(entry.key) !== -1
+          : false;
+        entry.path
+          .attr("fill", color)
+          .classed("selected", false)
+          .classed("grouped", grouped);
       });
     }
 

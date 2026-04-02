@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -581,6 +581,35 @@ input[type="range"]:focus,
   margin: 0.9rem 0 0;
   color: var(--muted);
   line-height: 1.5;
+}
+.map-footer__actions {
+  margin-top: 0.7rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.map-footer__actions-left,
+.map-footer__actions-right {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.map-footer__actions-left {
+  margin-right: auto;
+  justify-content: flex-start;
+}
+.map-footer__actions-right {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+.candidate-storage-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  min-height: 1.1rem;
 }
 
 .scoreboard,
@@ -1476,8 +1505,17 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         </div>
 
         <p class="map-footnote">
-          The source SVG exposes numeric region IDs rather than county names, so this simulator infers geography from each regionÃ¢â‚¬â„¢s position and turnout scale.
+          The source SVG exposes numeric region IDs rather than county names, so this simulator infers geography from each regionÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s position and turnout scale.
         </p>
+        <div class="map-footer__actions">
+          <div class="map-footer__actions-left">
+            <button id="save-candidates" class="button button--ghost" type="button">Save</button>
+            <button id="load-candidates" class="button button--ghost" type="button">Load</button>
+            <input id="load-candidates-file" type="file" accept=".json,application/json" hidden>
+            <p id="candidate-storage-status" class="candidate-storage-status" aria-live="polite"></p>
+          </div>
+          <div class="map-footer__actions-right"></div>
+        </div>
       </section>
 
       <aside class="sidebar">
@@ -2007,6 +2045,7 @@ runSeed: 20260311,
   };
 
   var elements = {};
+  var CANDIDATE_LOADOUT_FILE_NAME = "toast-candidate-loadout.json";
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -2070,6 +2109,10 @@ elements.voteStrip = document.getElementById("vote-strip");
     elements.candidateList = document.getElementById("candidate-list");
     elements.addCandidate = document.getElementById("add-candidate");
     elements.resetCandidates = document.getElementById("reset-candidates");
+    elements.saveCandidates = document.getElementById("save-candidates");
+    elements.loadCandidates = document.getElementById("load-candidates");
+    elements.loadCandidatesFile = document.getElementById("load-candidates-file");
+    elements.candidateStorageStatus = document.getElementById("candidate-storage-status");
     elements.pollPanelTitle = document.getElementById("poll-panel-title");
     elements.pollPanelNote = document.getElementById("poll-panel-note");
     elements.pollChart = document.getElementById("poll-chart");
@@ -2133,6 +2176,15 @@ elements.voteStrip = document.getElementById("vote-strip");
     elements.resetCandidates.addEventListener("click", function () {
       resetCurrentModeCandidates();
     });
+    if (elements.saveCandidates) {
+      elements.saveCandidates.addEventListener("click", saveCandidateLoadoutFile);
+    }
+    if (elements.loadCandidates) {
+      elements.loadCandidates.addEventListener("click", openCandidateLoadoutFilePicker);
+    }
+    if (elements.loadCandidatesFile) {
+      elements.loadCandidatesFile.addEventListener("change", handleCandidateLoadoutFile);
+    }
 
     elements.candidateList.addEventListener("click", handleCandidateListClick);
     elements.candidateStandings.addEventListener("click", handleStandingClick);
@@ -2572,6 +2624,132 @@ elements.voteStrip = document.getElementById("vote-strip");
 
   function currentModeConfig() {
     return state.modeConfigs[state.mode];
+  }
+
+  function setCandidateStorageStatus(message) {
+    if (elements.candidateStorageStatus) {
+      elements.candidateStorageStatus.textContent = message || "";
+    }
+  }
+
+  function serializeCandidateLoadout(candidate) {
+    return {
+      name: candidate.name,
+      ideology: Number(candidate.ideology || 0),
+      strength: Number(candidate.strength || 0),
+      buzz: Number(candidate.buzz || 0),
+      turnout: Number(candidate.turnout || 0),
+      demographics: cloneDemographicAdjustments(candidate.demographics || defaultDemographicAdjustments()),
+      ageGroups: cloneAgeAdjustments(candidate.ageGroups || defaultAgeAdjustments()),
+      palette: { base: candidate.palette && candidate.palette.base ? candidate.palette.base : (candidate.palette && candidate.palette.mid ? candidate.palette.mid : "#7d7369") }
+    };
+  }
+
+  function buildCandidateLoadoutBundle() {
+    return {
+      version: 1,
+      type: "toast-candidate-loadout",
+      savedAt: new Date().toISOString(),
+      candidates: {
+        general: state.modeConfigs.general.candidates.map(serializeCandidateLoadout),
+        junglePrimary: state.modeConfigs.junglePrimary.candidates.map(serializeCandidateLoadout)
+      }
+    };
+  }
+
+  function nextCandidateIdForMode(mode, index) {
+    return mode === "general" ? "general-loadout-" + index : "jungle-loadout-" + index;
+  }
+
+  function calculateNextModeId(mode) {
+    return state.modeConfigs[mode].candidates.length + 1;
+  }
+
+  function applyCandidateLoadoutBundle(bundle) {
+    if (!bundle || !bundle.candidates) {
+      throw new Error("invalid loadout");
+    }
+    ["general", "junglePrimary"].forEach(function (mode) {
+      var savedList = Array.isArray(bundle.candidates[mode]) ? bundle.candidates[mode] : [];
+      if (!savedList.length) {
+        return;
+      }
+      state.modeConfigs[mode].candidates = savedList.map(function (candidate, index) {
+        return makeCandidate({
+          id: nextCandidateIdForMode(mode, index + 1),
+          name: candidate.name || (mode === "general" ? "Candidate " + (index + 1) : "Primary Candidate " + (index + 1)),
+          ideology: Number(candidate.ideology || 0),
+          strength: Number(candidate.strength || 0),
+          buzz: Number(candidate.buzz || 0),
+          turnout: Number(candidate.turnout || 0),
+          anchor: "none",
+          removable: true,
+          demographics: cloneDemographicAdjustments(candidate.demographics || defaultDemographicAdjustments()),
+          ageGroups: cloneAgeAdjustments(candidate.ageGroups || defaultAgeAdjustments()),
+          regionalStrengths: defaultRegionalStrengthAdjustments(),
+          palette: normalizeCandidatePalette(candidate.palette || {})
+        });
+      });
+      state.modeConfigs[mode].nextId = calculateNextModeId(mode);
+    });
+    state.selectedRegionId = null;
+    state.isolatedCandidateId = null;
+    clearGroupedRegions();
+    renderModeTabs();
+    renderCandidatePanel();
+    renderPollingPanel();
+    renderSelectedRegion();
+    if (state.regions.length) {
+      simulateAndRender(false);
+    }
+  }
+
+  function saveCandidateLoadoutFile() {
+    try {
+      var bundle = buildCandidateLoadoutBundle();
+      var blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement("a");
+      link.href = url;
+      link.download = CANDIDATE_LOADOUT_FILE_NAME;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      setCandidateStorageStatus("Candidate loadout file saved.");
+    } catch (error) {
+      setCandidateStorageStatus("Could not save candidate loadout file.");
+    }
+  }
+
+  function openCandidateLoadoutFilePicker() {
+    if (!elements.loadCandidatesFile) {
+      setCandidateStorageStatus("Load picker is unavailable.");
+      return;
+    }
+    elements.loadCandidatesFile.value = "";
+    elements.loadCandidatesFile.click();
+  }
+
+  function handleCandidateLoadoutFile(event) {
+    var file = event.target && event.target.files && event.target.files[0];
+    if (!file) {
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function (loadEvent) {
+      try {
+        var bundle = JSON.parse(String(loadEvent.target.result || ""));
+        applyCandidateLoadoutBundle(bundle);
+        setCandidateStorageStatus("Candidate loadout file loaded.");
+      } catch (error) {
+        setCandidateStorageStatus("Could not load candidate loadout file.");
+      }
+    };
+    reader.onerror = function () {
+      setCandidateStorageStatus("Could not read candidate loadout file.");
+    };
+    reader.readAsText(file);
   }
 
   function currentCandidates() {
@@ -3054,13 +3232,13 @@ elements.voteStrip = document.getElementById("vote-strip");
 
   function renderCandidateCard(candidate) {
     var meta = state.mode === "general"
-      ? (candidate.anchor === "dem" ? "Major-party nominee Â&middot; Left coalition" :
-        candidate.anchor === "rep" ? "Major-party nominee Â&middot; Right coalition" :
-        "Additional ticket Â&middot; Pulls from the nearest ideological bloc")
-      : "Custom primary candidate Â&middot; " + ideologyLabel(candidate.ideology);
+      ? (candidate.anchor === "dem" ? "Major-party nominee Ã‚&middot; Left coalition" :
+        candidate.anchor === "rep" ? "Major-party nominee Ã‚&middot; Right coalition" :
+        "Additional ticket Ã‚&middot; Pulls from the nearest ideological bloc")
+      : "Custom primary candidate Ã‚&middot; " + ideologyLabel(candidate.ideology);
 
     var removeButton = candidate.removable
-      ? '<button class="candidate-remove" type="button" title="Remove candidate">Ã&mdash;</button>'
+      ? '<button class="candidate-remove" type="button" title="Remove candidate">Ãƒ&mdash;</button>'
       : "";
 
     return [
@@ -4383,7 +4561,18 @@ elements.voteStrip = document.getElementById("vote-strip");
 
     var result = state.results && state.results.byId ? state.results.byId[region.id] : null;
     var candidate = result ? candidateById(result.winnerId) : null;
-    var fill = result ? candidateColorForShare(candidate, result.winnerShare) : "rgba(215, 206, 195, 0.78)";
+    var share = result ? result.winnerShare : 0;
+    if (result && state.isolatedCandidateId) {
+      var isolatedEntry = (result.results || []).find(function (entry) {
+        return entry.id === state.isolatedCandidateId;
+      });
+      var isolatedCandidate = isolatedEntry ? candidateById(state.isolatedCandidateId) : null;
+      if (isolatedEntry && isolatedCandidate) {
+        candidate = isolatedCandidate;
+        share = Number(isolatedEntry.share || 0);
+      }
+    }
+    var fill = result ? candidateColorForShare(candidate, share) : "rgba(215, 206, 195, 0.78)";
     var stroke = "#000000";
     var isSelected = state.selectedRegionId === region.id;
     var isGrouped = isGroupedRegion(region.id);
@@ -5195,4 +5384,5 @@ shareNode.textContent = share || pie.getAttribute("data-default-share") || "";
 <script src="map-export.js"></script>
 </body>
 </html>
+
 

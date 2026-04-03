@@ -255,10 +255,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <p class="eyebrow">Texas &middot; Presidential / Statewide</p>
       <h1>Lone Star State Simulator</h1>
       <p class="hero__lede">
-        Run alternate-election scenarios across Texas&rsquo; 254 counties.
-        Harris County anchors the Houston megaplex with 4.7&nbsp;million residents,
-        the DFW metroplex rivals it, and the shifting Rio Grande border corridor
-        from El&nbsp;Paso to Brownsville is the state&rsquo;s biggest wildcard.
+        Texas gives you a huge sandbox to test how metro growth, border shifts, turnout, and candidate quality remake the statewide map. You can build all kinds of scenarios here, from realistic knife-edge races to completely ridiculous blowouts, and the county map still tells a useful story.
       </p>
       <div class="mode-tabs" role="tablist">
         <button id="tab-general"  class="mode-tab mode-tab--general is-active" role="tab">General Election</button>
@@ -970,12 +967,35 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       }
     };
   }
+  function normalizeLoadedCandidate(mode, candidate, index) {
+    var demographics = candidate.demographics || candidate.demo || {};
+    var ageGroups = candidate.ageGroups || candidate.age || {};
+    var baseColor = candidate.palette && (candidate.palette.base || candidate.palette.strong || candidate.palette.mid)
+      ? (candidate.palette.base || candidate.palette.strong || candidate.palette.mid)
+      : "#888888";
+    return {
+      id: mode + "-loadout-" + (index + 1),
+      name: candidate.name || ("Candidate " + (index + 1)),
+      ideology: Number(candidate.ideology || 0),
+      strength: Number(candidate.strength || 0),
+      buzz: Number(candidate.buzz || 0),
+      turnout: Number(candidate.turnout || 0),
+      demo: demographics,
+      age: ageGroups,
+      palette: { strong: baseColor },
+      anchor: "none",
+      removable: true,
+      region: {}
+    };
+  }
   function applyCandidateLoadoutBundle(bundle) {
     if (!bundle || !bundle.candidates) throw new Error("invalid loadout");
     ["general", "repPrimary", "demPrimary"].forEach(function(mode) {
       var savedList = Array.isArray(bundle.candidates[mode]) ? bundle.candidates[mode] : [];
       if (!savedList.length) return;
-      state.candidates[mode] = savedList.map(function(candidate) { return makeCandidate(candidate); });
+      state.candidates[mode] = savedList.map(function(candidate, index) {
+        return makeCandidate(normalizeLoadedCandidate(mode, candidate, index));
+      });
       state.nextCandId[mode] = calculateNextCandidateIndex(state.candidates[mode]);
     });
     state.isolatedCandidateId = null;
@@ -1880,6 +1900,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 <script src="map-export.js"></script>
 </body>
 </html>
+
+
 
 
 

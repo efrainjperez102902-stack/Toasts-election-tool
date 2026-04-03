@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -1454,8 +1454,8 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         <p class="eyebrow">Statewide Sandbox</p>
         <h1>The Sunshine State Simulator</h1>
         <p class="hero__lede">
-          Run alternate-election scenarios on top of the provided Florida SVG, then click individual counties to push local turnout, ad buys, and partisan swings.
-        </p>
+        Push Florida around county by county and see how turnout, metro trends, and coalition shifts change the statewide outcome. You can work the I-4 corridor, South Florida, the Panhandle, and the fast-growing suburbs to build anything from a narrow squeaker to a full-blown landslide.
+      </p>
         <div class="mode-tabs" role="tablist" aria-label="Election mode">
           <button id="tab-general" class="mode-tab mode-tab--general is-active" type="button" role="tab" aria-selected="true" data-mode="general">General</button>
           <button id="tab-dem-primary" class="mode-tab mode-tab--dem" type="button" role="tab" aria-selected="false" data-mode="demPrimary">Dem Primary</button>
@@ -1527,7 +1527,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
         </div>
 
         <p class="map-footnote">
-          The source SVG exposes numeric region IDs rather than county names, so this simulator infers geography from each regionÃ¢â‚¬â„¢s position and turnout scale.
+          The source SVG exposes numeric region IDs rather than county names, so this simulator infers geography from each regionÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s position and turnout scale.
         </p>
         <div class="map-footer__actions">
           <div class="map-footer__actions-left">
@@ -3541,13 +3541,13 @@ elements.voteStrip = document.getElementById("vote-strip");
 
   function renderCandidateCard(candidate) {
     var meta = state.mode === "general"
-      ? (candidate.anchor === "dem" ? "Major-party nominee Â&middot; Left coalition" :
-        candidate.anchor === "rep" ? "Major-party nominee Â&middot; Right coalition" :
-        "Additional ticket Â&middot; Pulls from the nearest ideological bloc")
-      : "Custom primary candidate Â&middot; " + ideologyLabel(candidate.ideology);
+      ? (candidate.anchor === "dem" ? "Major-party nominee Ã‚&middot; Left coalition" :
+        candidate.anchor === "rep" ? "Major-party nominee Ã‚&middot; Right coalition" :
+        "Additional ticket Ã‚&middot; Pulls from the nearest ideological bloc")
+      : "Custom primary candidate Ã‚&middot; " + ideologyLabel(candidate.ideology);
 
     var removeButton = candidate.removable
-      ? '<button class="candidate-remove" type="button" title="Remove candidate">Ã&mdash;</button>'
+      ? '<button class="candidate-remove" type="button" title="Remove candidate">Ãƒ&mdash;</button>'
       : "";
 
     return [
@@ -5686,4 +5686,6 @@ shareNode.textContent = share || pie.getAttribute("data-default-share") || "";
 <script src="map-export.js"></script>
 </body>
 </html>
+
+
 

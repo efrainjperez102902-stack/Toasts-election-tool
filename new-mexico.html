@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -34,11 +34,11 @@ button, input, select { font: inherit; }
 .shell { width: min(1440px, calc(100% - 2rem)); margin: 0 auto; padding: 1.25rem 0 2rem; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow); backdrop-filter: blur(16px); min-width: 0; }
 
-/* ── layout ── */
+/* â”€â”€ layout â”€â”€ */
 .layout { display: grid; grid-template-columns: 1fr 380px; gap: 1rem; margin-top: 1rem; align-items: start; }
 @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
 
-/* ── hero ── */
+/* â”€â”€ hero â”€â”€ */
 .hero { padding: 1.5rem 1.75rem; display: grid; grid-template-columns: 1fr auto; gap: 1.5rem; align-items: start; }
 @media (max-width: 720px) { .hero { grid-template-columns: 1fr; } }
 .hero__copy h1 { margin: 0.2rem 0 0.5rem; font-family: "Rockwell","Cambria",serif; font-size: 1.8rem; line-height: 1.1; }
@@ -50,7 +50,7 @@ button, input, select { font: inherit; }
 .field select { padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--panel-strong); color: var(--ink); font-size: 0.88rem; }
 .hero__buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; }
 
-/* ── buttons ── */
+/* â”€â”€ buttons â”€â”€ */
 .button { padding: 0.42rem 0.85rem; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-strong); color: var(--ink); cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: background 130ms, border-color 130ms; }
 .button:hover { background: rgba(255,252,245,0.95); border-color: rgba(80,50,10,0.22); }
 .button--accent { background: var(--accent); color: #fff; border-color: transparent; }
@@ -58,7 +58,7 @@ button, input, select { font: inherit; }
 .button--ghost { background: transparent; border-color: var(--line); }
 .button--ghost:hover { background: rgba(255,252,245,0.6); }
 
-/* ── mode tabs ── */
+/* â”€â”€ mode tabs â”€â”€ */
 .mode-tabs { display: flex; gap: 0.4rem; margin-top: 0.75rem; flex-wrap: wrap; }
 .mode-tab { padding: 0.38rem 1rem; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,252,245,0.4); color: var(--muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 130ms; }
 .mode-tab:hover { background: rgba(255,252,245,0.7); color: var(--ink); }
@@ -66,7 +66,7 @@ button, input, select { font: inherit; }
 .mode-tab--rep.is-active      { background: #c0011a; color: #fff; border-color: transparent; }
 .mode-tab--dem.is-active      { background: #1037c2; color: #fff; border-color: transparent; }
 
-/* ── map panel ── */
+/* â”€â”€ map panel â”€â”€ */
 .map-panel { padding: 1.25rem; position: sticky; top: 1rem; }
 .panel__header { display: flex; justify-content: space-between; align-items: start; gap: 1rem; margin-bottom: 1rem; }
 .panel__header h2 { margin: 0; font-size: 1.35rem; }
@@ -141,13 +141,13 @@ button, input, select { font: inherit; }
 .candidate-storage-status { margin: 0; color: var(--muted); font-size: 0.78rem; min-height: 1.1rem; }
 .map-footnote { margin: 0; font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
 
-/* ── vote strip ── */
+/* â”€â”€ vote strip â”€â”€ */
 .vote-strip-wrap { margin-top: 1rem; }
 .vote-strip-label { display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 0.8rem; margin-bottom: 0.3rem; }
 .vote-strip { height: 1.4rem; border-radius: 999px; overflow: hidden; display: flex; border: 1px solid rgba(20,50,90,0.1); }
 .vote-strip__seg { height: 100%; transition: width 400ms cubic-bezier(.4,0,.2,1); }
 
-/* ── vote pie ── */
+/* â”€â”€ vote pie â”€â”€ */
 .vote-pie-wrap { width: 100%; display: grid; justify-items: center; gap: 0.55rem; margin: 0.6rem 0 0.4rem; }
 .vote-pie { position: relative; width: min(100%, 214px); aspect-ratio: 1; }
 .vote-pie svg { width: 100%; height: 100%; display: block; overflow: visible; }
@@ -158,7 +158,7 @@ button, input, select { font: inherit; }
 .vote-pie__label { display: block; font-size: 1.02rem; font-weight: 800; line-height: 1.02; }
 .vote-pie__share { display: block; font-size: 0.86rem; color: var(--muted); }
 
-/* ── score grid ── */
+/* â”€â”€ score grid â”€â”€ */
 .sidebar { display: grid; gap: 1rem; }
 .score-panel { padding: 1.25rem; }
 .score-panel__controls { display: flex; gap: 0.45rem; flex-wrap: wrap; margin: 0.2rem 0 0.7rem; }
@@ -172,13 +172,13 @@ button, input, select { font: inherit; }
 .score-card__value { margin: 0.2rem 0 0; font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
 .score-card__meta { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.8rem; } .score-card__top { display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; } .score-card__isolate { padding: 0.3rem 0.65rem; font-size: 0.74rem; white-space: nowrap; } .score-card__isolate.is-active { background: var(--accent); color: #fff; border-color: transparent; }
 
-/* ── map tooltip ── */
+/* â”€â”€ map tooltip â”€â”€ */
 .map-tooltip { position: fixed; background: var(--panel-strong); border: 1px solid var(--line); border-radius: 14px; padding: 0.65rem 0.85rem; min-width: 180px; pointer-events: none; box-shadow: 0 4px 16px rgba(80,50,10,0.12); z-index: 999; }
 .map-tooltip__title { margin: 0 0 0.1rem; font-weight: 700; font-size: 0.9rem; }
 .map-tooltip__meta { margin: 0 0 0.4rem; color: var(--muted); font-size: 0.78rem; }
 .map-tooltip__row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.8rem; margin-bottom: 0.15rem; }
 
-/* ── controls panel ── */
+/* â”€â”€ controls panel â”€â”€ */
 .controls-panel { padding: 1.25rem; }
 .slider-group { display: grid; gap: 0.75rem; margin-top: 0.75rem; }
 .slider-row { display: grid; gap: 0.25rem; }
@@ -187,7 +187,7 @@ button, input, select { font: inherit; }
 .slider-row__val { color: var(--muted); font-size: 0.82rem; font-variant-numeric: tabular-nums; min-width: 3.5ch; text-align: right; }
 input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
 
-/* ── candidate panel ── */
+/* â”€â”€ candidate panel â”€â”€ */
 .candidate-panel { padding: 1.25rem; }
 .candidate-list { display: grid; gap: 0.75rem; margin-top: 0.75rem; }
 .candidate-card { padding: 0.75rem 0.9rem; border-radius: 14px; border: 1px solid rgba(80,50,10,0.1); background: rgba(255,252,245,0.55); }
@@ -209,7 +209,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer;
 details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .cand-section__body { padding: 0.45rem 0.55rem; display: grid; gap: 0.35rem; }
 
-/* ── polling panel ── */
+/* â”€â”€ polling panel â”€â”€ */
 .poll-panel { padding: 1.25rem; }
 .poll-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
 .poll-toolbar__actions { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
@@ -232,7 +232,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .poll-editor__field input { width: 100%; padding: 0.28rem 0.2rem; border: 1px solid rgba(80,50,10,0.14); border-radius: 8px; background: var(--panel-strong); color: var(--ink); text-align: center; }
 .poll-empty { margin: 0; color: var(--muted); font-size: 0.86rem; }
 
-/* ── region panel ── */
+/* â”€â”€ region panel â”€â”€ */
 .region-panel { padding: 1.25rem; }
 .region-panel.is-hidden { display: none; }
 .region-summary { display: grid; gap: 0.7rem; }
@@ -247,7 +247,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .region-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .region-actions .button { flex: 1; min-width: 4rem; font-size: 0.8rem; }
 
-/* ── close races ── */
+/* â”€â”€ close races â”€â”€ */
 .close-races-panel { padding: 1.25rem; }
 .races-list { display: grid; gap: 0.45rem; margin-top: 0.6rem; }
 .race-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; padding: 0.4rem 0.6rem; border-radius: 10px; background: rgba(255,252,245,0.5); border: 1px solid rgba(80,50,10,0.07); }
@@ -255,7 +255,7 @@ details[open] > .cand-section__head::before { transform: rotate(90deg); }
 .race-item__margin { font-variant-numeric: tabular-nums; font-size: 0.8rem; color: var(--muted); }
 .race-item__swatch { width: 0.55rem; height: 0.55rem; border-radius: 50%; flex: 0 0 auto; }
 
-/* ── back link ── */
+/* â”€â”€ back link â”€â”€ */
 .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); font-size: 0.88rem; text-decoration: none; margin-bottom: 0.75rem; padding: 0.35rem 0.6rem; border-radius: 8px; transition: color 140ms ease, background 140ms ease; }
 .back-link:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
   
@@ -276,10 +276,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       <p class="eyebrow">New Mexico &middot; Gubernatorial / Statewide</p>
       <h1>Land of Enchantment Simulator</h1>
       <p class="hero__lede">
-        Run alternate-election scenarios across New Mexico&rsquo;s 33 counties.
-        Bernalillo County anchors roughly a third of all state votes &mdash;
-        weigh Albuquerque, the Santa Fe corridor, the Hispanic north, and the oil-patch east
-        against the rural west.
+        Try different coalitions across New Mexico and see how Albuquerque, the border counties, tribal areas, and the oil patch vote. The simulator makes it easy to test whether a statewide win comes from turnout, candidate fit, or region-specific strength.
       </p>
       <div class="mode-tabs" role="tablist">
         <button id="tab-general"  class="mode-tab mode-tab--general is-active" role="tab">General Election</button>
@@ -499,12 +496,12 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
 (function () {
   "use strict";
 
-  // ── util ──────────────────────────────────────────────────────────────────
+  // â”€â”€ util â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
   function escapeHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function signedStr(v, d) { return (v >= 0 ? "+" : "") + v.toFixed(d !== undefined ? d : 1); }
 
-  // ── color utilities ───────────────────────────────────────────────────────
+  // â”€â”€ color utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function hexToRgb(hex) { return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)]; }
   function rgbToHex(r,g,b) { return "#"+[r,g,b].map(function(v){ return Math.round(clamp(v,0,255)).toString(16).padStart(2,"0"); }).join(""); }
   function candidateShades(color) {
@@ -516,7 +513,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
       rgbToHex(r*0.58, g*0.58, b*0.58)
     ];
   }
-  // 10-bucket shading: winner vote share → color intensity
+  // 10-bucket shading: winner vote share â†’ color intensity
   function candidateMapColor(color, winPct) {
     var c = hexToRgb(color), r = c[0], g = c[1], b = c[2];
     var br = 228, bg = 215, bb = 185; // sandy map bg tint
@@ -530,13 +527,13 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return rgbToHex(r*t + br*(1-t), g*t + bg*(1-t), b*t + bb*(1-t));
   }
 
-  // ── seeded random ─────────────────────────────────────────────────────────
+  // â”€â”€ seeded random â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function seededRand(seed) {
     var s = seed;
     return function() { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
   }
 
-  // ── ideology helpers ──────────────────────────────────────────────────────
+  // â”€â”€ ideology helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function ideologyLabel(v) {
     if (v <= -85) return "Communist";
     if (v <= -65) return "Socialist";
@@ -551,7 +548,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     return "Fascist";
   }
 
-  // ── county data ───────────────────────────────────────────────────────────
+  // â”€â”€ county data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // lean = R% of 2-party vote (approx 2024 presidential)
   // demo = {white,black,hisp,asian,other} % of total pop
   //   note: "other" captures Native American (major group in NM) plus multiracial/Pacific Islander
@@ -606,10 +603,10 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
   });
   // General: ~17% of total pop (NM governor's race baseline, ~365K votes / ~2.12M pop).
   // Primaries: registered party members as share of ~2.12M NM population (2024 SOS data):
-  //   Republicans: ~388,000 → 388000/2120000 ≈ 0.183
-  //   Democrats:   ~573,000 → 573000/2120000 ≈ 0.270
+  //   Republicans: ~388,000 â†’ 388000/2120000 â‰ˆ 0.183
+  //   Democrats:   ~573,000 â†’ 573000/2120000 â‰ˆ 0.270
 
-  // ── presets ───────────────────────────────────────────────────────────────
+  // â”€â”€ presets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   var PRESETS = {
     "baseline-2024":  { label:"2024 Baseline",        controls:{ swing:0,  turnout:0,  metro:0,  santafe:0,  north:0,  suburban:0,  east:0,  volatility:3.5 } },
     "blue-abq":       { label:"Blue Albuquerque",      controls:{ swing:3,  turnout:3,  metro:8,  santafe:3,  north:2,  suburban:1,  east:0,  volatility:3   } },
@@ -619,7 +616,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     "suburban-flip":  { label:"Suburban Flip",         controls:{ swing:2,  turnout:1,  metro:2,  santafe:3,  north:2,  suburban:6,  east:0,  volatility:4   } },
   };
 
-  // ── candidate factory ─────────────────────────────────────────────────────
+  // â”€â”€ candidate factory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   var candidateNextId = 10;
   function makeCandidate(o) {
     var d = o.demo || {}, a = o.age || {}, rg = o.region || {};
@@ -669,14 +666,14 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     ];
   }
 
-  // ── mode meta ─────────────────────────────────────────────────────────────
+  // â”€â”€ mode meta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   var MODE_META = {
     general:    { title:"General Election Roster",      note:"Edit major-party nominees or add independents.", addLabel:"+ Add Independent", panelEyebrow:"Candidates" },
     repPrimary: { title:"Republican Primary Field",     note:"Closed primary &mdash; registered Republicans only.", addLabel:"+ Add R Candidate",  panelEyebrow:"R Primary" },
     demPrimary: { title:"Democratic Primary Field",     note:"Closed primary &mdash; registered Democrats only.",  addLabel:"+ Add D Candidate",  panelEyebrow:"D Primary" },
   };
 
-  // ── state ─────────────────────────────────────────────────────────────────
+  // â”€â”€ state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   var state = window.state = {
     mode: "general",
     candidates: { general: makeDefaultGeneralCandidates(), repPrimary: makeDefaultRepPrimaryCandidates(), demPrimary: makeDefaultDemPrimaryCandidates() },
@@ -1044,7 +1041,7 @@ label.candidate-demo-field input[type=range] { pointer-events: all; }
     { strong:"#0066b3" }, { strong:"#8b7000" }
   ];
 
-  // ── init ──────────────────────────────────────────────────────────────────
+  // â”€â”€ init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   window.addEventListener("DOMContentLoaded", function () {
     // mode tabs
     document.getElementById("tab-general").addEventListener("click", function() { switchMode("general"); });
@@ -1166,7 +1163,7 @@ function syncPieOrderButtons() {
     return o;
   }
 
-  // ── candidate management ──────────────────────────────────────────────────
+  // â”€â”€ candidate management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function addCandidate() {
     var palette = EXTRA_PALETTES[state.nextCandId[state.mode] % EXTRA_PALETTES.length];
     var isR = state.mode === "repPrimary", isD = state.mode === "demPrimary";
@@ -1261,7 +1258,7 @@ function syncPieOrderButtons() {
     if (state.regions.length) simulateAndRender(false);
   }
 
-  // ── candidate panel render ────────────────────────────────────────────────
+  // â”€â”€ candidate panel render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function tfld(label, field, val, id) {
     return '<label class="candidate-field"><span>'+escapeHtml(label)+'</span>' +
       '<input type="text" data-id="'+escapeHtml(id)+'" data-field="'+field+'" value="'+escapeHtml(val)+'"></label>';
@@ -1342,7 +1339,7 @@ function syncPieOrderButtons() {
     });
   }
 
-  // ── dynamic UI ────────────────────────────────────────────────────────────
+  // â”€â”€ dynamic UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function renderScoreGrid() {
     document.getElementById("candidate-standings").innerHTML =
       '<p style="color:var(--muted);font-size:0.88rem;margin:0;">Run the simulation to see standings.</p>';
@@ -1393,7 +1390,7 @@ function syncPieOrderButtons() {
     if (rr) rr.addEventListener("click", clearSelectedOverride);
   }
 
-  // ── pie chart ─────────────────────────────────────────────────────────────
+  // â”€â”€ pie chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function polarToCartesian(cx, cy, r, angle) {
     return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
   }
@@ -1433,7 +1430,7 @@ function orderedPieShares(shares) {
         ' data-pie-color="'+e.c.palette.strong+'" tabindex="0"></path>';
       angle += sweep;
     });
-    var top = defaultEntry || shares[0] || { c:{name:"â€&rdquo;",palette:{strong:"#888"}}, pct:0 };
+    var top = defaultEntry || shares[0] || { c:{name:"Ã¢â‚¬&rdquo;",palette:{strong:"#888"}}, pct:0 };
     var defName=top.c.name.split(" ")[0], defShare=top.pct.toFixed(1)+"%", defDetail=top.c.name;
     el.innerHTML = '<div class="vote-pie-wrap"><div class="vote-pie" id="vote-pie"' +
       ' data-default-name="'+escapeHtml(defName)+'" data-default-share="'+escapeHtml(defShare)+'"' +
@@ -1465,7 +1462,7 @@ document.getElementById("pie-label").textContent   = pie.getAttribute("data-defa
     });
   }
 
-  // ── map loading ───────────────────────────────────────────────────────────
+  // â”€â”€ map loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function loadMap() {
     d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json").then(function(us) {
       var all = topojson.feature(us, us.objects.counties);
@@ -1519,7 +1516,7 @@ nmFeatures.forEach(function(feat) {
     });
   }
 
-  // ── region interaction ────────────────────────────────────────────────────
+  // â”€â”€ region interaction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function selectRegion(idx) {
     if (state.groupMode) return;
     state.selectedId = (state.selectedId === idx) ? null : idx;
@@ -1639,7 +1636,7 @@ nmFeatures.forEach(function(feat) {
     renderRegionPanel(state.selectedId);
   }
 
-  // ── simulation ────────────────────────────────────────────────────────────
+  // â”€â”€ simulation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   var DECAY = 45;
 
   function simulateAndRender(reroll) {
@@ -1709,7 +1706,7 @@ nmFeatures.forEach(function(feat) {
 if (state.selectedId !== null) renderRegionPanel(state.selectedId);
   }
 
-  // ── render map ────────────────────────────────────────────────────────────
+  // â”€â”€ render map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function winnerOf(result) {
     var best=null, bestVal=-1;
     Object.keys(result).forEach(function(k){ if (result[k]>bestVal){ bestVal=result[k]; best=k; } });
@@ -1738,7 +1735,7 @@ if (state.selectedId !== null) renderRegionPanel(state.selectedId);
     renderGroupBox();
   }
 
-  // ── render scores ─────────────────────────────────────────────────────────
+  // â”€â”€ render scores â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function renderScores() {
     var cands = currentCandidates();
     var wins={}, votes={}, rawVotes={};
@@ -1797,7 +1794,7 @@ syncPieOrderButtons();
     }
   }
 
-  // ── close races ───────────────────────────────────────────────────────────
+  // â”€â”€ close races â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function renderCloseRaces() {
     var items = state.regions.filter(function(r){ return r.result; }).map(function(r) {
       var keys = Object.keys(r.result).sort(function(a,b){ return r.result[b]-r.result[a]; });
@@ -1822,6 +1819,8 @@ syncPieOrderButtons();
 <script src="map-export.js"></script>
 </body>
 </html>
+
+
 
 
 
